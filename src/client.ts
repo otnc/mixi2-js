@@ -52,30 +52,28 @@ export class Client {
   }
 
   private call<TReq, TRes>(method: string, request: TReq): Promise<TRes> {
-    return new Promise(async (resolve, reject) => {
-      let metadata: grpc.Metadata;
-      try {
-        metadata = await this.getMetadata();
-      } catch (err) {
-        reject(err);
-        return;
-      }
-      const fn = (this.grpcClient as unknown as Record<string, Function>)[
-        method
-      ];
-      if (!fn) {
-        reject(new Error(`Method "${method}" not found on gRPC client`));
-        return;
-      }
-      fn.call(
-        this.grpcClient,
-        request,
-        metadata,
-        (err: grpc.ServiceError | null, response: TRes) => {
-          if (err) reject(err);
-          else resolve(response);
-        },
-      );
+    return this.getMetadata().then((metadata) => {
+      return new Promise<TRes>((resolve, reject) => {
+        const fn = (
+          this.grpcClient as unknown as Record<
+            string,
+            (...args: unknown[]) => void
+          >
+        )[method];
+        if (!fn) {
+          reject(new Error(`Method "${method}" not found on gRPC client`));
+          return;
+        }
+        fn.call(
+          this.grpcClient,
+          request,
+          metadata,
+          (err: grpc.ServiceError | null, response: TRes) => {
+            if (err) reject(err);
+            else resolve(response);
+          },
+        );
+      });
     });
   }
 

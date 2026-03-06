@@ -6,12 +6,15 @@
 [![Node.js](https://img.shields.io/node/v/mixi2-js?color=339933&logo=nodedotjs&logoColor=white)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Build](https://img.shields.io/github/actions/workflow/status/otoneko1102/mixi2-js/publish.yml?label=build&logo=github)](https://github.com/otoneko1102/mixi2-js/actions)
+[![ESLint](https://img.shields.io/badge/ESLint-enabled-4B32C3?logo=eslint&logoColor=white)](eslint.config.js)
+[![Prettier](https://img.shields.io/badge/Prettier-enabled-F7B93E?logo=prettier&logoColor=white)](https://prettier.io/)
 
 mixi2 の [Application API](https://developer.mixi.social/docs) を利用するための **非公式** TypeScript/JavaScript SDK です。
 
 [公式 Go SDK](https://github.com/mixigroup/mixi2-application-sdk-go) および [公式 API 仕様](https://github.com/mixigroup/mixi2-api) に基づいて作成されています。
 
-> **Note:** これは MIXI 社公式のプロダクトではありません。コミュニティメンバーによるオープンソースプロジェクトです。
+> [!Note]  
+> **これは MIXI 社公式のプロダクトではありません。コミュニティメンバーによるオープンソースプロジェクトです。**
 
 ---
 
@@ -75,7 +78,10 @@ ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.
 ### 認証
 
 ```typescript
+// ESM
 import { OAuth2Authenticator } from 'mixi2-js';
+// CJS
+const { OAuth2Authenticator } = require('mixi2-js');
 
 const authenticator = new OAuth2Authenticator({
   clientId: process.env.CLIENT_ID!,
@@ -90,7 +96,10 @@ const token = await authenticator.getAccessToken();
 ### API クライアント
 
 ```typescript
+// ESM
 import { OAuth2Authenticator, Client, MediaUploadType, LanguageCode } from 'mixi2-js';
+// CJS
+const { OAuth2Authenticator, Client, MediaUploadType, LanguageCode } = require('mixi2-js');
 
 const authenticator = new OAuth2Authenticator({
   clientId: process.env.CLIENT_ID!,
@@ -142,8 +151,11 @@ client.close();
 ### Webhook サーバー
 
 ```typescript
+// ESM
 import { WebhookServer, EventType } from 'mixi2-js';
 import type { EventHandler, Event } from 'mixi2-js';
+// CJS
+const { WebhookServer, EventType } = require('mixi2-js');
 
 const handler: EventHandler = {
   handle: async (event: Event) => {
@@ -193,8 +205,11 @@ export default server.httpServer;
 ローカル開発やプロトタイピングに推奨される方式です。外部公開 URL が不要です。
 
 ```typescript
+// ESM
 import { OAuth2Authenticator, StreamWatcher, EventType } from 'mixi2-js';
 import type { EventHandler, Event } from 'mixi2-js';
+// CJS
+const { OAuth2Authenticator, StreamWatcher, EventType } = require('mixi2-js');
 
 const authenticator = new OAuth2Authenticator({
   clientId: process.env.CLIENT_ID!,

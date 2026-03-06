@@ -40,9 +40,12 @@ export class StreamWatcher {
 
   private async connect(): Promise<grpc.ClientReadableStream<unknown>> {
     const metadata = await this.getMetadata();
-    const fn = (this.streamClient as unknown as Record<string, Function>)[
-      "subscribeEvents"
-    ];
+    const fn = (
+      this.streamClient as unknown as Record<
+        string,
+        (...args: unknown[]) => unknown
+      >
+    )["subscribeEvents"];
     if (!fn) {
       throw new Error("subscribeEvents method not found on stream client");
     }
@@ -100,7 +103,7 @@ export class StreamWatcher {
           }
         });
 
-        s.on("error", async (err: Error) => {
+        s.on("error", async () => {
           if (this.aborted) {
             resolve();
             return;
