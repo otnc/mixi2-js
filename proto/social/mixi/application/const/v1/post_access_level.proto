@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package social.mixi.application.const.v1;
+
+enum PostAccessLevel {
+  POST_ACCESS_LEVEL_UNSPECIFIED = 0;
+  POST_ACCESS_LEVEL_PUBLIC = 1;
+  POST_ACCESS_LEVEL_PRIVATE = 2;
+}

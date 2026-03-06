@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package social.mixi.application.model.v1;
+
+import "social/mixi/application/const/v1/event_type.proto";
+import "social/mixi/application/model/v1/message.proto";
+import "social/mixi/application/model/v1/post.proto";
+import "social/mixi/application/model/v1/user.proto";
+
+message Event {
+  string event_id = 1;
+  const.v1.EventType event_type = 2;
+  oneof body {
+    PingEvent ping_event = 3;
+    PostCreatedEvent post_created_event = 4;
+    ChatMessageReceivedEvent chat_message_received_event = 6;
+  }
+}
+
+message PingEvent {}
+
+message PostCreatedEvent {
+  repeated const.v1.EventReason event_reason_list = 1;
+  Post post = 2;
+  User issuer = 3;
+}
+
+message ChatMessageReceivedEvent {
+  repeated const.v1.EventReason event_reason_list = 1;
+  ChatMessage message = 2;
+  User issuer = 3;
+}

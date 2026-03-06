@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package social.mixi.application.const.v1;
+
+enum PostMaskType {
+  POST_MASK_TYPE_UNSPECIFIED = 0;
+  POST_MASK_TYPE_SENSITIVE = 1;
+  POST_MASK_TYPE_SPOILER = 2;
+}

@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Private
+.idea/
+.private/
+
+# Config
+.env

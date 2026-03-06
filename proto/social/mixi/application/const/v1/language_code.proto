@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package social.mixi.application.const.v1;
+
+enum LanguageCode {
+  LANGUAGE_CODE_UNSPECIFIED = 0;
+  LANGUAGE_CODE_JP = 1;
+  LANGUAGE_CODE_EN = 2;
+}

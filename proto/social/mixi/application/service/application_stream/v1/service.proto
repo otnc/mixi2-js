@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package social.mixi.application.service.application_stream.v1;
+
+import "social/mixi/application/model/v1/event.proto";
+
+message SubscribeEventsRequest {}
+
+message SubscribeEventsResponse {
+  repeated model.v1.Event events = 1;
+}
+
+service ApplicationService {
+  rpc SubscribeEvents(SubscribeEventsRequest) returns (stream SubscribeEventsResponse);
+}

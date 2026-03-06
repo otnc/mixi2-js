@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package social.mixi.application.model.v1;
+
+import "google/protobuf/timestamp.proto";
+import "social/mixi/application/model/v1/media.proto";
+
+message ChatMessage {
+  string room_id = 1;
+  string message_id = 2;
+  string creator_id = 3;
+  string text = 4;
+  google.protobuf.Timestamp created_at = 5;
+  repeated Media media_list = 6;
+  optional string post_id = 7;
+}

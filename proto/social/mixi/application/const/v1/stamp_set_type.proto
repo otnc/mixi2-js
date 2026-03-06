@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package social.mixi.application.const.v1;
+
+enum StampSetType {
+  STAMP_SET_TYPE_UNSPECIFIED = 0;
+  STAMP_SET_TYPE_DEFAULT = 1;
+  STAMP_SET_TYPE_SEASONAL = 2;
+}

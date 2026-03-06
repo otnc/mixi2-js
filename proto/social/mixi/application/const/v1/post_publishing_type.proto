@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package social.mixi.application.const.v1;
+
+enum PostPublishingType {
+  POST_PUBLISHING_TYPE_UNSPECIFIED = 0;
+  POST_PUBLISHING_TYPE_NOT_PUBLISHING = 1;
+}

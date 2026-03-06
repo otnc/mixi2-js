@@ -1,0 +1,65 @@
+{
+  "name": "mixi2-js",
+  "version": "0.0.1",
+  "description": "TypeScript/JavaScript SDK for mixi2 Application API",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "proto"
+  ],
+  "scripts": {
+    "setup": "npm install && node scripts/setup.js",
+    "test": "jest",
+    "check": "tsc --noEmit",
+    "build": "tsup",
+    "format": "prettier --write ./src/",
+    "format:check": "prettier --check ./src/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/otoneko1102/mixi2-js.git"
+  },
+  "keywords": [
+    "mixi2",
+    "mixi",
+    "sdk",
+    "api",
+    "grpc",
+    "webhook",
+    "bot"
+  ],
+  "author": "otoneko.",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/otoneko1102/mixi2-js/issues"
+  },
+  "homepage": "https://github.com/otoneko1102/mixi2-js#readme",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.3.5",
+    "jest": "^30.2.0",
+    "prettier": "^3.8.1",
+    "ts-jest": "^29.4.6",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.14.3",
+    "@grpc/proto-loader": "^0.8.0"
+  }
+}

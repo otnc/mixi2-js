@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package social.mixi.application.model.v1;
+
+import "google/protobuf/timestamp.proto";
+import "social/mixi/application/const/v1/stamp_set_type.proto";
+
+message OfficialStampSet {
+  string name = 1;
+  string sprite_url = 2;
+  repeated OfficialStamp stamps = 3;
+  string stamp_set_id = 4;
+  optional google.protobuf.Timestamp start_at = 5;
+  optional google.protobuf.Timestamp end_at = 6;
+  const.v1.StampSetType stamp_set_type = 7;
+}
+
+message OfficialStamp {
+  string stamp_id = 1;
+  uint32 index = 2;
+  repeated string search_tags = 3;
+  string url = 4;
+}

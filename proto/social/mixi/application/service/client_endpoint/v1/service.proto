@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package social.mixi.application.service.client_endpoint.v1;
+
+import "social/mixi/application/model/v1/event.proto";
+
+message SendEventRequest {
+  repeated model.v1.Event events = 1;
+}

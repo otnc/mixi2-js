@@ -1,0 +1,3 @@
+dist/** linguist-generated
+scripts/** linguist-vendored
+test/** linguist-vendored

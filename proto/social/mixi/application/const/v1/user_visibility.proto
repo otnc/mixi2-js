@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package social.mixi.application.const.v1;
+
+enum UserVisibility {
+  USER_VISIBILITY_UNSPECIFIED = 0;
+  USER_VISIBILITY_VISIBLE = 1;
+  USER_VISIBILITY_INVISIBLE = 2;
+}

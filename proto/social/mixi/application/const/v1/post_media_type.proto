@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package social.mixi.application.const.v1;
+
+enum PostMediaType {
+  POST_MEDIA_TYPE_UNSPECIFIED = 0;
+  POST_MEDIA_TYPE_IMAGE = 1;
+  POST_MEDIA_TYPE_VIDEO = 2;
+}

@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package social.mixi.application.model.v1;
+
+import "social/mixi/application/const/v1/user_access_level.proto";
+import "social/mixi/application/const/v1/user_visibility.proto";
+
+message User {
+  string user_id = 1;
+  bool is_disabled = 2;
+  string name = 3;
+  string display_name = 4;
+  string profile = 5;
+  UserAvatar user_avatar = 6;
+  const.v1.UserVisibility visibility = 7;
+  const.v1.UserAccessLevel access_level = 8;
+}
+
+message UserAvatar {
+  string large_image_url = 1;
+  string large_image_mime_type = 2;
+  uint32 large_image_height = 3;
+  uint32 large_image_width = 4;
+  string small_image_url = 5;
+  string small_image_mime_type = 6;
+  uint32 small_image_height = 7;
+  uint32 small_image_width = 8;
+}

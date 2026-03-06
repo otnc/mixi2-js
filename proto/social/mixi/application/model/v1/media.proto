@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package social.mixi.application.model.v1;
+
+import "social/mixi/application/const/v1/media_type.proto";
+
+message Media {
+  const.v1.MediaType media_type = 1;
+  oneof content {
+    MediaImage image = 2;
+    MediaVideo video = 3;
+  }
+}
+
+message MediaImage {
+  string large_image_url = 1;
+  string large_image_mime_type = 2;
+  uint32 large_image_height = 3;
+  uint32 large_image_width = 4;
+  string small_image_url = 5;
+  string small_image_mime_type = 6;
+  uint32 small_image_height = 7;
+  uint32 small_image_width = 8;
+}
+
+message MediaVideo {
+  string video_url = 1;
+  string video_mime_type = 2;
+  uint32 video_height = 3;
+  uint32 video_width = 4;
+  string preview_image_url = 5;
+  string preview_image_mime_type = 6;
+  uint32 preview_image_height = 7;
+  uint32 preview_image_width = 8;
+  float duration = 9;
+}
+
+message MediaStamp {
+  string url = 1;
+  string mime_type = 2;
+  uint32 height = 3;
+  uint32 width = 4;
+}

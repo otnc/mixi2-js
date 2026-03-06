@@ -1,0 +1,23 @@
+# GitHub
+.github/
+
+# Dependencies
+node_modules/
+
+# Private
+.idea/
+.private/
+
+# Dev
+src/
+scripts/
+test/
+
+# Config
+.gitignore
+.gitattributes
+.prettierignore
+.prettierrc.json
+jest.config.json
+tsconfig.json
+.env
