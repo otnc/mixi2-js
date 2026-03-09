@@ -6,8 +6,6 @@
 
 </div>
 
----
-
 [![npm version](https://img.shields.io/npm/v/mixi2-js?color=cb3837&logo=npm)](https://www.npmjs.com/package/mixi2-js)
 [![npm downloads](https://img.shields.io/npm/dm/mixi2-js?color=cb3837&logo=npm)](https://www.npmjs.com/package/mixi2-js)
 [![JSR](https://jsr.io/badges/@otoneko1102/mixi2-js)](https://jsr.io/@otoneko1102/mixi2-js)
