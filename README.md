@@ -145,7 +145,7 @@ const upload = await client.initiatePostMediaUpload({
   dataSize: 1024,
   mediaType: MediaUploadType.IMAGE,
 });
-// upload.uploadUrl に PUT でメディアデータを送信
+// upload.uploadUrl に POST でメディアデータを送信
 const status = await client.getPostMediaStatus(upload.mediaId);
 // status.status === MediaUploadStatus.COMPLETED になったら添付可能
 await client.createPost({ text: '画像付き！', mediaIdList: [upload.mediaId] });
