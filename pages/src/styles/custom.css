@@ -1,0 +1,20 @@
+/* テーブルを広めに表示（横スクロール可能） */
+.sl-markdown-content table {
+	table-layout: auto;
+	min-width: 40rem;
+}
+
+.sl-markdown-content table td:last-child,
+.sl-markdown-content table th:last-child {
+	min-width: 14rem;
+}
+
+/* 目次（右サイドバー）を狭くする */
+@media (min-width: 72rem) {
+	starlight-toc {
+		width: 10rem;
+	}
+	starlight-toc nav {
+		width: 10rem;
+	}
+}

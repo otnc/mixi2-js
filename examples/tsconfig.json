@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "mixi2-js": ["./src/index.ts"],
+      "mixi2-js/helpers": ["./src/helpers/index.ts"]
+    },
+    "noEmit": true,
+    "declaration": false
+  },
+  "include": ["./**/*.ts"],
+  "exclude": []
+}

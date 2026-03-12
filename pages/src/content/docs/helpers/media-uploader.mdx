@@ -1,0 +1,137 @@
+---
+title: MediaUploader
+description: メディアアップロードの処理完了待機を自動化するヘルパー
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+`MediaUploader` は、メディアアップロードの開始からステータスポーリング・完了待機までを簡略化するヘルパーです。
+
+## インストール
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { MediaUploader } from 'mixi2-js/helpers';
+    // CJS
+    const { MediaUploader } = require('mixi2-js/helpers');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { MediaUploader } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+## なぜ MediaUploader を使うのか？
+
+メディアをポストに添付するには、3 つのステップが必要です:
+
+1. `initiatePostMediaUpload()` でアップロード URL を取得
+2. `uploadUrl` に HTTP POST でメディアデータを送信
+3. `getPostMediaStatus()` を繰り返し呼んで処理完了を待機
+
+ステップ 3 のポーリングは自前で実装すると煩雑です:
+
+```typescript
+// ❌ ポーリングを自前実装
+const upload = await client.initiatePostMediaUpload(request);
+// ... HTTP POST ...
+let status;
+while (true) {
+  status = await client.getPostMediaStatus(upload.mediaId);
+  if (status.status === MediaUploadStatus.COMPLETED) break;
+  if (status.status === MediaUploadStatus.FAILED) throw new Error('Failed');
+  await new Promise(r => setTimeout(r, 1000));
+}
+```
+
+`MediaUploader` を使えば `waitForReady()` を呼ぶだけです:
+
+```typescript
+// ✅ 簡潔
+const uploader = new MediaUploader(client);
+const { mediaId, uploadUrl } = await uploader.initiate(request);
+// ... HTTP POST ...
+await uploader.waitForReady(mediaId);
+```
+
+## 基本的な使い方
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { MediaUploadType } from 'mixi2-js';
+    import { MediaUploader } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { MediaUploadType } from '@otoneko1102/mixi2-js';
+    import { MediaUploader } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const uploader = new MediaUploader(client);
+
+// 1. アップロード開始
+const { mediaId, uploadUrl } = await uploader.initiate({
+  contentType: 'image/png',
+  dataSize: imageBuffer.length,
+  mediaType: MediaUploadType.IMAGE,
+});
+
+// 2. メディアデータを送信
+await fetch(uploadUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'image/png' },
+  body: imageBuffer,
+});
+
+// 3. 完了まで待機
+await uploader.waitForReady(mediaId);
+
+// 4. ポストに添付
+await client.createPost({
+  text: '画像付きポスト！',
+  mediaIdList: [mediaId],
+});
+```
+
+## オプション
+
+```typescript
+const uploader = new MediaUploader(client, {
+  pollInterval: 2000, // ポーリング間隔（ミリ秒）。デフォルト: 1000
+  timeout: 120000,    // タイムアウト（ミリ秒）。デフォルト: 60000
+});
+```
+
+| オプション | 型 | デフォルト | 説明 |
+|---|---|---|---|
+| `pollInterval` | `number` | `1000` | ステータスポーリングの間隔（ミリ秒） |
+| `timeout` | `number` | `60000` | 完了待機のタイムアウト（ミリ秒） |
+
+## API リファレンス
+
+### コンストラクタ
+
+```typescript
+new MediaUploader(client: Client, options?: MediaUploaderOptions)
+```
+
+### メソッド
+
+| メソッド | 引数 | 戻り値 | 説明 |
+|---|---|---|---|
+| `initiate(request)` | `InitiatePostMediaUploadRequest` | `Promise<UploadedMedia>` | アップロードを開始し `mediaId` と `uploadUrl` を返す |
+| `waitForReady(mediaId)` | `string` | `Promise<string>` | 処理完了までポーリングして待機。完了時に `mediaId` を返す |
+
+### エラー
+
+- アップロードが失敗した場合: `Error: Media upload failed: {mediaId}`
+- タイムアウトした場合: `Error: Media upload timed out after {timeout}ms: {mediaId}`

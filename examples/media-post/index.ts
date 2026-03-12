@@ -29,14 +29,15 @@ const client = new Client({
 });
 
 // --- 設定 ---
-const IMAGE_PATH: string | undefined = process.argv[2];
+const imagePathArg = process.argv[2];
 const POST_TEXT: string = process.argv[3] || '画像を投稿しました！';
 
-if (!IMAGE_PATH) {
+if (!imagePathArg) {
   consola.error('使い方: npx tsx index.ts <画像ファイルパス> [投稿テキスト]');
   consola.error('例: npx tsx index.ts ./photo.jpg "今日の一枚"');
   process.exit(1);
 }
+const IMAGE_PATH: string = imagePathArg;
 
 // --- Content-Type 判定 ---
 const CONTENT_TYPES: Record<string, string> = {
@@ -68,7 +69,7 @@ async function main(): Promise<void> {
   consola.info(`📷 画像を投稿します: ${fileName}`);
 
   // 1. 画像ファイル読み込み
-  const imageData: Buffer = await readFile(IMAGE_PATH);
+  const imageData = await readFile(IMAGE_PATH);
   const contentType: string = getContentType(IMAGE_PATH);
   consola.info(`  ファイルサイズ: ${(imageData.length / 1024).toFixed(1)} KB (${contentType})`);
 
@@ -86,7 +87,7 @@ async function main(): Promise<void> {
   const uploadResponse: Response = await fetch(upload.uploadUrl, {
     method: 'POST',
     headers: { 'Content-Type': contentType },
-    body: imageData,
+    body: new Uint8Array(imageData),
   });
   if (!uploadResponse.ok) {
     consola.error(`アップロードに失敗しました: ${uploadResponse.status} ${uploadResponse.statusText}`);

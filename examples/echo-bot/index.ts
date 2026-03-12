@@ -61,7 +61,7 @@ watcher.watch({
   },
 }).then(() => {
   consola.info('ストリーム接続が終了しました。');
-}).catch((err) => {
+}).catch((err: Error) => {
   consola.error('ストリーム接続エラー:', err);
   process.exit(1);
 });

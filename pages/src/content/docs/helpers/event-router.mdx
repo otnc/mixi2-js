@@ -1,0 +1,281 @@
+---
+title: EventRouter
+description: イベントタイプ別にハンドラを登録できる EventHandler 実装
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+`EventRouter` は、イベントタイプ別にハンドラを登録できる `EventHandler` 実装です。公式 API 仕様には含まれない、SDK 独自の拡張機能です。
+
+## インストール
+
+追加インストールは不要です。`mixi2-js` に同梱されています。
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { EventRouter } from 'mixi2-js/helpers';
+    // CJS
+    const { EventRouter } = require('mixi2-js/helpers');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { EventRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+## なぜ EventRouter を使うのか？
+
+公式の `EventHandler` インターフェースは単一の `handle` メソッドのみを持ちます。イベントが増えると `switch` 文が肥大化しがちです:
+
+```typescript
+// ❌ switch 文が長くなる
+const handler: EventHandler = {
+  handle: async (event) => {
+    switch (event.eventType) {
+      case EventType.POST_CREATED:
+        // ポスト作成処理...
+        break;
+      case EventType.CHAT_MESSAGE_RECEIVED:
+        // チャット受信処理...
+        break;
+      // 今後イベントが増えるたびに case を追加...
+    }
+  },
+};
+```
+
+`EventRouter` を使うとイベントごとにハンドラを分離でき、管理しやすくなります:
+
+```typescript
+// ✅ イベントごとに分離
+const router = new EventRouter();
+
+router.on(EventType.POST_CREATED, async (event) => {
+  const post = event.postCreatedEvent?.post;
+  console.log('ポスト作成:', post?.text);
+});
+
+router.on(EventType.CHAT_MESSAGE_RECEIVED, async (event) => {
+  const message = event.chatMessageReceivedEvent?.message;
+  console.log('DM 受信:', message?.text);
+});
+```
+
+## 基本的な使い方
+
+### StreamWatcher との組み合わせ
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { OAuth2Authenticator, StreamWatcher, EventType } from 'mixi2-js';
+    import { EventRouter } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { OAuth2Authenticator, StreamWatcher, EventType } from '@otoneko1102/mixi2-js';
+    import { EventRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const authenticator = new OAuth2Authenticator({
+  clientId: process.env.CLIENT_ID!,
+  clientSecret: process.env.CLIENT_SECRET!,
+  tokenUrl: process.env.TOKEN_URL!,
+});
+
+const router = new EventRouter();
+
+router.on(EventType.POST_CREATED, async (event) => {
+  const post = event.postCreatedEvent?.post;
+  console.log('ポスト作成:', post?.text);
+});
+
+router.on(EventType.CHAT_MESSAGE_RECEIVED, async (event) => {
+  const message = event.chatMessageReceivedEvent?.message;
+  console.log('DM 受信:', message?.text);
+});
+
+const watcher = new StreamWatcher({
+  streamAddress: process.env.STREAM_ADDRESS!,
+  authenticator,
+});
+
+await watcher.watch(router);
+```
+
+### WebhookServer との組み合わせ
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { WebhookServer } from 'mixi2-js';
+    import { EventRouter } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { WebhookServer } from '@otoneko1102/mixi2-js';
+    import { EventRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+
+const router = new EventRouter();
+
+router.on(EventType.POST_CREATED, async (event) => {
+  // ...
+});
+
+const server = new WebhookServer({
+  port: 8080,
+  publicKey: Buffer.from(process.env.SIGNATURE_PUBLIC_KEY!, 'base64'),
+  handler: router,
+});
+
+await server.start();
+```
+
+## API リファレンス
+
+### コンストラクタ
+
+```typescript
+new EventRouter()
+```
+
+引数なしで作成します。`EventHandler` インターフェースを実装しています。
+
+### メソッド
+
+| メソッド | 戻り値 | 説明 |
+|---|---|---|
+| `on(eventType, listener)` | `this` | イベントタイプに対するリスナーを登録 |
+| `off(eventType, listener?)` | `this` | リスナーを削除 |
+| `handle(event)` | `Promise<void>` | 登録されたリスナーにイベントをルーティング |
+
+### `on(eventType, listener)`
+
+指定したイベントタイプに対するリスナーを登録します。
+
+```typescript
+router.on(EventType.POST_CREATED, async (event) => {
+  // ポスト作成時の処理
+});
+```
+
+- 同じイベントタイプに複数のリスナーを登録可能
+- リスナーは登録順に**逐次実行**されます（並列ではない）
+- メソッドチェーン対応（`this` を返す）
+
+```typescript
+router
+  .on(EventType.POST_CREATED, handler1)
+  .on(EventType.POST_CREATED, handler2)
+  .on(EventType.CHAT_MESSAGE_RECEIVED, handler3);
+```
+
+### `off(eventType, listener?)`
+
+リスナーを削除します。
+
+```typescript
+// 特定のリスナーを削除
+router.off(EventType.POST_CREATED, myListener);
+
+// そのイベントタイプの全リスナーを削除
+router.off(EventType.POST_CREATED);
+```
+
+- `listener` を指定した場合: そのリスナーのみを削除
+- `listener` を省略した場合: 指定したイベントタイプの全リスナーを削除
+- メソッドチェーン対応
+
+### `handle(event)`
+
+`EventHandler` インターフェースの実装です。通常は直接呼び出す必要はありません。`StreamWatcher.watch()` や `WebhookServer` が自動的に呼び出します。
+
+- 登録されたリスナーが存在しないイベントタイプは無視されます
+- 複数のリスナーが登録されている場合、登録順に逐次実行されます
+
+## 型定義
+
+```typescript
+type EventListener = (event: Event) => void | Promise<void>;
+```
+
+`EventListener` は `Event` を受け取り、`void` または `Promise<void>` を返す関数です。同期・非同期のどちらでも使えます。
+
+## 実用例: エコーボット
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { OAuth2Authenticator, Client, StreamWatcher, EventType } from 'mixi2-js';
+    import { EventRouter } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { OAuth2Authenticator, Client, StreamWatcher, EventType } from '@otoneko1102/mixi2-js';
+    import { EventRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const authenticator = new OAuth2Authenticator({
+  clientId: process.env.CLIENT_ID!,
+  clientSecret: process.env.CLIENT_SECRET!,
+  tokenUrl: process.env.TOKEN_URL!,
+});
+
+const client = new Client({
+  apiAddress: process.env.API_ADDRESS!,
+  authenticator,
+});
+
+const router = new EventRouter();
+
+// メンション・リプライにエコー返信
+router.on(EventType.POST_CREATED, async (event) => {
+  const post = event.postCreatedEvent?.post;
+  if (post?.text) {
+    await client.createPost({
+      text: post.text,
+      inReplyToPostId: post.id,
+    });
+  }
+});
+
+// DM にエコー返信
+router.on(EventType.CHAT_MESSAGE_RECEIVED, async (event) => {
+  const message = event.chatMessageReceivedEvent?.message;
+  if (message?.text) {
+    await client.sendChatMessage({
+      roomId: message.roomId!,
+      text: message.text,
+    });
+  }
+});
+
+const watcher = new StreamWatcher({
+  streamAddress: process.env.STREAM_ADDRESS!,
+  authenticator,
+});
+
+await watcher.watch(router);
+```
+
+<Aside type="note">
+`EventRouter` は SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
+</Aside>

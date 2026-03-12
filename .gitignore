@@ -3,6 +3,8 @@ node_modules/
 
 # Build output
 dist/
+pages/dist/
+pages/.astro/
 
 # Private
 .idea/
