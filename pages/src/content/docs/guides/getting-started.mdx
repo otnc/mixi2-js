@@ -1,0 +1,100 @@
+---
+title: はじめに
+description: mixi2-js のインストールとセットアップ
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+## 前提条件
+
+- **Node.js 18 以上**
+- [mixi2 Developer Platform](https://developer.mixi.social) で開発者登録が完了していること
+- アプリケーションを作成し、認証情報（Client ID / Client Secret / Token URL 等）を取得済みであること
+
+## インストール
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install mixi2-js
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```bash
+    npx jsr add @otoneko1102/mixi2-js
+    ```
+  </TabItem>
+</Tabs>
+
+ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.ts`) も同梱されています。
+
+:::note
+JSR 経由でインストールした場合、インポートパスは `'mixi2-js'` ではなく `'@otoneko1102/mixi2-js'` になります。
+以降のコード例はすべて npm 版のパスで記載しています。JSR 版をお使いの場合は適宜読み替えてください。
+:::
+
+## モジュール一覧
+
+| モジュール | 説明 |
+|---|---|
+| `OAuth2Authenticator` | OAuth2 Client Credentials 認証（トークン自動キャッシュ・有効期限 1 分前に自動更新） |
+| `Client` | gRPC API クライアント（8 つの RPC メソッドに対応） |
+| `WebhookServer` | HTTP Webhook サーバー（Ed25519 署名検証・Ping 自動応答） |
+| `StreamWatcher` | gRPC ストリーミング（指数バックオフによる自動再接続） |
+
+## 認証
+
+すべての API 操作に OAuth2 認証が必要です。
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { OAuth2Authenticator } from 'mixi2-js';
+    // CJS
+    const { OAuth2Authenticator } = require('mixi2-js');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { OAuth2Authenticator } from '@otoneko1102/mixi2-js';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const authenticator = new OAuth2Authenticator({
+  clientId: process.env.CLIENT_ID!,
+  clientSecret: process.env.CLIENT_SECRET!,
+  tokenUrl: process.env.TOKEN_URL!,
+});
+
+// アクセストークンを取得（キャッシュ済みの場合は即座に返却）
+const token = await authenticator.getAccessToken();
+```
+
+### OAuth2Authenticator
+
+OAuth2 Client Credentials フローによる認証を管理します。
+
+```typescript
+new OAuth2Authenticator(options: AuthenticatorOptions)
+```
+
+| プロパティ | 型 | 説明 |
+|---|---|---|
+| `clientId` | `string` | OAuth2 クライアント ID |
+| `clientSecret` | `string` | OAuth2 クライアントシークレット |
+| `tokenUrl` | `string` | トークンエンドポイント URL |
+
+| メソッド | 戻り値 | 説明 |
+|---|---|---|
+| `getAccessToken()` | `Promise<string>` | アクセストークンを取得。有効期限の 1 分前までキャッシュし、自動更新する |
+
+`Authenticator` インターフェースを実装しているため、カスタム認証を独自に実装することも可能です。
+
+:::tip
+認証情報は環境変数またはシークレット管理システムから読み込んでください。ソースコードへのハードコードは避けてください。
+:::
+
+> 詳細は [公式ドキュメント](https://developer.mixi.social/docs) を参照してください。

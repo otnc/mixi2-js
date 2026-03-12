@@ -1,0 +1,101 @@
+---
+title: gRPC ストリーミング
+description: StreamWatcher によるリアルタイムイベント受信
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+## 概要
+
+`StreamWatcher` は gRPC ストリーミングによるリアルタイムイベント受信を行います。ローカル開発やプロトタイピングに推奨される方式で、外部公開 URL が不要です。
+
+## セットアップ
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { OAuth2Authenticator, StreamWatcher, EventType } from 'mixi2-js';
+    import type { EventHandler, Event } from 'mixi2-js';
+    // CJS
+    const { OAuth2Authenticator, StreamWatcher, EventType } = require('mixi2-js');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { OAuth2Authenticator, StreamWatcher, EventType } from '@otoneko1102/mixi2-js';
+    import type { EventHandler, Event } from '@otoneko1102/mixi2-js';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const authenticator = new OAuth2Authenticator({
+  clientId: process.env.CLIENT_ID!,
+  clientSecret: process.env.CLIENT_SECRET!,
+  tokenUrl: process.env.TOKEN_URL!,
+});
+
+const handler: EventHandler = {
+  handle: async (event: Event) => {
+    console.log('Received event:', event.eventId, EventType[event.eventType]);
+  },
+};
+
+const watcher = new StreamWatcher({
+  streamAddress: process.env.STREAM_ADDRESS!,
+  authenticator,
+});
+
+// イベント監視開始
+await watcher.watch(handler);
+
+// 停止
+watcher.stop();
+```
+
+## コンストラクタ
+
+```typescript
+new StreamWatcher(options: StreamWatcherOptions)
+```
+
+| プロパティ | 型 | 必須 | 説明 |
+|---|---|---|---|
+| `streamAddress` | `string` | ○ | Stream サーバーアドレス |
+| `authenticator` | `Authenticator` | ○ | 認証インスタンス |
+
+## メソッド
+
+| メソッド | 戻り値 | 説明 |
+|---|---|---|
+| `watch(handler)` | `Promise<void>` | イベント監視を開始 |
+| `stop()` | `void` | 監視を停止し接続を閉じる |
+
+## 再接続の仕様
+
+| 項目 | 値 |
+|---|---|
+| 再接続方式 | 指数バックオフ（1 秒 → 2 秒 → 4 秒） |
+| 最大リトライ回数 | 3 回 |
+| Ping イベント | SDK 内部で処理（`handle` には渡されない） |
+
+:::caution
+再接続中に発生したイベントは失われます。厳密な到達保証が必要な場合は [Webhook 方式](/mixi2-js/guides/webhook/) を使用してください。
+:::
+
+## EventHandler インターフェース
+
+Webhook・gRPC ストリーム共通のイベントハンドラインターフェースです。
+
+```typescript
+interface EventHandler {
+  handle(event: Event): void | Promise<void>;
+}
+```
+
+- `handle` 内で発生したエラーはログ出力され、処理は継続します
+- Ping イベントは SDK 内部で処理されるため `handle` には渡されません
+- Webhook 方式では `handle` の結果にかかわらず常に HTTP 204 が返されます
+
+> 詳細は [公式ドキュメント](https://developer.mixi.social/docs) を参照してください。

@@ -1,0 +1,57 @@
+// @ts-check
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+
+// https://astro.build/config
+export default defineConfig({
+	site: 'https://otoneko1102.github.io',
+	base: '/mixi2-js/',
+	integrations: [
+		starlight({
+			title: 'mixi2-js Docs',
+			customCss: ['./src/styles/custom.css'],
+			logo: {
+				src: './src/assets/logo.svg',
+				replacesTitle: true,
+			},
+			favicon: '/favicon.svg',
+			defaultLocale: 'root',
+			locales: {
+				root: { label: '日本語', lang: 'ja' },
+			},
+			social: [
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/otoneko1102/mixi2-js' },
+				{ icon: 'npm', label: 'npm', href: 'https://www.npmjs.com/package/mixi2-js' },
+				{ icon: 'jsr', label: 'JSR', href: 'https://jsr.io/@otoneko1102/mixi2-js' },
+			],
+			sidebar: [
+				{
+					label: 'ガイド',
+					items: [
+						{ label: 'はじめに', slug: 'guides/getting-started' },
+						{ label: 'API クライアント', slug: 'guides/api-client' },
+						{ label: 'Webhook サーバー', slug: 'guides/webhook' },
+						{ label: 'gRPC ストリーミング', slug: 'guides/streaming' },
+					],
+				},
+				{
+					label: 'API リファレンス',
+					items: [
+						{ label: '型定義', slug: 'reference/types' },
+						{ label: 'Enum 定義', slug: 'reference/enums' },
+						{ label: '環境変数・レート制限', slug: 'reference/environment' },
+					],
+				},
+				{
+					label: '拡張機能 (Helpers)',
+					items: [
+						{ label: 'EventRouter', slug: 'helpers/event-router' },
+						{ label: 'PostBuilder', slug: 'helpers/post-builder' },
+						{ label: 'MediaUploader', slug: 'helpers/media-uploader' },
+						{ label: 'ReasonFilter', slug: 'helpers/reason-filter' },
+					],
+				},
+			],
+		}),
+	],
+});

@@ -1,0 +1,115 @@
+---
+title: Webhook サーバー
+description: Ed25519 署名検証付き HTTP Webhook サーバーの使い方
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+## 概要
+
+`WebhookServer` は Ed25519 署名検証付きの HTTP Webhook サーバーです。mixi2 からのイベントを安全に受信できます。
+
+## セットアップ
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { WebhookServer, EventType } from 'mixi2-js';
+    import type { EventHandler, Event } from 'mixi2-js';
+    // CJS
+    const { WebhookServer, EventType } = require('mixi2-js');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { WebhookServer, EventType } from '@otoneko1102/mixi2-js';
+    import type { EventHandler, Event } from '@otoneko1102/mixi2-js';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const handler: EventHandler = {
+  handle: async (event: Event) => {
+    switch (event.eventType) {
+      case EventType.POST_CREATED:
+        console.log('Post created:', event.postCreatedEvent?.post?.text);
+        break;
+      case EventType.CHAT_MESSAGE_RECEIVED:
+        console.log('Chat message:', event.chatMessageReceivedEvent?.message?.text);
+        break;
+    }
+  },
+};
+
+// 公開鍵は Base64 からデコード
+const publicKey = Buffer.from(process.env.SIGNATURE_PUBLIC_KEY!, 'base64');
+
+const server = new WebhookServer({
+  port: 8080,
+  publicKey,
+  handler,
+});
+
+await server.start();
+console.log('Webhook server started on :8080');
+```
+
+## コンストラクタ
+
+```typescript
+new WebhookServer(options: WebhookServerOptions)
+```
+
+| プロパティ | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|
+| `publicKey` | `Buffer` | ○ | - | Ed25519 公開鍵（Base64 をデコードしたもの） |
+| `handler` | `EventHandler` | ○ | - | イベントハンドラ |
+| `port` | `number` | - | `8080` | リッスンポート |
+| `syncHandling` | `boolean` | - | `false` | イベントを同期処理するか |
+
+## メソッド
+
+| メソッド | 戻り値 | 説明 |
+|---|---|---|
+| `start()` | `Promise<void>` | サーバーを起動 |
+| `shutdown()` | `Promise<void>` | サーバーを停止 |
+| `address` | `string` | リッスンアドレス |
+| `httpServer` | `http.Server` | 内部の HTTP サーバーインスタンス |
+| `eventHandlerFunc` | `Function` | イベントハンドラ関数（フレームワーク統合用） |
+
+## エンドポイント
+
+| パス | メソッド | 説明 |
+|---|---|---|
+| `/events` | POST | イベント受信（署名検証 → protobuf デコード → ハンドラ呼出） |
+| `/healthz` | GET | ヘルスチェック（常に `200 OK`） |
+
+## 署名検証の仕様
+
+| 項目 | 値 |
+|---|---|
+| 署名ヘッダ | `x-mixi2-application-event-signature`（Base64） |
+| タイムスタンプヘッダ | `x-mixi2-application-event-timestamp`（Unix 秒） |
+| 署名対象 | リクエストボディ + タイムスタンプ |
+| 許容時刻ズレ | ±300 秒（5 分） |
+| 署名失敗レスポンス | HTTP 401 |
+| 成功レスポンス | HTTP 204 |
+
+## サーバーレス環境
+
+Vercel、AWS Lambda などレスポンス後にプロセスが終了する環境では `syncHandling: true` を設定してください:
+
+```typescript
+const server = new WebhookServer({
+  port: 8080,
+  publicKey,
+  handler,
+  syncHandling: true,
+});
+
+export default server.httpServer;
+```
+
+> 詳細は [公式ドキュメント](https://developer.mixi.social/docs) を参照してください。

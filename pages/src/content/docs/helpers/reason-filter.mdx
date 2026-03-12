@@ -1,0 +1,143 @@
+---
+title: ReasonFilter
+description: EventReason に基づいてイベントをフィルタリングするミドルウェア
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+`ReasonFilter` は、`EventReason` に基づいてイベントをフィルタリングする `EventHandler` ラッパーです。指定した理由に一致するイベントのみを内部のハンドラに渡します。
+
+## インストール
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { ReasonFilter } from 'mixi2-js/helpers';
+    // CJS
+    const { ReasonFilter } = require('mixi2-js/helpers');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { ReasonFilter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+## なぜ ReasonFilter を使うのか？
+
+イベントハンドラ内で毎回 `eventReasonList` をチェックするのは冗長です:
+
+```typescript
+// ❌ 毎回理由をチェック
+router.on(EventType.POST_CREATED, async (event) => {
+  const reasons = event.postCreatedEvent?.eventReasonList || [];
+  if (!reasons.includes(EventReason.POST_REPLY) && !reasons.includes(EventReason.POST_MENTIONED)) {
+    return; // スキップ
+  }
+  // 処理...
+});
+```
+
+`ReasonFilter` を使えばフィルタリングをハンドラの外に分離できます:
+
+```typescript
+// ✅ フィルタリングを分離
+const filter = new ReasonFilter(router, [
+  EventReason.POST_REPLY,
+  EventReason.POST_MENTIONED,
+]);
+await watcher.watch(filter);
+```
+
+## 基本的な使い方
+
+### EventRouter との組み合わせ
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { EventType, EventReason, StreamWatcher } from 'mixi2-js';
+    import { EventRouter, ReasonFilter } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { EventType, EventReason, StreamWatcher } from '@otoneko1102/mixi2-js';
+    import { EventRouter, ReasonFilter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const router = new EventRouter();
+
+router.on(EventType.POST_CREATED, async (event) => {
+  // リプライとメンションのみがここに到達する
+  const post = event.postCreatedEvent?.post;
+  console.log('リプライ/メンション:', post?.text);
+});
+
+// リプライとメンションのみを通すフィルター
+const filter = new ReasonFilter(router, [
+  EventReason.POST_REPLY,
+  EventReason.POST_MENTIONED,
+]);
+
+const watcher = new StreamWatcher({ streamAddress, authenticator });
+await watcher.watch(filter);
+```
+
+### DM のみを処理
+
+```typescript
+const filter = new ReasonFilter(handler, [
+  EventReason.DIRECT_MESSAGE_RECEIVED,
+]);
+await watcher.watch(filter);
+```
+
+### 引用のみを処理
+
+```typescript
+const filter = new ReasonFilter(handler, [
+  EventReason.POST_QUOTED,
+]);
+await watcher.watch(filter);
+```
+
+## 動作の詳細
+
+- **理由リストがあるイベント**: `eventReasonList` 内のいずれかの理由が許可リストに含まれていれば通過
+- **理由リストがないイベント**: Ping など理由を持たないイベントはそのまま通過
+- **複数の理由**: イベントが複数の理由を持つ場合、いずれか 1 つが一致すれば通過
+
+## API リファレンス
+
+### コンストラクタ
+
+```typescript
+new ReasonFilter(handler: EventHandler, reasons: EventReason[])
+```
+
+| 引数 | 型 | 説明 |
+|---|---|---|
+| `handler` | `EventHandler` | フィルター通過後にイベントを渡すハンドラ |
+| `reasons` | `EventReason[]` | 許可する `EventReason` のリスト |
+
+### メソッド
+
+| メソッド | 戻り値 | 説明 |
+|---|---|---|
+| `handle(event)` | `Promise<void>` | イベントをフィルタリングし、一致すれば内部ハンドラに渡す |
+
+### 利用可能な EventReason
+
+| 名前 | 値 | 説明 |
+|---|---|---|
+| `PING` | 1 | 接続確認 |
+| `POST_REPLY` | 2 | ポストに返信された |
+| `POST_MENTIONED` | 3 | ポストでメンションされた |
+| `POST_QUOTED` | 4 | ポストが引用された |
+| `DIRECT_MESSAGE_RECEIVED` | 8 | DM を受信した |
