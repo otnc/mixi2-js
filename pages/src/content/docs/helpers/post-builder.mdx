@@ -49,9 +49,20 @@ const request = new PostBuilder('Hello!')
 
 ## 基本的な使い方
 
-```typescript
-import { PostBuilder } from 'mixi2-js/helpers'; // JSR: '@otoneko1102/mixi2-js/helpers'
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { PostBuilder } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { PostBuilder } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
 
+```typescript
 // シンプルなポスト
 const simple = new PostBuilder('Hello mixi2!').build();
 
