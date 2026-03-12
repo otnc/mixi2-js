@@ -2,5 +2,6 @@
 *.proto linguist-vendored
 
 dist/** linguist-generated
+examples/** linguist-vendored
 scripts/** linguist-vendored
 test/** linguist-vendored
