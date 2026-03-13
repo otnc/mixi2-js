@@ -1,3 +1,4 @@
+import * as address from "../src/helpers/address";
 import { EventRouter } from "../src/helpers/event-router";
 import { PostBuilder } from "../src/helpers/post-builder";
 import { ReasonFilter } from "../src/helpers/reason-filter";
@@ -20,6 +21,14 @@ function createEvent(
     ...overrides,
   };
 }
+
+describe("Address", () => {
+  test("address value", () => {
+    expect(typeof address.tokenUrl).toBe("string");
+    expect(typeof address.apiAddress).toBe("string");
+    expect(typeof address.streamAddress).toBe("string");
+  });
+});
 
 describe("EventRouter", () => {
   test("routes event to matching listener", async () => {
