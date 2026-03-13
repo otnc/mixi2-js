@@ -1,7 +1,10 @@
-/* テーブルを広めに表示（横スクロール可能） */
+/* テーブルをスクロールコンテナで囲む（ページ全体のオーバーフローを防ぐ） */
 .sl-markdown-content table {
 	table-layout: auto;
 	min-width: 40rem;
+	display: block;
+	overflow-x: auto;
+	max-width: 100%;
 }
 
 .sl-markdown-content table td:last-child,
