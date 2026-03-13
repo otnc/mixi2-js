@@ -103,6 +103,7 @@ export default defineConfig({
 				{
 					label: '拡張機能 (Helpers)',
 					items: [
+						{ label: 'Address', slug: 'helpers/address' },
 						{ label: 'EventRouter', slug: 'helpers/event-router' },
 						{ label: 'PostBuilder', slug: 'helpers/post-builder' },
 						{ label: 'MediaUploader', slug: 'helpers/media-uploader' },
