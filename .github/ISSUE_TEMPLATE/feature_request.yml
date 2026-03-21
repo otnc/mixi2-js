@@ -1,0 +1,51 @@
+name: 機能リクエスト
+description: 新機能や改善を提案する
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        機能リクエストありがとうございます。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 解決したい課題
+      description: どのような問題や不便があるか説明してください。
+      placeholder: "例: ○○をするとき、毎回 △△ を手動で書く必要がある。"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 提案する解決策
+      description: どのような機能・API があると解決するか説明してください。
+      placeholder: |
+        ```typescript
+        // 理想的な使い方のイメージ
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 代替案（任意）
+      description: 他に考えられる実装方法があれば記載してください。
+    validations:
+      required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: カテゴリ
+      options:
+        - helpers（新しいヘルパー）
+        - 公式 API 仕様変更への追従
+        - 型定義の改善
+        - パフォーマンス改善
+        - ドキュメント改善
+        - その他
+    validations:
+      required: true

@@ -1,0 +1,71 @@
+name: バグ報告
+description: 不具合・予期しない動作を報告する
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        バグ報告ありがとうございます。できるだけ詳しくご記入ください。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 問題の概要
+      description: 何が起きているか簡潔に説明してください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 再現手順
+      description: 問題を再現するための最小限のコードや手順を記載してください。
+      placeholder: |
+        ```typescript
+        // 再現コード
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待される動作
+      description: 本来どのような動作になるべきか説明してください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の動作
+      description: 実際に起きている動作・エラーメッセージを記載してください。
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: mixi2-js バージョン
+      placeholder: "例: 1.3.0"
+    validations:
+      required: true
+
+  - type: input
+    id: node
+    attributes:
+      label: Node.js バージョン
+      placeholder: "例: 22.0.0"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: event_method
+    attributes:
+      label: イベント受信方式（該当する場合）
+      options:
+        - gRPC ストリーミング
+        - Webhook
+        - 該当しない
+    validations:
+      required: false
