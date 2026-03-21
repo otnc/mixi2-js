@@ -186,8 +186,8 @@ export function convertOfficialStampSet(raw: unknown): OfficialStampSet {
     spriteUrl: r.spriteUrl || "",
     stamps: (r.stamps || []).map(convertOfficialStamp),
     stampSetId: r.stampSetId || "",
-    startAt: toDate(r.startAt) || undefined,
-    endAt: toDate(r.endAt) || undefined,
+    startAt: toDate(r.startAt) ?? undefined,
+    endAt: toDate(r.endAt) ?? undefined,
     stampSetType: r.stampSetType || 0,
   };
 }

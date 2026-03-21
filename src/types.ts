@@ -282,11 +282,9 @@ export interface GetPostMediaStatusResponse {
   status: MediaUploadStatus;
 }
 
-export interface SendChatMessageRequest {
-  roomId: string;
-  text?: string;
-  mediaId?: string;
-}
+export type SendChatMessageRequest =
+  | { roomId: string; text: string; mediaId?: string }
+  | { roomId: string; text?: string; mediaId: string };
 
 export interface GetStampsRequest {
   officialStampLanguage?: LanguageCode;

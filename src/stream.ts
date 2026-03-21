@@ -10,12 +10,15 @@ export interface StreamWatcherOptions {
   streamAddress: string;
   authenticator: Authenticator;
   authKey?: string;
+  /** 再接続の最大試行回数。デフォルト: 3 */
+  maxRetries?: number;
 }
 
 export class StreamWatcher {
   private readonly authenticator: Authenticator;
   private readonly authKey?: string;
   private readonly streamClient: grpc.Client;
+  private readonly maxRetries: number;
   private aborted = false;
 
   constructor(options: StreamWatcherOptions) {
@@ -26,6 +29,7 @@ export class StreamWatcher {
     );
     this.authenticator = options.authenticator;
     this.authKey = options.authKey;
+    this.maxRetries = options.maxRetries ?? 3;
   }
 
   private async getMetadata(): Promise<grpc.Metadata> {
@@ -57,7 +61,7 @@ export class StreamWatcher {
   }
 
   private async reconnect(): Promise<grpc.ClientReadableStream<unknown>> {
-    const maxRetries = 3;
+    const maxRetries = this.maxRetries;
     let lastError: Error | undefined;
 
     for (let i = 0; i < maxRetries; i++) {
