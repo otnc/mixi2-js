@@ -3,7 +3,7 @@ title: MediaUploader
 description: メディアアップロードの処理完了待機を自動化するヘルパー
 ---
 
-import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 `MediaUploader` は、メディアアップロードの開始からステータスポーリング・完了待機までを簡略化するヘルパーです。
 
@@ -13,11 +13,17 @@ import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript // ESM import {MediaUploader} from 'mixi2-js/helpers'; // CJS const{" "}
-    {MediaUploader} = require('mixi2-js/helpers'); ```
+    ```typescript
+    // ESM
+    import { MediaUploader } from 'mixi2-js/helpers';
+    // CJS
+    const { MediaUploader } = require('mixi2-js/helpers');
+    ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript import {MediaUploader} from '@otoneko1102/mixi2-js/helpers'; ```
+    ```typescript
+    import { MediaUploader } from '@otoneko1102/mixi2-js/helpers';
+    ```
   </TabItem>
 </Tabs>
 
@@ -58,12 +64,16 @@ await uploader.waitForReady(mediaId);
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript import {MediaUploadType} from 'mixi2-js'; import {MediaUploader} from
-    'mixi2-js/helpers'; ```
+    ```typescript
+    import { MediaUploadType } from 'mixi2-js';
+    import { MediaUploader } from 'mixi2-js/helpers';
+    ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript import {MediaUploadType} from '@otoneko1102/mixi2-js'; import {MediaUploader} from
-    '@otoneko1102/mixi2-js/helpers'; ```
+    ```typescript
+    import { MediaUploadType } from '@otoneko1102/mixi2-js';
+    import { MediaUploader } from '@otoneko1102/mixi2-js/helpers';
+    ```
   </TabItem>
 </Tabs>
 
@@ -127,3 +137,8 @@ new MediaUploader(client: Client, options?: MediaUploaderOptions)
 
 - アップロードが失敗した場合: `Error: Media upload failed: {mediaId}`
 - タイムアウトした場合: `Error: Media upload timed out after {timeout}ms: {mediaId}`
+
+<Aside type="note">
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
+  [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
+</Aside>

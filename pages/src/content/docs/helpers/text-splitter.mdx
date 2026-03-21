@@ -13,11 +13,17 @@ import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript // ESM import {TextSplitter} from 'mixi2-js/helpers'; // CJS const {TextSplitter}{" "}
-    = require('mixi2-js/helpers'); ```
+    ```typescript
+    // ESM
+    import { TextSplitter } from 'mixi2-js/helpers';
+    // CJS
+    const { TextSplitter } = require('mixi2-js/helpers');
+    ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript import {TextSplitter} from '@otoneko1102/mixi2-js/helpers'; ```
+    ```typescript
+    import { TextSplitter } from '@otoneko1102/mixi2-js/helpers';
+    ```
   </TabItem>
 </Tabs>
 
@@ -45,12 +51,16 @@ for (const chunk of chunks) {
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript import {Client} from 'mixi2-js'; import {TextSplitter} from 'mixi2-js/helpers';
+    ```typescript
+    import { Client } from 'mixi2-js';
+    import { TextSplitter } from 'mixi2-js/helpers';
     ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript import {Client} from '@otoneko1102/mixi2-js'; import {TextSplitter} from
-    '@otoneko1102/mixi2-js/helpers'; ```
+    ```typescript
+    import { Client } from '@otoneko1102/mixi2-js';
+    import { TextSplitter } from '@otoneko1102/mixi2-js/helpers';
+    ```
   </TabItem>
 </Tabs>
 
@@ -157,6 +167,6 @@ new TextSplitter(options?: TextSplitterOptions)
 </Aside>
 
 <Aside type="note">
-  `TextSplitter` は SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
   [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
 </Aside>

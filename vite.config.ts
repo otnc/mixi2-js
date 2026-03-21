@@ -19,7 +19,15 @@ export default defineConfig({
   },
 
   lint: {
-    ignorePatterns: ["dist/", "scripts/", "**/*.test.ts", ".private/", ".sample/", "examples/"],
+    ignorePatterns: [
+      "dist/",
+      "scripts/",
+      "**/*.test.ts",
+      ".private/",
+      ".sample/",
+      "examples/",
+      "pages/",
+    ],
   },
 
   fmt: {

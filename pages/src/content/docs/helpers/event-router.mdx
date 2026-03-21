@@ -13,11 +13,17 @@ import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript // ESM import {EventRouter} from 'mixi2-js/helpers'; // CJS const {EventRouter} =
-    require('mixi2-js/helpers'); ```
+    ```typescript
+    // ESM
+    import { EventRouter } from 'mixi2-js/helpers';
+    // CJS
+    const { EventRouter } = require('mixi2-js/helpers');
+    ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript import {EventRouter} from '@otoneko1102/mixi2-js/helpers'; ```
+    ```typescript
+    import { EventRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
   </TabItem>
 </Tabs>
 
@@ -109,12 +115,16 @@ await watcher.watch(router);
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript import {WebhookServer} from 'mixi2-js'; import {EventRouter} from
-    'mixi2-js/helpers'; ```
+    ```typescript
+    import { WebhookServer } from 'mixi2-js';
+    import { EventRouter } from 'mixi2-js/helpers';
+    ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript import {WebhookServer} from '@otoneko1102/mixi2-js'; import {EventRouter} from
-    '@otoneko1102/mixi2-js/helpers'; ```
+    ```typescript
+    import { WebhookServer } from '@otoneko1102/mixi2-js';
+    import { EventRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
   </TabItem>
 </Tabs>
 
@@ -266,6 +276,6 @@ await watcher.watch(router);
 ```
 
 <Aside type="note">
-  `EventRouter` は SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
   [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
 </Aside>

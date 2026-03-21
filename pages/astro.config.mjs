@@ -6,6 +6,7 @@ import starlight from "@astrojs/starlight";
 export default defineConfig({
   site: "https://mixi2.js.org",
   base: "/",
+
   integrations: [
     starlight({
       title: "mixi2-js Docs",

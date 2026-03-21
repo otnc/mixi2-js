@@ -14,8 +14,16 @@ import { Tabs, TabItem } from "@astrojs/starlight/components";
 ## インストール
 
 <Tabs>
-  <TabItem label="npm">```bash npm install mixi2-js ```</TabItem>
-  <TabItem label="JSR">```bash npx jsr add @otoneko1102/mixi2-js ```</TabItem>
+  <TabItem label="npm">
+    ```bash
+    npm install mixi2-js
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```bash
+    npx jsr add @otoneko1102/mixi2-js
+    ```
+  </TabItem>
 </Tabs>
 
 ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.ts`) も同梱されています。
@@ -40,11 +48,17 @@ JSR 経由でインストールした場合、インポートパスは `'mixi2-j
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript // ESM import {OAuth2Authenticator} from 'mixi2-js'; // CJS const{" "}
-    {OAuth2Authenticator} = require('mixi2-js'); ```
+    ```typescript
+    // ESM
+    import { OAuth2Authenticator } from 'mixi2-js';
+    // CJS
+    const { OAuth2Authenticator } = require('mixi2-js');
+    ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript import {OAuth2Authenticator} from '@otoneko1102/mixi2-js'; ```
+    ```typescript
+    import { OAuth2Authenticator } from '@otoneko1102/mixi2-js';
+    ```
   </TabItem>
 </Tabs>
 

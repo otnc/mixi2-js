@@ -3,7 +3,7 @@ title: PostBuilder
 description: ポスト作成リクエストをメソッドチェーンで組み立てるビルダー
 ---
 
-import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 `PostBuilder` は `CreatePostRequest` をメソッドチェーンで直感的に組み立てるビルダーです。
 
@@ -13,11 +13,17 @@ import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript // ESM import {PostBuilder} from 'mixi2-js/helpers'; // CJS const {PostBuilder} =
-    require('mixi2-js/helpers'); ```
+    ```typescript
+    // ESM
+    import { PostBuilder } from 'mixi2-js/helpers';
+    // CJS
+    const { PostBuilder } = require('mixi2-js/helpers');
+    ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript import {PostBuilder} from '@otoneko1102/mixi2-js/helpers'; ```
+    ```typescript
+    import { PostBuilder } from '@otoneko1102/mixi2-js/helpers';
+    ```
   </TabItem>
 </Tabs>
 
@@ -44,9 +50,15 @@ const request = new PostBuilder("Hello!").reply("p1").build();
 ## 基本的な使い方
 
 <Tabs>
-  <TabItem label="npm">```typescript import {PostBuilder} from 'mixi2-js/helpers'; ```</TabItem>
+  <TabItem label="npm">
+    ```typescript
+    import { PostBuilder } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
   <TabItem label="JSR">
-    ```typescript import {PostBuilder} from '@otoneko1102/mixi2-js/helpers'; ```
+    ```typescript
+    import { PostBuilder } from '@otoneko1102/mixi2-js/helpers';
+    ```
   </TabItem>
 </Tabs>
 
@@ -111,3 +123,8 @@ new PostBuilder(text: string)
 | `mask(postMask)`      | `PostMask`           | `this`              | カスタムマスクを設定                |
 | `publishing(type)`    | `PostPublishingType` | `this`              | 配信設定を変更                      |
 | `build()`             | -                    | `CreatePostRequest` | リクエストオブジェクトを構築        |
+
+<Aside type="note">
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
+  [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
+</Aside>

@@ -13,11 +13,17 @@ import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript // ESM import {EventLogger} from 'mixi2-js/helpers'; // CJS const {EventLogger} =
-    require('mixi2-js/helpers'); ```
+    ```typescript
+    // ESM
+    import { EventLogger } from 'mixi2-js/helpers';
+    // CJS
+    const { EventLogger } = require('mixi2-js/helpers');
+    ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript import {EventLogger} from '@otoneko1102/mixi2-js/helpers'; ```
+    ```typescript
+    import { EventLogger } from '@otoneko1102/mixi2-js/helpers';
+    ```
   </TabItem>
 </Tabs>
 
@@ -116,6 +122,6 @@ new EventLogger(handler: EventHandler, options?: EventLoggerOptions)
 | `handle(event)` | `Promise<void>` | ログを出力し、内部ハンドラに委譲 |
 
 <Aside type="note">
-  `EventLogger` は SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
   [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
 </Aside>

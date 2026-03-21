@@ -13,11 +13,17 @@ import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript // ESM import {EventDeduplicator} from 'mixi2-js/helpers'; // CJS const{" "}
-    {EventDeduplicator} = require('mixi2-js/helpers'); ```
+    ```typescript
+    // ESM
+    import { EventDeduplicator } from 'mixi2-js/helpers';
+    // CJS
+    const { EventDeduplicator } = require('mixi2-js/helpers');
+    ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript import {EventDeduplicator} from '@otoneko1102/mixi2-js/helpers'; ```
+    ```typescript
+    import { EventDeduplicator } from '@otoneko1102/mixi2-js/helpers';
+    ```
   </TabItem>
 </Tabs>
 
@@ -142,7 +148,6 @@ new EventDeduplicator(handler: EventHandler, options?: EventDeduplicatorOptions)
 </Aside>
 
 <Aside type="note">
-  `EventDeduplicator` は SDK 独自の拡張機能であり、公式 API
-  仕様には含まれません。公式の仕様については [mixi2 Developer
-  Platform](https://developer.mixi.social/docs) を参照してください。
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
+  [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
 </Aside>
