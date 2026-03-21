@@ -1,0 +1,170 @@
+---
+title: TextSplitter
+description: 長いテキストを mixi2 の文字数制限内に分割するヘルパー
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+`TextSplitter` は、長いテキストを mixi2 の文字数制限（149 文字）内に収まる複数のチャンクに分割するヘルパーです。公式 API 仕様には含まれない、SDK 独自の拡張機能です。
+
+## インストール
+
+追加インストールは不要です。`mixi2-js` に同梱されています。
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { TextSplitter } from 'mixi2-js/helpers';
+    // CJS
+    const { TextSplitter } = require('mixi2-js/helpers');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { TextSplitter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+## なぜ TextSplitter を使うのか？
+
+mixi2 のポストは **1 件あたり 149 文字まで**という制限があります。長文の返答を返すボットでは、テキストを手動で分割する処理を毎回書く必要があります。
+
+```typescript
+// ❌ 手動分割は手間がかかる
+const text = '長い返答テキスト...';
+if (text.length > 149) {
+  // 分割処理を自前で実装...
+}
+
+// ✅ TextSplitter に任せる
+const chunks = new TextSplitter().split(text);
+for (const chunk of chunks) {
+  await client.createPost({ text: chunk });
+}
+```
+
+`TextSplitter` はスペース・句読点（`。` `、` `！` `？` など）を考慮し、自然な位置でテキストを分割します。
+
+## 基本的な使い方
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { Client } from 'mixi2-js';
+    import { TextSplitter } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { Client } from '@otoneko1102/mixi2-js';
+    import { TextSplitter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const splitter = new TextSplitter();
+
+const longText = `
+今日はとても長い文章を投稿します。mixi2 のポストは 149 文字までしか書けませんが、
+TextSplitter を使えば自動的に分割して複数のポストとして投稿できます。
+長文の返答が必要なボットを作るときにとても便利なヘルパーです。
+`.trim();
+
+const chunks = splitter.split(longText);
+// → ['今日はとても長い文章を投稿します。...', 'TextSplitter を使えば...', ...]
+
+for (const chunk of chunks) {
+  await client.createPost({ text: chunk });
+}
+```
+
+## リプライスレッドとして投稿する
+
+分割したテキストを返信スレッドとして投稿する場合は、先頭チャンクを投稿してから残りをリプライするパターンが使えます。
+
+```typescript
+const splitter = new TextSplitter();
+const chunks = splitter.split(longText);
+
+// 最初のチャンクを通常投稿
+const firstPost = await client.createPost({ text: chunks[0] });
+
+// 残りはスレッド形式でリプライ
+let previousPostId = firstPost.postId;
+for (const chunk of chunks.slice(1)) {
+  const post = await client.createPost({
+    text: chunk,
+    inReplyToPostId: previousPostId,
+  });
+  previousPostId = post.postId;
+}
+```
+
+## オプション
+
+```typescript
+const splitter = new TextSplitter({
+  maxLength: 149,      // 1 チャンクあたりの最大文字数（デフォルト: 149）
+  splitOnWord: true,   // 単語境界で分割するか（デフォルト: true）
+});
+```
+
+| オプション | 型 | デフォルト | 説明 |
+|---|---|---|---|
+| `maxLength` | `number` | `149` | 1 チャンクあたりの最大文字数 |
+| `splitOnWord` | `boolean` | `true` | `true` の場合、スペース・句読点の直後で分割を試みる |
+
+### `splitOnWord` について
+
+`splitOnWord: true`（デフォルト）の場合、以下の文字の直後を分割候補として優先します。
+
+| 文字 | 説明 |
+|---|---|
+| ` `（半角スペース） | 英語の単語区切り |
+| `　`（全角スペース） | 日本語の区切り |
+| `、` `。` | 日本語読点・句点 |
+| `！` `？` `!` `?` | 感嘆符・疑問符 |
+| `\n` | 改行 |
+
+分割候補が見つからない場合は `maxLength` の位置で強制的に分割します。
+
+## 定数
+
+```typescript
+import { maxPostLength } from 'mixi2-js/helpers';
+// → 149
+```
+
+`maxPostLength` は mixi2 のポスト最大文字数（149）を表す定数です。`TextSplitter` のデフォルト値として使用されています。
+
+## API リファレンス
+
+### コンストラクタ
+
+```typescript
+new TextSplitter(options?: TextSplitterOptions)
+```
+
+| 引数 | 型 | 説明 |
+|---|---|---|
+| `options` | `TextSplitterOptions?` | オプション設定 |
+
+### メソッド
+
+| メソッド | 戻り値 | 説明 |
+|---|---|---|
+| `split(text)` | `string[]` | テキストを `maxLength` 以内のチャンクの配列に分割して返す |
+
+- テキストが `maxLength` 以内の場合は 1 要素の配列を返します
+- 空文字列を渡した場合は `['']` を返します
+
+<Aside type="note">
+`TextSplitter` は JavaScript の `string.length`（UTF-16 コード単位）で文字数を計算します。mixi2 サーバー側の文字数カウント方法と完全に一致しない場合があります。
+</Aside>
+
+<Aside type="note">
+`TextSplitter` は SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
+</Aside>

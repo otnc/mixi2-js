@@ -105,9 +105,12 @@ export default defineConfig({
 					items: [
 						{ label: 'Address', slug: 'helpers/address' },
 						{ label: 'EventRouter', slug: 'helpers/event-router' },
+						{ label: 'EventDeduplicator', slug: 'helpers/event-deduplicator' },
+						{ label: 'EventLogger', slug: 'helpers/event-logger' },
 						{ label: 'PostBuilder', slug: 'helpers/post-builder' },
 						{ label: 'MediaUploader', slug: 'helpers/media-uploader' },
 						{ label: 'ReasonFilter', slug: 'helpers/reason-filter' },
+						{ label: 'TextSplitter', slug: 'helpers/text-splitter' },
 					],
 				},
 			],
