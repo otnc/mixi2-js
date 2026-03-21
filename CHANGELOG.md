@@ -2,6 +2,15 @@
 
 このプロジェクトのすべての注目すべき変更をバージョンごとに記録します。
 
+## [1.2.1] - 2026-03-21
+
+### Fixed
+
+- `StreamWatcher` — ストリームが正常終了（`end` イベント）した場合に再接続されずに終了する問題を修正
+- `StreamWatcher` — `error` と `end` が連続して発火した場合に再接続が二重実行される問題を修正
+- `OAuth2Authenticator` — アクセストークン期限切れ時に複数の非同期呼び出しが `refreshToken()` を並行実行する競合を修正
+- `WebhookServer` — `x-mixi2-application-event-signature` が空文字列の場合に `401` を返さない問題を修正
+
 ## [1.2.0] - 2026-03-14
 
 - `helpers` サブパス（`mixi2-js/helpers`）に新しい拡張機能を追加
