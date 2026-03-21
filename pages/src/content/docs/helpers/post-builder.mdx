@@ -3,7 +3,7 @@ title: PostBuilder
 description: ポスト作成リクエストをメソッドチェーンで組み立てるビルダー
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 `PostBuilder` は `CreatePostRequest` をメソッドチェーンで直感的に組み立てるビルダーです。
 
@@ -34,9 +34,9 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 ```typescript
 // ❌ inReplyToPostId と quotedPostId を同時に指定するミス
 await client.createPost({
-  text: 'Hello!',
-  inReplyToPostId: 'p1',
-  quotedPostId: 'p2', // 同時指定は不可
+  text: "Hello!",
+  inReplyToPostId: "p1",
+  quotedPostId: "p2", // 同時指定は不可
 });
 ```
 
@@ -44,9 +44,7 @@ await client.createPost({
 
 ```typescript
 // ✅ 安全に構築
-const request = new PostBuilder('Hello!')
-  .reply('p1')
-  .build();
+const request = new PostBuilder("Hello!").reply("p1").build();
 ```
 
 ## 基本的な使い方
@@ -66,32 +64,24 @@ const request = new PostBuilder('Hello!')
 
 ```typescript
 // シンプルなポスト
-const simple = new PostBuilder('Hello mixi2!').build();
+const simple = new PostBuilder("Hello mixi2!").build();
 
 // 返信ポスト
-const reply = new PostBuilder('返信です')
-  .reply('target-post-id')
-  .build();
+const reply = new PostBuilder("返信です").reply("target-post-id").build();
 
 // 引用ポスト
-const quote = new PostBuilder('引用コメント')
-  .quote('quoted-post-id')
-  .build();
+const quote = new PostBuilder("引用コメント").quote("quoted-post-id").build();
 
 // メディア付きポスト
-const withMedia = new PostBuilder('画像付き！')
-  .media(['media-id-1', 'media-id-2'])
-  .build();
+const withMedia = new PostBuilder("画像付き！").media(["media-id-1", "media-id-2"]).build();
 
 // センシティブマスク付き
-const sensitive = new PostBuilder('NSFW コンテンツ')
-  .sensitive('注意: 刺激的な内容を含みます')
+const sensitive = new PostBuilder("NSFW コンテンツ")
+  .sensitive("注意: 刺激的な内容を含みます")
   .build();
 
 // ネタバレ防止マスク付き
-const spoiler = new PostBuilder('ネタバレあり')
-  .spoiler('映画のネタバレを含みます')
-  .build();
+const spoiler = new PostBuilder("ネタバレあり").spoiler("映画のネタバレを含みます").build();
 
 // Client に渡す
 await client.createPost(simple);
@@ -102,10 +92,10 @@ await client.createPost(simple);
 すべてのメソッドは `this` を返すため、チェーンで呼び出せます。
 
 ```typescript
-const request = new PostBuilder('複合ポスト')
-  .reply('post-id')
-  .media(['m1', 'm2'])
-  .sensitive('注意')
+const request = new PostBuilder("複合ポスト")
+  .reply("post-id")
+  .media(["m1", "m2"])
+  .sensitive("注意")
   .build();
 ```
 
@@ -117,19 +107,24 @@ const request = new PostBuilder('複合ポスト')
 new PostBuilder(text: string)
 ```
 
-| 引数 | 型 | 説明 |
-|---|---|---|
+| 引数   | 型       | 説明                        |
+| ------ | -------- | --------------------------- |
 | `text` | `string` | ポスト本文（最大 149 文字） |
 
 ### メソッド
 
-| メソッド | 引数 | 戻り値 | 説明 |
-|---|---|---|---|
-| `reply(postId)` | `string` | `this` | 返信先を設定（`quote` をクリア） |
-| `quote(postId)` | `string` | `this` | 引用先を設定（`reply` をクリア） |
-| `media(mediaIdList)` | `string[]` | `this` | 添付メディア ID を設定（最大 4 件） |
-| `sensitive(caption?)` | `string?` | `this` | センシティブマスクを設定 |
-| `spoiler(caption?)` | `string?` | `this` | ネタバレマスクを設定 |
-| `mask(postMask)` | `PostMask` | `this` | カスタムマスクを設定 |
-| `publishing(type)` | `PostPublishingType` | `this` | 配信設定を変更 |
-| `build()` | - | `CreatePostRequest` | リクエストオブジェクトを構築 |
+| メソッド              | 引数                 | 戻り値              | 説明                                |
+| --------------------- | -------------------- | ------------------- | ----------------------------------- |
+| `reply(postId)`       | `string`             | `this`              | 返信先を設定（`quote` をクリア）    |
+| `quote(postId)`       | `string`             | `this`              | 引用先を設定（`reply` をクリア）    |
+| `media(mediaIdList)`  | `string[]`           | `this`              | 添付メディア ID を設定（最大 4 件） |
+| `sensitive(caption?)` | `string?`            | `this`              | センシティブマスクを設定            |
+| `spoiler(caption?)`   | `string?`            | `this`              | ネタバレマスクを設定                |
+| `mask(postMask)`      | `PostMask`           | `this`              | カスタムマスクを設定                |
+| `publishing(type)`    | `PostPublishingType` | `this`              | 配信設定を変更                      |
+| `build()`             | -                    | `CreatePostRequest` | リクエストオブジェクトを構築        |
+
+<Aside type="note">
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
+  [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
+</Aside>

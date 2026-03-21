@@ -13,12 +13,7 @@ import type {
   SendChatMessageRequest,
   GetStampsRequest,
 } from "./types";
-import {
-  convertPost,
-  convertUser,
-  convertChatMessage,
-  convertOfficialStampSet,
-} from "./convert";
+import { convertPost, convertUser, convertChatMessage, convertOfficialStampSet } from "./convert";
 
 export interface ClientOptions {
   apiAddress: string;
@@ -33,10 +28,7 @@ export class Client {
 
   constructor(options: ClientOptions) {
     const ClientConstructor = getApiServiceClient();
-    this.grpcClient = new ClientConstructor(
-      options.apiAddress,
-      grpc.credentials.createSsl(),
-    );
+    this.grpcClient = new ClientConstructor(options.apiAddress, grpc.credentials.createSsl());
     this.authenticator = options.authenticator;
     this.authKey = options.authKey;
   }
@@ -54,12 +46,9 @@ export class Client {
   private call<TReq, TRes>(method: string, request: TReq): Promise<TRes> {
     return this.getMetadata().then((metadata) => {
       return new Promise<TRes>((resolve, reject) => {
-        const fn = (
-          this.grpcClient as unknown as Record<
-            string,
-            (...args: unknown[]) => void
-          >
-        )[method];
+        const fn = (this.grpcClient as unknown as Record<string, (...args: unknown[]) => void>)[
+          method
+        ];
         if (!fn) {
           reject(new Error(`Method "${method}" not found on gRPC client`));
           return;
@@ -78,52 +67,44 @@ export class Client {
   }
 
   async getUsers(userIdList: string[]): Promise<User[]> {
-    const response = await this.call<
-      { userIdList: string[] },
-      { users: unknown[] }
-    >("getUsers", { userIdList });
+    const response = await this.call<{ userIdList: string[] }, { users: unknown[] }>("getUsers", {
+      userIdList,
+    });
     return (response.users || []).map(convertUser);
   }
 
   async getPosts(postIdList: string[]): Promise<Post[]> {
-    const response = await this.call<
-      { postIdList: string[] },
-      { posts: unknown[] }
-    >("getPosts", { postIdList });
+    const response = await this.call<{ postIdList: string[] }, { posts: unknown[] }>("getPosts", {
+      postIdList,
+    });
     return (response.posts || []).map(convertPost);
   }
 
   async createPost(request: CreatePostRequest): Promise<Post> {
-    const response = await this.call<CreatePostRequest, { post: unknown }>(
-      "createPost",
-      request,
-    );
+    const response = await this.call<CreatePostRequest, { post: unknown }>("createPost", request);
     return convertPost(response.post);
   }
 
   async initiatePostMediaUpload(
     request: InitiatePostMediaUploadRequest,
   ): Promise<InitiatePostMediaUploadResponse> {
-    return this.call<
-      InitiatePostMediaUploadRequest,
-      InitiatePostMediaUploadResponse
-    >("initiatePostMediaUpload", request);
-  }
-
-  async getPostMediaStatus(
-    mediaId: string,
-  ): Promise<GetPostMediaStatusResponse> {
-    return this.call<{ mediaId: string }, GetPostMediaStatusResponse>(
-      "getPostMediaStatus",
-      { mediaId },
+    return this.call<InitiatePostMediaUploadRequest, InitiatePostMediaUploadResponse>(
+      "initiatePostMediaUpload",
+      request,
     );
   }
 
+  async getPostMediaStatus(mediaId: string): Promise<GetPostMediaStatusResponse> {
+    return this.call<{ mediaId: string }, GetPostMediaStatusResponse>("getPostMediaStatus", {
+      mediaId,
+    });
+  }
+
   async sendChatMessage(request: SendChatMessageRequest): Promise<ChatMessage> {
-    const response = await this.call<
-      SendChatMessageRequest,
-      { message: unknown }
-    >("sendChatMessage", request);
+    const response = await this.call<SendChatMessageRequest, { message: unknown }>(
+      "sendChatMessage",
+      request,
+    );
     return convertChatMessage(response.message);
   }
 
@@ -136,10 +117,10 @@ export class Client {
   }
 
   async addStampToPost(postId: string, stampId: string): Promise<Post> {
-    const response = await this.call<
-      { postId: string; stampId: string },
-      { post: unknown }
-    >("addStampToPost", { postId, stampId });
+    const response = await this.call<{ postId: string; stampId: string }, { post: unknown }>(
+      "addStampToPost",
+      { postId, stampId },
+    );
     return convertPost(response.post);
   }
 

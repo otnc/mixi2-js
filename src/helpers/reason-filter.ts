@@ -24,10 +24,7 @@ export class ReasonFilter implements EventHandler {
 
   async handle(event: Event): Promise<void> {
     const reasons = this.getReasons(event);
-    if (
-      reasons.length === 0 ||
-      reasons.some((r) => this.allowedReasons.has(r))
-    ) {
+    if (reasons.length === 0 || reasons.some((r) => this.allowedReasons.has(r))) {
       await this.inner.handle(event);
     }
   }

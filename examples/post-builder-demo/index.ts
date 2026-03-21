@@ -1,18 +1,16 @@
-import 'dotenv/config';
-import { readFile } from 'node:fs/promises';
-import { basename } from 'node:path';
-import consola from 'consola';
-import {
-  OAuth2Authenticator,
-  Client,
-  MediaUploadType,
-} from 'mixi2-js';
-import { PostBuilder, MediaUploader } from 'mixi2-js/helpers';
+import "dotenv/config";
+import { readFile } from "node:fs/promises";
+import { basename } from "node:path";
+import consola from "consola";
+import { OAuth2Authenticator, Client, MediaUploadType } from "mixi2-js";
+import { PostBuilder, MediaUploader } from "mixi2-js/helpers";
 
 const { CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_ADDRESS, AUTH_KEY } = process.env;
 
 if (!CLIENT_ID || !CLIENT_SECRET || !TOKEN_URL || !API_ADDRESS) {
-  consola.error('必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。');
+  consola.error(
+    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。",
+  );
   process.exit(1);
 }
 
@@ -28,11 +26,11 @@ if (!postTextArg) {
 const postText: string = postTextArg;
 
 const CONTENT_TYPES: Record<string, string> = {
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.png': 'image/png',
-  '.gif': 'image/gif',
-  '.webp': 'image/webp',
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
 };
 
 const authenticator = new OAuth2Authenticator({
@@ -56,7 +54,7 @@ async function main(): Promise<void> {
     const ext = imagePath.toLowerCase().match(/\.[^.]+$/)?.[0];
     const contentType = ext ? CONTENT_TYPES[ext] : undefined;
     if (!contentType) {
-      consola.error(`未対応の画像形式です。対応形式: ${Object.keys(CONTENT_TYPES).join(', ')}`);
+      consola.error(`未対応の画像形式です。対応形式: ${Object.keys(CONTENT_TYPES).join(", ")}`);
       process.exit(1);
     }
 
@@ -75,8 +73,8 @@ async function main(): Promise<void> {
 
     // upload_url に画像データを送信
     const response = await fetch(uploaded.uploadUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': contentType },
+      method: "POST",
+      headers: { "Content-Type": contentType },
       body: new Uint8Array(imageData),
     });
     if (!response.ok) {
@@ -85,16 +83,16 @@ async function main(): Promise<void> {
     }
 
     // 処理完了を待機
-    consola.info('⏳ メディアの処理を待機中...');
+    consola.info("⏳ メディアの処理を待機中...");
     await uploader.waitForReady(uploaded.mediaId);
-    consola.success('  処理完了');
+    consola.success("  処理完了");
 
     builder.media([uploaded.mediaId]);
   }
 
   // ポストを作成
   const request = builder.build();
-  consola.info('📝 ポストを作成中...');
+  consola.info("📝 ポストを作成中...");
   const post = await client.createPost(request);
   consola.success(`✅ 投稿完了! (postId: ${post.postId})`);
 
@@ -102,6 +100,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  consola.error('エラーが発生しました:', err);
+  consola.error("エラーが発生しました:", err);
   process.exit(1);
 });

@@ -71,14 +71,10 @@ export function getSendEventRequestType(): {
   decode: (buffer: Uint8Array) => unknown;
 } {
   const pkgDef = getPackageDefinition();
-  const msgDef =
-    pkgDef[
-      "social.mixi.application.service.client_endpoint.v1.SendEventRequest"
-    ];
+  const msgDef = pkgDef["social.mixi.application.service.client_endpoint.v1.SendEventRequest"];
   if (!msgDef || !("type" in msgDef)) {
     throw new Error("SendEventRequest message type not found in proto");
   }
-  const pbType = (msgDef as { type: { decode: (buf: Uint8Array) => unknown } })
-    .type;
+  const pbType = (msgDef as { type: { decode: (buf: Uint8Array) => unknown } }).type;
   return pbType;
 }

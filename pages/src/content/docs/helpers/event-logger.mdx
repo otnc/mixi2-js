@@ -1,0 +1,127 @@
+---
+title: EventLogger
+description: 受信したイベントをログ出力するデバッグ用ミドルウェア
+---
+
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+`EventLogger` は、受信したイベントをログ出力するデバッグ用ミドルウェアです。内部ハンドラへの処理はそのまま委譲します。公式 API 仕様には含まれない、SDK 独自の拡張機能です。
+
+## インストール
+
+追加インストールは不要です。`mixi2-js` に同梱されています。
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { EventLogger } from 'mixi2-js/helpers';
+    // CJS
+    const { EventLogger } = require('mixi2-js/helpers');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { EventLogger } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+## 基本的な使い方
+
+ハンドラをラップするだけで、受信したイベントの種別と ID が自動的に出力されます。
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { StreamWatcher } from 'mixi2-js';
+    import { EventLogger, EventRouter } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { StreamWatcher } from '@otoneko1102/mixi2-js';
+    import { EventLogger, EventRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const router = new EventRouter();
+
+router.on(EventType.POST_CREATED, async (event) => {
+  // ...
+});
+
+// router を EventLogger でラップする
+const logger = new EventLogger(router);
+
+await watcher.watch(logger);
+// → [mixi2] event received: type=2 id=xxxxxxxx
+```
+
+## オプション
+
+```typescript
+const logger = new EventLogger(handler, {
+  logger: console.log, // ログ出力関数（デフォルト: console.log）
+  verbose: true, // eventId を含めるか（デフォルト: true）
+});
+```
+
+| オプション | 型                          | デフォルト    | 説明                                     |
+| ---------- | --------------------------- | ------------- | ---------------------------------------- |
+| `logger`   | `(message: string) => void` | `console.log` | ログ出力関数。既存のロガーに差し替え可能 |
+| `verbose`  | `boolean`                   | `true`        | `true` の場合、`eventId` をログに含める  |
+
+### カスタムロガーを使う
+
+```typescript
+import { EventLogger } from "mixi2-js/helpers";
+
+// pino や winston など外部ロガーを使う場合
+const logger = new EventLogger(handler, {
+  logger: (msg) => myLogger.info(msg),
+});
+```
+
+## 他のミドルウェアとの組み合わせ
+
+`EventLogger` は `EventHandler` を実装しているため、他のミドルウェアと自由に組み合わせられます。処理の流れが分かりやすいよう、最も外側に置くのが一般的です。
+
+```typescript
+import { EventDeduplicator, EventLogger, EventRouter, ReasonFilter } from "mixi2-js/helpers";
+import { EventReason } from "mixi2-js";
+
+const router = new EventRouter();
+const filter = new ReasonFilter(router, [EventReason.POST_MENTIONED]);
+const dedup = new EventDeduplicator(filter);
+const logger = new EventLogger(dedup); // 最外層でログ
+
+await watcher.watch(logger);
+// イベント受信 → ログ出力 → 重複チェック → フィルタ → ルーティング
+```
+
+## API リファレンス
+
+### コンストラクタ
+
+```typescript
+new EventLogger(handler: EventHandler, options?: EventLoggerOptions)
+```
+
+| 引数      | 型                    | 説明                                   |
+| --------- | --------------------- | -------------------------------------- |
+| `handler` | `EventHandler`        | ログ出力後に処理を委譲する内部ハンドラ |
+| `options` | `EventLoggerOptions?` | オプション設定                         |
+
+### メソッド
+
+| メソッド        | 戻り値          | 説明                             |
+| --------------- | --------------- | -------------------------------- |
+| `handle(event)` | `Promise<void>` | ログを出力し、内部ハンドラに委譲 |
+
+<Aside type="note">
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
+  [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
+</Aside>

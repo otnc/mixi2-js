@@ -3,7 +3,7 @@ title: gRPC ストリーミング
 description: StreamWatcher によるリアルタイムイベント受信
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 ## 概要
 
@@ -38,7 +38,7 @@ const authenticator = new OAuth2Authenticator({
 
 const handler: EventHandler = {
   handle: async (event: Event) => {
-    console.log('Received event:', event.eventId, EventType[event.eventType]);
+    console.log("Received event:", event.eventId, EventType[event.eventType]);
   },
 };
 
@@ -60,25 +60,25 @@ watcher.stop();
 new StreamWatcher(options: StreamWatcherOptions)
 ```
 
-| プロパティ | 型 | 必須 | 説明 |
-|---|---|---|---|
-| `streamAddress` | `string` | ○ | Stream サーバーアドレス |
-| `authenticator` | `Authenticator` | ○ | 認証インスタンス |
+| プロパティ      | 型              | 必須 | 説明                    |
+| --------------- | --------------- | ---- | ----------------------- |
+| `streamAddress` | `string`        | ○    | Stream サーバーアドレス |
+| `authenticator` | `Authenticator` | ○    | 認証インスタンス        |
 
 ## メソッド
 
-| メソッド | 戻り値 | 説明 |
-|---|---|---|
-| `watch(handler)` | `Promise<void>` | イベント監視を開始 |
-| `stop()` | `void` | 監視を停止し接続を閉じる |
+| メソッド         | 戻り値          | 説明                     |
+| ---------------- | --------------- | ------------------------ |
+| `watch(handler)` | `Promise<void>` | イベント監視を開始       |
+| `stop()`         | `void`          | 監視を停止し接続を閉じる |
 
 ## 再接続の仕様
 
-| 項目 | 値 |
-|---|---|
-| 再接続方式 | 指数バックオフ（1 秒 → 2 秒 → 4 秒） |
-| 最大リトライ回数 | 3 回 |
-| Ping イベント | SDK 内部で処理（`handle` には渡されない） |
+| 項目             | 値                                        |
+| ---------------- | ----------------------------------------- |
+| 再接続方式       | 指数バックオフ（1 秒 → 2 秒 → 4 秒）      |
+| 最大リトライ回数 | 3 回                                      |
+| Ping イベント    | SDK 内部で処理（`handle` には渡されない） |
 
 :::caution
 再接続中に発生したイベントは失われます。厳密な到達保証が必要な場合は [Webhook 方式](/guides/webhook/) を使用してください。

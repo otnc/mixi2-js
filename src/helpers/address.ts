@@ -1,8 +1,7 @@
 /**
  * アクセストークン取得用のエンドポイント URL です。
  */
-export const tokenUrl: string =
-  "https://application-auth.mixi.social/oauth2/token";
+export const tokenUrl: string = "https://application-auth.mixi.social/oauth2/token";
 
 /**
  * API サーバーアドレスです。

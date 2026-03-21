@@ -2,6 +2,32 @@
 
 このプロジェクトのすべての注目すべき変更をバージョンごとに記録します。
 
+## [1.3.0] - 2026-03-22
+
+### Added
+
+- `helpers` サブパス（`mixi2-js/helpers`）に新しい拡張機能を追加
+  - `EventDeduplicator` — Webhook リトライ等による重複イベントをスキップするミドルウェア
+  - `EventLogger` — 受信イベントをログ出力するデバッグ用ミドルウェア
+  - `TextSplitter` — 長いテキストを mixi2 の 149 文字制限内に自動分割するヘルパー
+  - `maxPostLength` — mixi2 ポスト最大文字数定数（`149`）
+
+### Fixed
+
+- `SendChatMessageRequest` — `text` または `mediaId` のいずれかが必須という制約を Union 型で表現（どちらも省略した場合に型エラーを検出可能に）
+- `convert.ts` — `OfficialStampSet` の `startAt` / `endAt` の変換で `|| undefined` を `?? undefined` に修正（epoch (0) のような falsy な日付を誤って `undefined` にしない）
+
+### Changed
+
+- `StreamWatcherOptions` — `maxRetries` オプションを追加（デフォルト: 3）
+- ビルドツールチェーンを **Vite+** (`vite-plus`) に移行
+  - tsup → `vp pack`（tsdown / Rolldown ベース）
+  - Jest → `vp test`（Vitest ベース）
+  - ESLint + Prettier → `vp check`（Oxlint + Oxfmt）
+  - 各ツールの設定を `vite.config.ts` に統合
+- `package.json` の ESM 出力拡張子を `.js` → `.mjs` / `.d.ts` → `.d.mts` に変更（tsdown の標準出力形式に合わせる）
+- 不要になった設定ファイルを削除: `tsup.config.ts`, `jest.config.json`, `.prettierrc.json`, `eslint.config.js`
+
 ## [1.2.1] - 2026-03-21
 
 ### Fixed

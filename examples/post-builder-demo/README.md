@@ -42,19 +42,14 @@
 ## PostBuilder の使い方
 
 ```javascript
-import { PostBuilder } from 'mixi2-js/helpers';
+import { PostBuilder } from "mixi2-js/helpers";
 
 // テキストのみ
-const request = new PostBuilder('Hello!').build();
+const request = new PostBuilder("Hello!").build();
 
 // リプライ + センシティブマスク
-const reply = new PostBuilder('返信です')
-  .reply('post-id')
-  .sensitive('注意')
-  .build();
+const reply = new PostBuilder("返信です").reply("post-id").sensitive("注意").build();
 
 // 画像付き
-const mediaPost = new PostBuilder('写真です')
-  .media(['media-id'])
-  .build();
+const mediaPost = new PostBuilder("写真です").media(["media-id"]).build();
 ```

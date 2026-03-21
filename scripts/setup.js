@@ -64,51 +64,36 @@ async function run() {
 
   const rl = readline.createInterface({ input, output });
 
-  consola.info(
-    "Setup: fill in metadata. Press Enter to accept the current value in [brackets].",
-  );
+  consola.info("Setup: fill in metadata. Press Enter to accept the current value in [brackets].");
 
   const defaultName = pkg.name || "";
-  let name =
-    (await rl.question(`Package name [${defaultName}]: `)).trim() ||
-    defaultName;
+  let name = (await rl.question(`Package name [${defaultName}]: `)).trim() || defaultName;
   while (!validateName(name)) {
     consola.warn(
       "Invalid package name. Use lowercase, numbers, hyphens, underscores. Scoped names like @scope/name are allowed.",
     );
-    name =
-      (await rl.question(`Package name [${defaultName}]: `)).trim() ||
-      defaultName;
+    name = (await rl.question(`Package name [${defaultName}]: `)).trim() || defaultName;
   }
 
   const defaultDesc = pkg.description || "";
-  const description =
-    (await rl.question(`Description [${defaultDesc}]: `)).trim() || defaultDesc;
+  const description = (await rl.question(`Description [${defaultDesc}]: `)).trim() || defaultDesc;
 
   const defaultAuthor = pkg.author || "";
-  const author =
-    (await rl.question(`Author [${defaultAuthor}]: `)).trim() || defaultAuthor;
+  const author = (await rl.question(`Author [${defaultAuthor}]: `)).trim() || defaultAuthor;
 
-  const existingRepo =
-    (pkg.repository && (pkg.repository.url || pkg.repository)) || "";
+  const existingRepo = (pkg.repository && (pkg.repository.url || pkg.repository)) || "";
   const repoInput =
-    (await rl.question(`Repository URL [${existingRepo}]: `)).trim() ||
-    existingRepo;
+    (await rl.question(`Repository URL [${existingRepo}]: `)).trim() || existingRepo;
 
   const defaultYear = String(new Date().getFullYear());
-  const year =
-    (await rl.question(`Copyright year [${defaultYear}]: `)).trim() ||
-    defaultYear;
+  const year = (await rl.question(`Copyright year [${defaultYear}]: `)).trim() || defaultYear;
 
   const defaultCopyrightName = author || pkg.author || "";
   const copyrightName =
-    (
-      await rl.question(`Copyright holder name [${defaultCopyrightName}]: `)
-    ).trim() || defaultCopyrightName;
+    (await rl.question(`Copyright holder name [${defaultCopyrightName}]: `)).trim() ||
+    defaultCopyrightName;
 
-  const confirm = (await rl.question("Confirm and apply changes? (Y/n): "))
-    .trim()
-    .toLowerCase();
+  const confirm = (await rl.question("Confirm and apply changes? (Y/n): ")).trim().toLowerCase();
   await rl.close();
 
   if (confirm === "n" || confirm === "no") {
@@ -124,7 +109,7 @@ async function run() {
     if (repoInput) {
       let finalRepoInput = repoInput;
       if (!finalRepoInput.startsWith("git+")) {
-        finalRepoInput = `git+${finalRepoInput}`
+        finalRepoInput = `git+${finalRepoInput}`;
       }
       if (!finalRepoInput.endsWith(".git")) {
         finalRepoInput = `${finalRepoInput}.git`;
@@ -138,9 +123,7 @@ async function run() {
       pkg.homepage = `${normalized}#readme`;
     }
     await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf8");
-    consola.success(
-      "Updated package.json (backup created as package.json.bak)",
-    );
+    consola.success("Updated package.json (backup created as package.json.bak)");
   } catch (err) {
     consola.error("Failed to update package.json:", err.message);
     process.exit(1);
@@ -156,9 +139,7 @@ async function run() {
   ];
   const readmeRes = await replaceIfExists(readmePath, readmeReplacements);
   if (readmeRes.updated)
-    consola.success(
-      "README.md placeholders replaced (backup at README.md.bak)",
-    );
+    consola.success("README.md placeholders replaced (backup at README.md.bak)");
   else if (readmeRes.reason === "not-found")
     consola.info("README.md not found; skipping README replacement.");
   else consola.info("No README placeholders found; nothing to replace.");
@@ -174,8 +155,7 @@ async function run() {
     [/\[\<copyright-holder\>\]/gi, copyrightName],
   ];
   const licRes = await replaceIfExists(licensePath, licenseReplacements);
-  if (licRes.updated)
-    consola.success("LICENSE placeholders replaced (backup at LICENSE.bak)");
+  if (licRes.updated) consola.success("LICENSE placeholders replaced (backup at LICENSE.bak)");
   else if (licRes.reason === "not-found")
     consola.info("LICENSE not found; skipping LICENSE replacement.");
   else consola.info("No LICENSE placeholders found; nothing to replace.");
@@ -186,9 +166,7 @@ async function run() {
     await new Promise((resolve, reject) => {
       const cp = spawn("npm", ["install"], { stdio: "inherit", shell: true });
       cp.on("close", (code) =>
-        code === 0
-          ? resolve()
-          : reject(new Error(`npm install exited with code ${code}`)),
+        code === 0 ? resolve() : reject(new Error(`npm install exited with code ${code}`)),
       );
       cp.on("error", reject);
     });

@@ -1,6 +1,12 @@
 export { tokenUrl, apiAddress, streamAddress } from "./address";
+export { EventDeduplicator } from "./event-deduplicator";
+export type { EventDeduplicatorOptions } from "./event-deduplicator";
+export { EventLogger } from "./event-logger";
+export type { EventLoggerOptions } from "./event-logger";
 export { EventRouter } from "./event-router";
 export { MediaUploader } from "./media-uploader";
 export type { MediaUploaderOptions, UploadedMedia } from "./media-uploader";
 export { PostBuilder } from "./post-builder";
 export { ReasonFilter } from "./reason-filter";
+export { TextSplitter, maxPostLength } from "./text-splitter";
+export type { TextSplitterOptions } from "./text-splitter";

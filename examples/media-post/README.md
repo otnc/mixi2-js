@@ -43,9 +43,9 @@
 
 ## 対応フォーマット
 
-| 拡張子 | Content-Type |
-|---|---|
+| 拡張子           | Content-Type |
+| ---------------- | ------------ |
 | `.jpg` / `.jpeg` | `image/jpeg` |
-| `.png` | `image/png` |
-| `.gif` | `image/gif` |
-| `.webp` | `image/webp` |
+| `.png`           | `image/png`  |
+| `.gif`           | `image/gif`  |
+| `.webp`          | `image/webp` |

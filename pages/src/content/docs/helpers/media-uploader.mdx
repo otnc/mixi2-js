@@ -3,7 +3,7 @@ title: MediaUploader
 description: メディアアップロードの処理完了待機を自動化するヘルパー
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 `MediaUploader` は、メディアアップロードの開始からステータスポーリング・完了待機までを簡略化するヘルパーです。
 
@@ -45,8 +45,8 @@ let status;
 while (true) {
   status = await client.getPostMediaStatus(upload.mediaId);
   if (status.status === MediaUploadStatus.COMPLETED) break;
-  if (status.status === MediaUploadStatus.FAILED) throw new Error('Failed');
-  await new Promise(r => setTimeout(r, 1000));
+  if (status.status === MediaUploadStatus.FAILED) throw new Error("Failed");
+  await new Promise((r) => setTimeout(r, 1000));
 }
 ```
 
@@ -82,15 +82,15 @@ const uploader = new MediaUploader(client);
 
 // 1. アップロード開始
 const { mediaId, uploadUrl } = await uploader.initiate({
-  contentType: 'image/png',
+  contentType: "image/png",
   dataSize: imageBuffer.length,
   mediaType: MediaUploadType.IMAGE,
 });
 
 // 2. メディアデータを送信
 await fetch(uploadUrl, {
-  method: 'POST',
-  headers: { 'Content-Type': 'image/png' },
+  method: "POST",
+  headers: { "Content-Type": "image/png" },
   body: imageBuffer,
 });
 
@@ -99,7 +99,7 @@ await uploader.waitForReady(mediaId);
 
 // 4. ポストに添付
 await client.createPost({
-  text: '画像付きポスト！',
+  text: "画像付きポスト！",
   mediaIdList: [mediaId],
 });
 ```
@@ -109,14 +109,14 @@ await client.createPost({
 ```typescript
 const uploader = new MediaUploader(client, {
   pollInterval: 2000, // ポーリング間隔（ミリ秒）。デフォルト: 1000
-  timeout: 120000,    // タイムアウト（ミリ秒）。デフォルト: 60000
+  timeout: 120000, // タイムアウト（ミリ秒）。デフォルト: 60000
 });
 ```
 
-| オプション | 型 | デフォルト | 説明 |
-|---|---|---|---|
-| `pollInterval` | `number` | `1000` | ステータスポーリングの間隔（ミリ秒） |
-| `timeout` | `number` | `60000` | 完了待機のタイムアウト（ミリ秒） |
+| オプション     | 型       | デフォルト | 説明                                 |
+| -------------- | -------- | ---------- | ------------------------------------ |
+| `pollInterval` | `number` | `1000`     | ステータスポーリングの間隔（ミリ秒） |
+| `timeout`      | `number` | `60000`    | 完了待機のタイムアウト（ミリ秒）     |
 
 ## API リファレンス
 
@@ -128,12 +128,17 @@ new MediaUploader(client: Client, options?: MediaUploaderOptions)
 
 ### メソッド
 
-| メソッド | 引数 | 戻り値 | 説明 |
-|---|---|---|---|
-| `initiate(request)` | `InitiatePostMediaUploadRequest` | `Promise<UploadedMedia>` | アップロードを開始し `mediaId` と `uploadUrl` を返す |
-| `waitForReady(mediaId)` | `string` | `Promise<string>` | 処理完了までポーリングして待機。完了時に `mediaId` を返す |
+| メソッド                | 引数                             | 戻り値                   | 説明                                                      |
+| ----------------------- | -------------------------------- | ------------------------ | --------------------------------------------------------- |
+| `initiate(request)`     | `InitiatePostMediaUploadRequest` | `Promise<UploadedMedia>` | アップロードを開始し `mediaId` と `uploadUrl` を返す      |
+| `waitForReady(mediaId)` | `string`                         | `Promise<string>`        | 処理完了までポーリングして待機。完了時に `mediaId` を返す |
 
 ### エラー
 
 - アップロードが失敗した場合: `Error: Media upload failed: {mediaId}`
 - タイムアウトした場合: `Error: Media upload timed out after {timeout}ms: {mediaId}`
+
+<Aside type="note">
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
+  [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
+</Aside>
