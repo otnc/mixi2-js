@@ -3,7 +3,7 @@ title: EventDeduplicator
 description: 重複したイベントを検出してスキップするミドルウェア
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 `EventDeduplicator` は、同じイベントが複数回届いた場合に内部ハンドラへの二重処理を防ぐミドルウェアです。公式 API 仕様には含まれない、SDK 独自の拡張機能です。
 
@@ -13,17 +13,11 @@ import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript
-    // ESM
-    import { EventDeduplicator } from 'mixi2-js/helpers';
-    // CJS
-    const { EventDeduplicator } = require('mixi2-js/helpers');
-    ```
+    ```typescript // ESM import {EventDeduplicator} from 'mixi2-js/helpers'; // CJS const{" "}
+    {EventDeduplicator} = require('mixi2-js/helpers'); ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript
-    import { EventDeduplicator } from '@otoneko1102/mixi2-js/helpers';
-    ```
+    ```typescript import {EventDeduplicator} from '@otoneko1102/mixi2-js/helpers'; ```
   </TabItem>
 </Tabs>
 
@@ -77,7 +71,7 @@ const dedup = new EventDeduplicator(router);
 
 const server = new WebhookServer({
   port: 8080,
-  publicKey: Buffer.from(process.env.SIGNATURE_PUBLIC_KEY!, 'base64'),
+  publicKey: Buffer.from(process.env.SIGNATURE_PUBLIC_KEY!, "base64"),
   handler: dedup,
 });
 
@@ -88,18 +82,19 @@ await server.start();
 
 ```typescript
 const dedup = new EventDeduplicator(handler, {
-  maxSize: 1000,    // 記憶する最大イベント数（デフォルト: 1000）
-  maxAge: 300_000,  // 記憶する最大時間（ミリ秒, デフォルト: 5 分）
+  maxSize: 1000, // 記憶する最大イベント数（デフォルト: 1000）
+  maxAge: 300_000, // 記憶する最大時間（ミリ秒, デフォルト: 5 分）
 });
 ```
 
-| オプション | 型 | デフォルト | 説明 |
-|---|---|---|---|
-| `maxSize` | `number` | `1000` | 記憶する最大イベント数。超過した場合、最も古いエントリを削除 |
-| `maxAge` | `number` | `300000` | イベント ID を記憶する最大時間（ミリ秒）。経過後は再び通過を許可 |
+| オプション | 型       | デフォルト | 説明                                                             |
+| ---------- | -------- | ---------- | ---------------------------------------------------------------- |
+| `maxSize`  | `number` | `1000`     | 記憶する最大イベント数。超過した場合、最も古いエントリを削除     |
+| `maxAge`   | `number` | `300000`   | イベント ID を記憶する最大時間（ミリ秒）。経過後は再び通過を許可 |
 
 <Aside type="tip">
-`maxAge` のデフォルトは Webhook のタイムスタンプ許容ズレ（5 分）に合わせています。通常はデフォルト値のままで問題ありません。
+  `maxAge` のデフォルトは Webhook のタイムスタンプ許容ズレ（5
+  分）に合わせています。通常はデフォルト値のままで問題ありません。
 </Aside>
 
 ## 他のミドルウェアとの組み合わせ
@@ -129,21 +124,25 @@ const server = new WebhookServer({ handler: dedup, ... });
 new EventDeduplicator(handler: EventHandler, options?: EventDeduplicatorOptions)
 ```
 
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `handler` | `EventHandler` | 重複排除後に処理を委譲する内部ハンドラ |
-| `options` | `EventDeduplicatorOptions?` | オプション設定 |
+| 引数      | 型                          | 説明                                   |
+| --------- | --------------------------- | -------------------------------------- |
+| `handler` | `EventHandler`              | 重複排除後に処理を委譲する内部ハンドラ |
+| `options` | `EventDeduplicatorOptions?` | オプション設定                         |
 
 ### メソッド
 
-| メソッド | 戻り値 | 説明 |
-|---|---|---|
+| メソッド        | 戻り値          | 説明                                           |
+| --------------- | --------------- | ---------------------------------------------- |
 | `handle(event)` | `Promise<void>` | 重複チェックを行い、初回のみ内部ハンドラに委譲 |
 
 <Aside type="note">
-`EventDeduplicator` はインメモリでイベント ID を管理します。プロセスを再起動すると記録はリセットされます。再起動直後に Webhook のリトライが届く場合は、データベース等の永続ストレージを使った独自実装を検討してください。
+  `EventDeduplicator` はインメモリでイベント ID
+  を管理します。プロセスを再起動すると記録はリセットされます。再起動直後に Webhook
+  のリトライが届く場合は、データベース等の永続ストレージを使った独自実装を検討してください。
 </Aside>
 
 <Aside type="note">
-`EventDeduplicator` は SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
+  `EventDeduplicator` は SDK 独自の拡張機能であり、公式 API
+  仕様には含まれません。公式の仕様については [mixi2 Developer
+  Platform](https://developer.mixi.social/docs) を参照してください。
 </Aside>

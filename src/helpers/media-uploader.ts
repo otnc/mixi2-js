@@ -37,9 +37,7 @@ export class MediaUploader {
   /**
    * メディアアップロードを開始し、uploadUrl と mediaId を返す。
    */
-  async initiate(
-    request: InitiatePostMediaUploadRequest,
-  ): Promise<UploadedMedia> {
+  async initiate(request: InitiatePostMediaUploadRequest): Promise<UploadedMedia> {
     const response: InitiatePostMediaUploadResponse =
       await this.client.initiatePostMediaUpload(request);
     return {
@@ -64,8 +62,6 @@ export class MediaUploader {
       }
       await new Promise((resolve) => setTimeout(resolve, this.pollInterval));
     }
-    throw new Error(
-      `Media upload timed out after ${this.timeout}ms: ${mediaId}`,
-    );
+    throw new Error(`Media upload timed out after ${this.timeout}ms: ${mediaId}`);
   }
 }

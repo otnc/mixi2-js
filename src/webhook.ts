@@ -58,14 +58,11 @@ export class WebhookServer {
     res.end("Not Found");
   }
 
-  private async handleEvent(
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-  ): Promise<void> {
+  private async handleEvent(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
     // Validate signature header
-    const signatureBase64 = req.headers[
-      "x-mixi2-application-event-signature"
-    ] as string | undefined;
+    const signatureBase64 = req.headers["x-mixi2-application-event-signature"] as
+      | string
+      | undefined;
     if (!signatureBase64) {
       res.writeHead(401);
       res.end("missing x-mixi2-application-event-signature");
@@ -80,9 +77,7 @@ export class WebhookServer {
     }
 
     // Validate timestamp header
-    const timestamp = req.headers["x-mixi2-application-event-timestamp"] as
-      | string
-      | undefined;
+    const timestamp = req.headers["x-mixi2-application-event-timestamp"] as string | undefined;
     if (!timestamp) {
       res.writeHead(401);
       res.end("missing x-mixi2-application-event-timestamp");
@@ -118,12 +113,7 @@ export class WebhookServer {
 
     // Verify Ed25519 signature: sign(body + timestamp)
     const dataToVerify = Buffer.concat([body, Buffer.from(timestamp)]);
-    const isValid = crypto.verify(
-      null,
-      dataToVerify,
-      this.publicKey,
-      signature,
-    );
+    const isValid = crypto.verify(null, dataToVerify, this.publicKey, signature);
     if (!isValid) {
       res.writeHead(401);
       res.end("Signature is invalid");
@@ -193,10 +183,7 @@ export class WebhookServer {
     return this.server;
   }
 
-  get eventHandlerFunc(): (
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-  ) => Promise<void> {
+  get eventHandlerFunc(): (req: http.IncomingMessage, res: http.ServerResponse) => Promise<void> {
     return this.handleEvent.bind(this);
   }
 }

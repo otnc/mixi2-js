@@ -1,3 +1,4 @@
+/// <reference types="vite-plus/test/globals" />
 import * as address from "../src/helpers/address";
 import { EventDeduplicator } from "../src/helpers/event-deduplicator";
 import { EventLogger } from "../src/helpers/event-logger";
@@ -5,19 +6,11 @@ import { EventRouter } from "../src/helpers/event-router";
 import { PostBuilder } from "../src/helpers/post-builder";
 import { ReasonFilter } from "../src/helpers/reason-filter";
 import { TextSplitter, maxPostLength } from "../src/helpers/text-splitter";
-import {
-  EventType,
-  EventReason,
-  PostMaskType,
-  PostPublishingType,
-} from "../src/types";
+import { EventType, EventReason, PostMaskType, PostPublishingType } from "../src/types";
 import type { Event } from "../src/types";
 import type { EventHandler } from "../src/event";
 
-function createEvent(
-  eventType: EventType,
-  overrides: Partial<Event> = {},
-): Event {
+function createEvent(eventType: EventType, overrides: Partial<Event> = {}): Event {
   return {
     eventId: "test-event-id",
     eventType,
@@ -92,10 +85,7 @@ describe("EventRouter", () => {
     await router.handle(createEvent(EventType.POST_CREATED));
     await router.handle(createEvent(EventType.CHAT_MESSAGE_RECEIVED));
 
-    expect(types).toEqual([
-      EventType.POST_CREATED,
-      EventType.CHAT_MESSAGE_RECEIVED,
-    ]);
+    expect(types).toEqual([EventType.POST_CREATED, EventType.CHAT_MESSAGE_RECEIVED]);
   });
 
   test("off() removes a specific listener", async () => {
@@ -219,25 +209,17 @@ describe("PostBuilder", () => {
   });
 
   test("reply clears quote and vice versa", () => {
-    const request = new PostBuilder("Test")
-      .quote("q1")
-      .reply("r1")
-      .build();
+    const request = new PostBuilder("Test").quote("q1").reply("r1").build();
     expect(request.inReplyToPostId).toBe("r1");
     expect(request.quotedPostId).toBeUndefined();
 
-    const request2 = new PostBuilder("Test")
-      .reply("r1")
-      .quote("q1")
-      .build();
+    const request2 = new PostBuilder("Test").reply("r1").quote("q1").build();
     expect(request2.quotedPostId).toBe("q1");
     expect(request2.inReplyToPostId).toBeUndefined();
   });
 
   test("builds post with media", () => {
-    const request = new PostBuilder("With media")
-      .media(["m1", "m2"])
-      .build();
+    const request = new PostBuilder("With media").media(["m1", "m2"]).build();
     expect(request.mediaIdList).toEqual(["m1", "m2"]);
   });
 
@@ -283,7 +265,9 @@ describe("ReasonFilter", () => {
   test("passes events with matching reason", async () => {
     const received: Event[] = [];
     const inner: EventHandler = {
-      handle: async (event) => { received.push(event); },
+      handle: async (event) => {
+        received.push(event);
+      },
     };
 
     const filter = new ReasonFilter(inner, [EventReason.POST_REPLY]);
@@ -303,7 +287,9 @@ describe("ReasonFilter", () => {
   test("blocks events with non-matching reason", async () => {
     const received: Event[] = [];
     const inner: EventHandler = {
-      handle: async (event) => { received.push(event); },
+      handle: async (event) => {
+        received.push(event);
+      },
     };
 
     const filter = new ReasonFilter(inner, [EventReason.POST_REPLY]);
@@ -323,7 +309,9 @@ describe("ReasonFilter", () => {
   test("passes events with no reason list (e.g. ping)", async () => {
     const received: Event[] = [];
     const inner: EventHandler = {
-      handle: async (event) => { received.push(event); },
+      handle: async (event) => {
+        received.push(event);
+      },
     };
 
     const filter = new ReasonFilter(inner, [EventReason.POST_REPLY]);
@@ -336,7 +324,9 @@ describe("ReasonFilter", () => {
   test("passes events when any reason matches", async () => {
     const received: Event[] = [];
     const inner: EventHandler = {
-      handle: async (event) => { received.push(event); },
+      handle: async (event) => {
+        received.push(event);
+      },
     };
 
     const filter = new ReasonFilter(inner, [EventReason.POST_MENTIONED]);
@@ -356,7 +346,9 @@ describe("ReasonFilter", () => {
   test("filters chat message events by reason", async () => {
     const received: Event[] = [];
     const inner: EventHandler = {
-      handle: async (event) => { received.push(event); },
+      handle: async (event) => {
+        received.push(event);
+      },
     };
 
     const filter = new ReasonFilter(inner, [EventReason.DIRECT_MESSAGE_RECEIVED]);
@@ -376,7 +368,11 @@ describe("ReasonFilter", () => {
 
 describe("EventDeduplicator", () => {
   function makeHandler(received: Event[]): EventHandler {
-    return { handle: async (event) => { received.push(event); } };
+    return {
+      handle: async (event) => {
+        received.push(event);
+      },
+    };
   }
 
   test("passes first occurrence to inner handler", async () => {
@@ -494,7 +490,11 @@ describe("TextSplitter", () => {
 describe("EventLogger", () => {
   test("passes event to inner handler", async () => {
     const received: Event[] = [];
-    const inner: EventHandler = { handle: async (e) => { received.push(e); } };
+    const inner: EventHandler = {
+      handle: async (e) => {
+        received.push(e);
+      },
+    };
     const logger = new EventLogger(inner, { logger: () => {} });
     const event = createEvent(EventType.POST_CREATED);
 

@@ -57,9 +57,7 @@ export class OAuth2Authenticator implements Authenticator {
     });
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to acquire access token: ${response.status} ${response.statusText}`,
-      );
+      throw new Error(`Failed to acquire access token: ${response.status} ${response.statusText}`);
     }
 
     const data = (await response.json()) as TokenResponse;

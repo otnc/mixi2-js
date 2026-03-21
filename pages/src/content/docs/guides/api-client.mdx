@@ -3,7 +3,7 @@ title: API クライアント
 description: gRPC API クライアントの使い方
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 ## 概要
 
@@ -40,49 +40,49 @@ const client = new Client({
 });
 ```
 
-| プロパティ | 型 | 必須 | 説明 |
-|---|---|---|---|
-| `apiAddress` | `string` | ○ | API サーバーアドレス |
-| `authenticator` | `Authenticator` | ○ | 認証インスタンス |
+| プロパティ      | 型              | 必須 | 説明                 |
+| --------------- | --------------- | ---- | -------------------- |
+| `apiAddress`    | `string`        | ○    | API サーバーアドレス |
+| `authenticator` | `Authenticator` | ○    | 認証インスタンス     |
 
 ## RPC メソッド一覧
 
-| メソッド | 引数 | 戻り値 | 説明 |
-|---|---|---|---|
-| `getUsers(userIdList)` | `string[]` | `Promise<User[]>` | ユーザー情報を一括取得 |
-| `getPosts(postIdList)` | `string[]` | `Promise<Post[]>` | ポスト情報を一括取得 |
-| `createPost(request)` | `CreatePostRequest` | `Promise<Post>` | ポストを作成（返信/引用/メディア添付対応） |
-| `initiatePostMediaUpload(request)` | `InitiatePostMediaUploadRequest` | `Promise<InitiatePostMediaUploadResponse>` | メディアアップロードを開始 |
-| `getPostMediaStatus(mediaId)` | `string` | `Promise<GetPostMediaStatusResponse>` | メディアの処理状況を取得 |
-| `sendChatMessage(request)` | `SendChatMessageRequest` | `Promise<ChatMessage>` | チャットメッセージを送信 |
-| `getStamps(request?)` | `GetStampsRequest?` | `Promise<OfficialStampSet[]>` | スタンプ一覧を取得 |
-| `addStampToPost(postId, stampId)` | `string, string` | `Promise<Post>` | ポストにスタンプを付与 |
-| `close()` | - | `void` | gRPC 接続を閉じる |
+| メソッド                           | 引数                             | 戻り値                                     | 説明                                       |
+| ---------------------------------- | -------------------------------- | ------------------------------------------ | ------------------------------------------ |
+| `getUsers(userIdList)`             | `string[]`                       | `Promise<User[]>`                          | ユーザー情報を一括取得                     |
+| `getPosts(postIdList)`             | `string[]`                       | `Promise<Post[]>`                          | ポスト情報を一括取得                       |
+| `createPost(request)`              | `CreatePostRequest`              | `Promise<Post>`                            | ポストを作成（返信/引用/メディア添付対応） |
+| `initiatePostMediaUpload(request)` | `InitiatePostMediaUploadRequest` | `Promise<InitiatePostMediaUploadResponse>` | メディアアップロードを開始                 |
+| `getPostMediaStatus(mediaId)`      | `string`                         | `Promise<GetPostMediaStatusResponse>`      | メディアの処理状況を取得                   |
+| `sendChatMessage(request)`         | `SendChatMessageRequest`         | `Promise<ChatMessage>`                     | チャットメッセージを送信                   |
+| `getStamps(request?)`              | `GetStampsRequest?`              | `Promise<OfficialStampSet[]>`              | スタンプ一覧を取得                         |
+| `addStampToPost(postId, stampId)`  | `string, string`                 | `Promise<Post>`                            | ポストにスタンプを付与                     |
+| `close()`                          | -                                | `void`                                     | gRPC 接続を閉じる                          |
 
 ## 使用例
 
 ### ユーザー情報取得
 
 ```typescript
-const users = await client.getUsers(['user-id-1', 'user-id-2']);
+const users = await client.getUsers(["user-id-1", "user-id-2"]);
 ```
 
 ### ポスト作成
 
 ```typescript
-const post = await client.createPost({ text: 'Hello mixi2!' });
+const post = await client.createPost({ text: "Hello mixi2!" });
 ```
 
 #### CreatePostRequest
 
-| フィールド | 型 | 必須 | 説明 |
-|---|---|---|---|
-| `text` | `string` | ○ | ポスト本文（最大 149 文字） |
-| `inReplyToPostId` | `string` | - | 返信先ポスト ID |
-| `quotedPostId` | `string` | - | 引用対象ポスト ID |
-| `mediaIdList` | `string[]` | - | 添付メディア ID（最大 4 件） |
-| `postMask` | `PostMask` | - | マスク設定（センシティブ/ネタバレ） |
-| `publishingType` | `PostPublishingType` | - | 配信設定 |
+| フィールド        | 型                   | 必須 | 説明                                |
+| ----------------- | -------------------- | ---- | ----------------------------------- |
+| `text`            | `string`             | ○    | ポスト本文（最大 149 文字）         |
+| `inReplyToPostId` | `string`             | -    | 返信先ポスト ID                     |
+| `quotedPostId`    | `string`             | -    | 引用対象ポスト ID                   |
+| `mediaIdList`     | `string[]`           | -    | 添付メディア ID（最大 4 件）        |
+| `postMask`        | `PostMask`           | -    | マスク設定（センシティブ/ネタバレ） |
+| `publishingType`  | `PostPublishingType` | -    | 配信設定                            |
 
 :::note
 `inReplyToPostId` と `quotedPostId` は同時に指定できません。
@@ -92,41 +92,41 @@ const post = await client.createPost({ text: 'Hello mixi2!' });
 
 ```typescript
 const upload = await client.initiatePostMediaUpload({
-  contentType: 'image/png',
+  contentType: "image/png",
   dataSize: 1024,
   mediaType: MediaUploadType.IMAGE,
 });
 // upload.uploadUrl に POST でメディアデータを送信
 const status = await client.getPostMediaStatus(upload.mediaId);
 // status.status === MediaUploadStatus.COMPLETED になったら添付可能
-await client.createPost({ text: '画像付き！', mediaIdList: [upload.mediaId] });
+await client.createPost({ text: "画像付き！", mediaIdList: [upload.mediaId] });
 ```
 
 #### InitiatePostMediaUploadRequest
 
-| フィールド | 型 | 必須 | 説明 |
-|---|---|---|---|
-| `contentType` | `string` | ○ | Content-Type（例: `image/jpeg`） |
-| `dataSize` | `number` | ○ | データサイズ（バイト） |
-| `mediaType` | `MediaUploadType` | ○ | メディア種別（`IMAGE` / `VIDEO`） |
-| `description` | `string` | - | メディアの説明 |
+| フィールド    | 型                | 必須 | 説明                              |
+| ------------- | ----------------- | ---- | --------------------------------- |
+| `contentType` | `string`          | ○    | Content-Type（例: `image/jpeg`）  |
+| `dataSize`    | `number`          | ○    | データサイズ（バイト）            |
+| `mediaType`   | `MediaUploadType` | ○    | メディア種別（`IMAGE` / `VIDEO`） |
+| `description` | `string`          | -    | メディアの説明                    |
 
 ### チャットメッセージ送信
 
 ```typescript
 const message = await client.sendChatMessage({
-  roomId: 'room-id',
-  text: 'Hello!',
+  roomId: "room-id",
+  text: "Hello!",
 });
 ```
 
 #### SendChatMessageRequest
 
-| フィールド | 型 | 必須 | 説明 |
-|---|---|---|---|
-| `roomId` | `string` | ○ | 送信先ルーム ID |
-| `text` | `string` | △ | テキスト（`text` または `mediaId` のいずれか必須） |
-| `mediaId` | `string` | △ | 添付メディア ID |
+| フィールド | 型       | 必須 | 説明                                               |
+| ---------- | -------- | ---- | -------------------------------------------------- |
+| `roomId`   | `string` | ○    | 送信先ルーム ID                                    |
+| `text`     | `string` | △    | テキスト（`text` または `mediaId` のいずれか必須） |
+| `mediaId`  | `string` | △    | 添付メディア ID                                    |
 
 :::caution
 チャットメッセージはユーザーからの DM 受信後にのみ送信可能です。
@@ -139,7 +139,7 @@ const message = await client.sendChatMessage({
 const stamps = await client.getStamps({ officialStampLanguage: LanguageCode.JP });
 
 // ポストにスタンプを付与
-await client.addStampToPost('post-id', 'stamp-id');
+await client.addStampToPost("post-id", "stamp-id");
 ```
 
 ### 接続の終了

@@ -1,18 +1,14 @@
-import 'dotenv/config';
-import consola from 'consola';
-import {
-  OAuth2Authenticator,
-  Client,
-  StreamWatcher,
-  EventType,
-  EventReason,
-} from 'mixi2-js';
-import { EventRouter, ReasonFilter } from 'mixi2-js/helpers';
+import "dotenv/config";
+import consola from "consola";
+import { OAuth2Authenticator, Client, StreamWatcher, EventType, EventReason } from "mixi2-js";
+import { EventRouter, ReasonFilter } from "mixi2-js/helpers";
 
 const { CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_ADDRESS, STREAM_ADDRESS, AUTH_KEY } = process.env;
 
 if (!CLIENT_ID || !CLIENT_SECRET || !TOKEN_URL || !API_ADDRESS || !STREAM_ADDRESS) {
-  consola.error('必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。');
+  consola.error(
+    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。",
+  );
   process.exit(1);
 }
 
@@ -43,7 +39,7 @@ router.on(EventType.POST_CREATED, async (event) => {
   if (!postEvent?.post) return;
 
   const post = postEvent.post;
-  const name = postEvent.issuer?.displayName ?? '不明';
+  const name = postEvent.issuer?.displayName ?? "不明";
 
   if (postEvent.eventReasonList.includes(EventReason.POST_MENTIONED)) {
     consola.info(`📝 ${name} さんからメンション: ${post.text}`);
@@ -62,7 +58,7 @@ router.on(EventType.CHAT_MESSAGE_RECEIVED, async (event) => {
   if (!messageEvent?.message?.text) return;
 
   const message = messageEvent.message;
-  const name = messageEvent.issuer?.displayName ?? '不明';
+  const name = messageEvent.issuer?.displayName ?? "不明";
 
   consola.info(`✉️ ${name} さんから DM: ${message.text}`);
   await client.sendChatMessage({
@@ -79,11 +75,14 @@ const filter = new ReasonFilter(router, [
   EventReason.DIRECT_MESSAGE_RECEIVED,
 ]);
 
-consola.info('🔀 Event Router Bot を起動中...');
+consola.info("🔀 Event Router Bot を起動中...");
 
-watcher.watch(filter).then(() => {
-  consola.info('ストリーム接続が終了しました。');
-}).catch((err) => {
-  consola.error('ストリーム接続エラー:', err);
-  process.exit(1);
-});
+watcher
+  .watch(filter)
+  .then(() => {
+    consola.info("ストリーム接続が終了しました。");
+  })
+  .catch((err) => {
+    consola.error("ストリーム接続エラー:", err);
+    process.exit(1);
+  });

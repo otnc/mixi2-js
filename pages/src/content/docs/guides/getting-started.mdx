@@ -3,7 +3,7 @@ title: はじめに
 description: mixi2-js のインストールとセットアップ
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 ## 前提条件
 
@@ -14,16 +14,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 ## インストール
 
 <Tabs>
-  <TabItem label="npm">
-    ```bash
-    npm install mixi2-js
-    ```
-  </TabItem>
-  <TabItem label="JSR">
-    ```bash
-    npx jsr add @otoneko1102/mixi2-js
-    ```
-  </TabItem>
+  <TabItem label="npm">```bash npm install mixi2-js ```</TabItem>
+  <TabItem label="JSR">```bash npx jsr add @otoneko1102/mixi2-js ```</TabItem>
 </Tabs>
 
 ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.ts`) も同梱されています。
@@ -35,12 +27,12 @@ JSR 経由でインストールした場合、インポートパスは `'mixi2-j
 
 ## モジュール一覧
 
-| モジュール | 説明 |
-|---|---|
+| モジュール            | 説明                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------- |
 | `OAuth2Authenticator` | OAuth2 Client Credentials 認証（トークン自動キャッシュ・有効期限 1 分前に自動更新） |
-| `Client` | gRPC API クライアント（8 つの RPC メソッドに対応） |
-| `WebhookServer` | HTTP Webhook サーバー（Ed25519 署名検証・Ping 自動応答） |
-| `StreamWatcher` | gRPC ストリーミング（指数バックオフによる自動再接続） |
+| `Client`              | gRPC API クライアント（8 つの RPC メソッドに対応）                                  |
+| `WebhookServer`       | HTTP Webhook サーバー（Ed25519 署名検証・Ping 自動応答）                            |
+| `StreamWatcher`       | gRPC ストリーミング（指数バックオフによる自動再接続）                               |
 
 ## 認証
 
@@ -48,17 +40,11 @@ JSR 経由でインストールした場合、インポートパスは `'mixi2-j
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript
-    // ESM
-    import { OAuth2Authenticator } from 'mixi2-js';
-    // CJS
-    const { OAuth2Authenticator } = require('mixi2-js');
-    ```
+    ```typescript // ESM import {OAuth2Authenticator} from 'mixi2-js'; // CJS const{" "}
+    {OAuth2Authenticator} = require('mixi2-js'); ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript
-    import { OAuth2Authenticator } from '@otoneko1102/mixi2-js';
-    ```
+    ```typescript import {OAuth2Authenticator} from '@otoneko1102/mixi2-js'; ```
   </TabItem>
 </Tabs>
 
@@ -81,14 +67,14 @@ OAuth2 Client Credentials フローによる認証を管理します。
 new OAuth2Authenticator(options: AuthenticatorOptions)
 ```
 
-| プロパティ | 型 | 説明 |
-|---|---|---|
-| `clientId` | `string` | OAuth2 クライアント ID |
+| プロパティ     | 型       | 説明                            |
+| -------------- | -------- | ------------------------------- |
+| `clientId`     | `string` | OAuth2 クライアント ID          |
 | `clientSecret` | `string` | OAuth2 クライアントシークレット |
-| `tokenUrl` | `string` | トークンエンドポイント URL |
+| `tokenUrl`     | `string` | トークンエンドポイント URL      |
 
-| メソッド | 戻り値 | 説明 |
-|---|---|---|
+| メソッド           | 戻り値            | 説明                                                                    |
+| ------------------ | ----------------- | ----------------------------------------------------------------------- |
 | `getAccessToken()` | `Promise<string>` | アクセストークンを取得。有効期限の 1 分前までキャッシュし、自動更新する |
 
 `Authenticator` インターフェースを実装しているため、カスタム認証を独自に実装することも可能です。

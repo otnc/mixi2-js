@@ -1,13 +1,13 @@
 {
   "name": "event-router-bot",
   "version": "1.0.0",
+  "description": "EventRouter と ReasonFilter を使ったイベントルーティング Bot",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "license": "Apache-2.0",
-  "description": "EventRouter と ReasonFilter を使ったイベントルーティング Bot",
   "dependencies": {
     "consola": "^3.4.2",
     "dotenv": "^17.3.1",

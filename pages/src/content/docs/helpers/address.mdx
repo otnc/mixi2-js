@@ -3,7 +3,7 @@ title: Address
 description: mixi2 Application API の公式エンドポイント/アドレス定数
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 `Address` は、mixi2 Application API の公式エンドポイント/アドレスを定数として提供するヘルパーです。環境変数や設定ファイルに固定値を持たせる必要がなくなり、コード上で明示的に参照できます。
 
@@ -36,11 +36,11 @@ import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 const authenticator = new OAuth2Authenticator({
   clientId,
   clientSecret,
-  tokenUrl: 'https://application-auth.mixi.social/oauth2/token',
+  tokenUrl: "https://application-auth.mixi.social/oauth2/token",
 });
 
 const client = new Client({
-  apiAddress: 'application-api.mixi.social',
+  apiAddress: "application-api.mixi.social",
   authenticator,
 });
 ```
@@ -108,20 +108,21 @@ const watcher = new StreamWatcher({
 
 ### 定数
 
-| 定数 | 型 | 説明 |
-|---|---|---|
-| `tokenUrl` | `string` | アクセストークン取得用エンドポイント URL |
-| `apiAddress` | `string` | gRPC API サーバーアドレス |
+| 定数            | 型       | 説明                                      |
+| --------------- | -------- | ----------------------------------------- |
+| `tokenUrl`      | `string` | アクセストークン取得用エンドポイント URL  |
+| `apiAddress`    | `string` | gRPC API サーバーアドレス                 |
 | `streamAddress` | `string` | gRPC ストリーミング接続用サーバーアドレス |
 
 ### 値
 
-| 定数 | 値 |
-|---|---|
-| `tokenUrl` | `https://application-auth.mixi.social/oauth2/token` |
-| `apiAddress` | `application-api.mixi.social` |
-| `streamAddress` | `application-stream.mixi.social` |
+| 定数            | 値                                                  |
+| --------------- | --------------------------------------------------- |
+| `tokenUrl`      | `https://application-auth.mixi.social/oauth2/token` |
+| `apiAddress`    | `application-api.mixi.social`                       |
+| `streamAddress` | `application-stream.mixi.social`                    |
 
 <Aside type="note">
-`Address` は SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
+  `Address` は SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については [mixi2
+  Developer Platform](https://developer.mixi.social/docs) を参照してください。
 </Aside>

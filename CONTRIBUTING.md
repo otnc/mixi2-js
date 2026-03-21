@@ -61,17 +61,16 @@ npm install
 
 ### 主なコマンド
 
-| コマンド | 説明 |
-|---|---|
-| `npm run check` | 型チェック + Lint + フォーマットチェックを一括実行 |
-| `npm run check:all` | 上記 + テスト + ビルドをすべて実行 |
-| `npm run check:types` | 型チェック (`tsc --noEmit`) |
-| `npm run check:lint` | Lint (`eslint`) |
-| `npm run check:format` | フォーマットチェック (`prettier --check`) |
-| `npm test` | テスト実行 |
-| `npm run build` | ビルド (ESM + CJS + `.d.ts`) |
-| `npm run format` | コードフォーマット適用 |
-| `npm run lint:fix` | Lint エラーの自動修正 |
+| コマンド              | 説明                                                    |
+| --------------------- | ------------------------------------------------------- |
+| `npm run check`       | フォーマット + Lint + 型チェックを一括実行 (`vp check`) |
+| `npm run check:all`   | 上記 + テスト + ビルドをすべて実行                      |
+| `npm run check:types` | 型チェック (`tsc --noEmit`)                             |
+| `npm test`            | テスト実行 (`vp test`)                                  |
+| `npm run build`       | ビルド (ESM + CJS + `.d.ts`) (`vp pack`)                |
+| `npm run format`      | コードフォーマット適用 (`vp fmt`)                       |
+| `npm run lint`        | Lint 実行 (`vp lint`)                                   |
+| `npm run lint:fix`    | Lint エラーの自動修正 (`vp lint --fix`)                 |
 
 ## プルリクエストの手順
 
@@ -85,22 +84,21 @@ npm install
 
 - **言語**: TypeScript（strict モード）
 - **型チェック**: `npm run check:types`
-- **Lint**: `npm run check:lint`
-- **フォーマットチェック**: `npm run check:format`
-- **フォーマッタ**: Prettier（`npm run format` で整形）
-- **テスト**: Jest
-- **ビルド**: tsup（ESM + CJS + `.d.ts` を出力）
-- **一括チェック**: `npm run check:all`（型 + Lint + フォーマット + テスト + ビルド）
+- **Lint**: `npm run lint`（Oxlint）
+- **フォーマット**: `npm run format`（Oxfmt）
+- **テスト**: Vitest（`npm test`）
+- **ビルド**: tsdown / Rolldown（`npm run build`、ESM `.mjs` + CJS `.cjs` + `.d.ts` を出力）
+- **一括チェック**: `npm run check:all`（フォーマット + Lint + 型 + テスト + ビルド）
 
 ### 公式仕様との対応
 
 変更を行う際は、以下のリソースを参照して仕様との整合性を確認してください:
 
-| リソース | 用途 |
-|---|---|
-| [mixi2-api](https://github.com/mixigroup/mixi2-api) | proto 定義（型・サービス・enum 定義の正確な値） |
-| [mixi2-application-sdk-go](https://github.com/mixigroup/mixi2-application-sdk-go) | 公式 SDK のアーキテクチャ・動作仕様 |
-| [公式ドキュメント](https://developer.mixi.social/docs) | API リファレンス・イベント仕様・レート制限等 |
+| リソース                                                                          | 用途                                            |
+| --------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [mixi2-api](https://github.com/mixigroup/mixi2-api)                               | proto 定義（型・サービス・enum 定義の正確な値） |
+| [mixi2-application-sdk-go](https://github.com/mixigroup/mixi2-application-sdk-go) | 公式 SDK のアーキテクチャ・動作仕様             |
+| [公式ドキュメント](https://developer.mixi.social/docs)                            | API リファレンス・イベント仕様・レート制限等    |
 
 ## バグ報告
 

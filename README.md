@@ -16,8 +16,7 @@
 [![Node.js](https://img.shields.io/node/v/mixi2-js?color=339933&logo=nodedotjs&logoColor=white)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Build](https://img.shields.io/github/actions/workflow/status/otoneko1102/mixi2-js/publish.yml?label=build&logo=github)](https://github.com/otoneko1102/mixi2-js/actions)
-[![ESLint](https://img.shields.io/badge/ESLint-enabled-4B32C3?logo=eslint&logoColor=white)](eslint.config.js)
-[![Prettier](https://img.shields.io/badge/Prettier-enabled-F7B93E?logo=prettier&logoColor=white)](https://prettier.io/)
+[![Vite+](https://img.shields.io/badge/Vite%2B-enabled-646CFF?logo=vite&logoColor=white)](vite.config.ts)
 
 <div align="center">
 
@@ -50,23 +49,27 @@ ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.
 
 ## 機能概要
 
-| モジュール | 説明 |
-|---|---|
+| モジュール            | 説明                                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
 | `OAuth2Authenticator` | OAuth2 Client Credentials 認証（アクセストークンの取得・キャッシュ・有効期限 1 分前に自動更新） |
-| `Client` | gRPC API クライアント（8 つの RPC メソッドに対応） |
-| `WebhookServer` | HTTP Webhook サーバー（Ed25519 署名検証・Ping 自動応答） |
-| `StreamWatcher` | gRPC ストリーミング（指数バックオフによる自動再接続） |
+| `Client`              | gRPC API クライアント（8 つの RPC メソッドに対応）                                              |
+| `WebhookServer`       | HTTP Webhook サーバー（Ed25519 署名検証・Ping 自動応答）                                        |
+| `StreamWatcher`       | gRPC ストリーミング（指数バックオフによる自動再接続）                                           |
 
 ### Helpers (拡張機能)
 
 `mixi2-js/helpers` は、公式 API 仕様には含まれない **SDK 独自の便利ユーティリティ**を提供します。
 
-| ヘルパー | 説明 |
-|---|---|
-| `EventRouter` | イベントタイプ別にハンドラを登録できるルーター |
-| `PostBuilder` | メソッドチェーンでポスト作成リクエストを組み立てるビルダー |
-| `MediaUploader` | メディアアップロードの開始〜完了待機を自動化 |
-| `ReasonFilter` | `EventReason` ベースでイベントをフィルタリング |
+| ヘルパー            | 説明                                                       |
+| ------------------- | ---------------------------------------------------------- |
+| `EventRouter`       | イベントタイプ別にハンドラを登録できるルーター             |
+| `PostBuilder`       | メソッドチェーンでポスト作成リクエストを組み立てるビルダー |
+| `MediaUploader`     | メディアアップロードの開始〜完了待機を自動化               |
+| `ReasonFilter`      | `EventReason` ベースでイベントをフィルタリング             |
+| `EventDeduplicator` | Webhook リトライ等による重複イベントをスキップ             |
+| `EventLogger`       | 受信イベントをログ出力するデバッグ用ミドルウェア           |
+| `TextSplitter`      | 長いテキストを 149 文字制限内に自動分割                    |
+| `Address`           | 公式エンドポイント URL を返すヘルパー                      |
 
 ---
 

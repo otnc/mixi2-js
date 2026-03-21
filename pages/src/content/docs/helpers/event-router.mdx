@@ -3,7 +3,7 @@ title: EventRouter
 description: イベントタイプ別にハンドラを登録できる EventHandler 実装
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 `EventRouter` は、イベントタイプ別にハンドラを登録できる `EventHandler` 実装です。公式 API 仕様には含まれない、SDK 独自の拡張機能です。
 
@@ -13,17 +13,11 @@ import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript
-    // ESM
-    import { EventRouter } from 'mixi2-js/helpers';
-    // CJS
-    const { EventRouter } = require('mixi2-js/helpers');
-    ```
+    ```typescript // ESM import {EventRouter} from 'mixi2-js/helpers'; // CJS const {EventRouter} =
+    require('mixi2-js/helpers'); ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript
-    import { EventRouter } from '@otoneko1102/mixi2-js/helpers';
-    ```
+    ```typescript import {EventRouter} from '@otoneko1102/mixi2-js/helpers'; ```
   </TabItem>
 </Tabs>
 
@@ -56,12 +50,12 @@ const router = new EventRouter();
 
 router.on(EventType.POST_CREATED, async (event) => {
   const post = event.postCreatedEvent?.post;
-  console.log('ポスト作成:', post?.text);
+  console.log("ポスト作成:", post?.text);
 });
 
 router.on(EventType.CHAT_MESSAGE_RECEIVED, async (event) => {
   const message = event.chatMessageReceivedEvent?.message;
-  console.log('DM 受信:', message?.text);
+  console.log("DM 受信:", message?.text);
 });
 ```
 
@@ -95,12 +89,12 @@ const router = new EventRouter();
 
 router.on(EventType.POST_CREATED, async (event) => {
   const post = event.postCreatedEvent?.post;
-  console.log('ポスト作成:', post?.text);
+  console.log("ポスト作成:", post?.text);
 });
 
 router.on(EventType.CHAT_MESSAGE_RECEIVED, async (event) => {
   const message = event.chatMessageReceivedEvent?.message;
-  console.log('DM 受信:', message?.text);
+  console.log("DM 受信:", message?.text);
 });
 
 const watcher = new StreamWatcher({
@@ -115,21 +109,16 @@ await watcher.watch(router);
 
 <Tabs>
   <TabItem label="npm">
-    ```typescript
-    import { WebhookServer } from 'mixi2-js';
-    import { EventRouter } from 'mixi2-js/helpers';
-    ```
+    ```typescript import {WebhookServer} from 'mixi2-js'; import {EventRouter} from
+    'mixi2-js/helpers'; ```
   </TabItem>
   <TabItem label="JSR">
-    ```typescript
-    import { WebhookServer } from '@otoneko1102/mixi2-js';
-    import { EventRouter } from '@otoneko1102/mixi2-js/helpers';
-    ```
+    ```typescript import {WebhookServer} from '@otoneko1102/mixi2-js'; import {EventRouter} from
+    '@otoneko1102/mixi2-js/helpers'; ```
   </TabItem>
 </Tabs>
 
 ```typescript
-
 const router = new EventRouter();
 
 router.on(EventType.POST_CREATED, async (event) => {
@@ -138,7 +127,7 @@ router.on(EventType.POST_CREATED, async (event) => {
 
 const server = new WebhookServer({
   port: 8080,
-  publicKey: Buffer.from(process.env.SIGNATURE_PUBLIC_KEY!, 'base64'),
+  publicKey: Buffer.from(process.env.SIGNATURE_PUBLIC_KEY!, "base64"),
   handler: router,
 });
 
@@ -150,18 +139,18 @@ await server.start();
 ### コンストラクタ
 
 ```typescript
-new EventRouter()
+new EventRouter();
 ```
 
 引数なしで作成します。`EventHandler` インターフェースを実装しています。
 
 ### メソッド
 
-| メソッド | 戻り値 | 説明 |
-|---|---|---|
-| `on(eventType, listener)` | `this` | イベントタイプに対するリスナーを登録 |
-| `off(eventType, listener?)` | `this` | リスナーを削除 |
-| `handle(event)` | `Promise<void>` | 登録されたリスナーにイベントをルーティング |
+| メソッド                    | 戻り値          | 説明                                       |
+| --------------------------- | --------------- | ------------------------------------------ |
+| `on(eventType, listener)`   | `this`          | イベントタイプに対するリスナーを登録       |
+| `off(eventType, listener?)` | `this`          | リスナーを削除                             |
+| `handle(event)`             | `Promise<void>` | 登録されたリスナーにイベントをルーティング |
 
 ### `on(eventType, listener)`
 
@@ -277,5 +266,6 @@ await watcher.watch(router);
 ```
 
 <Aside type="note">
-`EventRouter` は SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
+  `EventRouter` は SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については
+  [mixi2 Developer Platform](https://developer.mixi.social/docs) を参照してください。
 </Aside>

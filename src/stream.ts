@@ -23,10 +23,7 @@ export class StreamWatcher {
 
   constructor(options: StreamWatcherOptions) {
     const ClientConstructor = getStreamServiceClient();
-    this.streamClient = new ClientConstructor(
-      options.streamAddress,
-      grpc.credentials.createSsl(),
-    );
+    this.streamClient = new ClientConstructor(options.streamAddress, grpc.credentials.createSsl());
     this.authenticator = options.authenticator;
     this.authKey = options.authKey;
     this.maxRetries = options.maxRetries ?? 3;
@@ -44,20 +41,13 @@ export class StreamWatcher {
 
   private async connect(): Promise<grpc.ClientReadableStream<unknown>> {
     const metadata = await this.getMetadata();
-    const fn = (
-      this.streamClient as unknown as Record<
-        string,
-        (...args: unknown[]) => unknown
-      >
-    )["subscribeEvents"];
+    const fn = (this.streamClient as unknown as Record<string, (...args: unknown[]) => unknown>)[
+      "subscribeEvents"
+    ];
     if (!fn) {
       throw new Error("subscribeEvents method not found on stream client");
     }
-    return fn.call(
-      this.streamClient,
-      {},
-      metadata,
-    ) as grpc.ClientReadableStream<unknown>;
+    return fn.call(this.streamClient, {}, metadata) as grpc.ClientReadableStream<unknown>;
   }
 
   private async reconnect(): Promise<grpc.ClientReadableStream<unknown>> {
@@ -70,19 +60,14 @@ export class StreamWatcher {
       }
 
       // Exponential backoff: 1s, 2s, 4s
-      await new Promise((resolve) =>
-        setTimeout(resolve, Math.pow(2, i) * 1000),
-      );
+      await new Promise((resolve) => setTimeout(resolve, Math.pow(2, i) * 1000));
 
       try {
         const stream = await this.connect();
         return stream;
       } catch (err) {
         lastError = err instanceof Error ? err : new Error(String(err));
-        console.warn(
-          `Reconnect attempt ${i + 1}/${maxRetries} failed:`,
-          lastError.message,
-        );
+        console.warn(`Reconnect attempt ${i + 1}/${maxRetries} failed:`, lastError.message);
       }
     }
 
@@ -96,9 +81,7 @@ export class StreamWatcher {
     return new Promise((resolve, reject) => {
       const setupStream = (s: grpc.ClientReadableStream<unknown>) => {
         s.on("data", (response: Record<string, unknown>) => {
-          const events = ((response.events as unknown[]) || []).map(
-            convertEvent,
-          );
+          const events = ((response.events as unknown[]) || []).map(convertEvent);
           for (const event of events) {
             if (event.eventType === EventType.PING) {
               continue;
