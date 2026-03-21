@@ -12,6 +12,15 @@
   - `TextSplitter` — 長いテキストを mixi2 の 149 文字制限内に自動分割するヘルパー
   - `maxPostLength` — mixi2 ポスト最大文字数定数（`149`）
 
+### Fixed
+
+- `SendChatMessageRequest` — `text` または `mediaId` のいずれかが必須という制約を Union 型で表現（どちらも省略した場合に型エラーを検出可能に）
+- `convert.ts` — `OfficialStampSet` の `startAt` / `endAt` の変換で `|| undefined` を `?? undefined` に修正（epoch (0) のような falsy な日付を誤って `undefined` にしない）
+
+### Changed
+
+- `StreamWatcherOptions` — `maxRetries` オプションを追加（デフォルト: 3）
+
 ## [1.2.1] - 2026-03-21
 
 ### Fixed
