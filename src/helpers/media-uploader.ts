@@ -47,6 +47,27 @@ export class MediaUploader {
   }
 
   /**
+   * 取得した uploadUrl にメディアデータを HTTP POST でアップロードする。
+   * Authorization ヘッダーに Bearer トークンを自動付与する。
+   * Content-Type は `application/octet-stream` を使用する。
+   */
+  async upload(uploadUrl: string, data: ArrayBuffer): Promise<void> {
+    const token = await this.client.getAccessToken();
+    const res = await fetch(uploadUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/octet-stream",
+      },
+      body: data,
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      throw new Error(`Media upload failed (${res.status}): ${body}`);
+    }
+  }
+
+  /**
    * メディアの処理が完了するまでポーリングして待機する。
    * 完了時に mediaId を返す。失敗時はエラーをスローする。
    */

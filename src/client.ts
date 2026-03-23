@@ -33,6 +33,10 @@ export class Client {
     this.authKey = options.authKey;
   }
 
+  async getAccessToken(): Promise<string> {
+    return this.authenticator.getAccessToken();
+  }
+
   private async getMetadata(): Promise<grpc.Metadata> {
     const token = await this.authenticator.getAccessToken();
     const metadata = new grpc.Metadata();
@@ -43,26 +47,25 @@ export class Client {
     return metadata;
   }
 
-  private call<TReq, TRes>(method: string, request: TReq): Promise<TRes> {
-    return this.getMetadata().then((metadata) => {
-      return new Promise<TRes>((resolve, reject) => {
-        const fn = (this.grpcClient as unknown as Record<string, (...args: unknown[]) => void>)[
-          method
-        ];
-        if (!fn) {
-          reject(new Error(`Method "${method}" not found on gRPC client`));
-          return;
-        }
-        fn.call(
-          this.grpcClient,
-          request,
-          metadata,
-          (err: grpc.ServiceError | null, response: TRes) => {
-            if (err) reject(err);
-            else resolve(response);
-          },
-        );
-      });
+  private async call<TReq, TRes>(method: string, request: TReq): Promise<TRes> {
+    const metadata = await this.getMetadata();
+    return new Promise<TRes>((resolve, reject) => {
+      const fn = (this.grpcClient as unknown as Record<string, (...args: unknown[]) => void>)[
+        method
+      ];
+      if (!fn) {
+        reject(new Error(`Method "${method}" not found on gRPC client`));
+        return;
+      }
+      fn.call(
+        this.grpcClient,
+        request,
+        metadata,
+        (err: grpc.ServiceError | null, response: TRes) => {
+          if (err) reject(err);
+          else resolve(response);
+        },
+      );
     });
   }
 
@@ -83,6 +86,13 @@ export class Client {
   async createPost(request: CreatePostRequest): Promise<Post> {
     const response = await this.call<CreatePostRequest, { post: unknown }>("createPost", request);
     return convertPost(response.post);
+  }
+
+  async deletePost(postId: string): Promise<boolean> {
+    const response = await this.call<{ postId: string }, { deleted: boolean }>("deletePost", {
+      postId,
+    });
+    return response.deleted ?? false;
   }
 
   async initiatePostMediaUpload(
