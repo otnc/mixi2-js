@@ -71,7 +71,7 @@
     "@grpc/proto-loader": "^0.8.0"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
     "consola": "^3.4.2",
     "dotenv": "^17.3.1",
     "npm-check-updates": "^19.6.5",
