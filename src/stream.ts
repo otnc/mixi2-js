@@ -50,37 +50,44 @@ export class StreamWatcher {
     return fn.call(this.streamClient, {}, metadata) as grpc.ClientReadableStream<unknown>;
   }
 
-  private async reconnect(): Promise<grpc.ClientReadableStream<unknown>> {
-    const maxRetries = this.maxRetries;
-    let lastError: Error | undefined;
-
-    for (let i = 0; i < maxRetries; i++) {
-      if (this.aborted) {
-        throw new Error("Watcher aborted");
-      }
-
-      // Exponential backoff: 1s, 2s, 4s
-      await new Promise((resolve) => setTimeout(resolve, Math.pow(2, i) * 1000));
-
-      try {
-        const stream = await this.connect();
-        return stream;
-      } catch (err) {
-        lastError = err instanceof Error ? err : new Error(String(err));
-        console.warn(`Reconnect attempt ${i + 1}/${maxRetries} failed:`, lastError.message);
-      }
+  private async reconnect(retryIndex: number): Promise<grpc.ClientReadableStream<unknown>> {
+    if (this.aborted) {
+      throw new Error("Watcher aborted");
     }
 
-    throw lastError || new Error("Failed to reconnect");
+    // Exponential backoff: 2s, 4s, 8s, ... (capped at 30s)
+    const backoff = Math.min(Math.pow(2, retryIndex) * 1000, 30000);
+    await new Promise((resolve) => setTimeout(resolve, backoff));
+
+    if (this.aborted) {
+      throw new Error("Watcher aborted");
+    }
+
+    return this.connect();
   }
 
   async watch(handler: EventHandler): Promise<void> {
     this.aborted = false;
     let stream = await this.connect();
+    let consecutiveFailures = 0;
 
     return new Promise((resolve, reject) => {
       const setupStream = (s: grpc.ClientReadableStream<unknown>) => {
+        let receivedData = false;
+
+        // Detect hung connections: if no data arrives within 30s, destroy the stream
+        const connectionTimeout = setTimeout(() => {
+          if (!receivedData && !this.aborted) {
+            s.destroy(new Error("Connection timeout: no data received"));
+          }
+        }, 30000);
+
         s.on("data", (response: Record<string, unknown>) => {
+          if (!receivedData) {
+            receivedData = true;
+            clearTimeout(connectionTimeout);
+            consecutiveFailures = 0;
+          }
           const events = ((response.events as unknown[]) || []).map(convertEvent);
           for (const event of events) {
             if (event.eventType === EventType.PING) {
@@ -92,6 +99,7 @@ export class StreamWatcher {
 
         let disconnected = false;
         const handleDisconnect = async () => {
+          clearTimeout(connectionTimeout);
           if (disconnected) return;
           disconnected = true;
 
@@ -99,8 +107,20 @@ export class StreamWatcher {
             resolve();
             return;
           }
+
+          if (!receivedData) {
+            consecutiveFailures++;
+          }
+
+          if (consecutiveFailures >= this.maxRetries) {
+            reject(
+              new Error(`Failed to reconnect after ${this.maxRetries} consecutive attempts`),
+            );
+            return;
+          }
+
           try {
-            stream = await this.reconnect();
+            stream = await this.reconnect(consecutiveFailures);
             setupStream(stream);
           } catch (reconnectErr) {
             reject(reconnectErr);
