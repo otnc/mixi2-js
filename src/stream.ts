@@ -113,9 +113,7 @@ export class StreamWatcher {
           }
 
           if (consecutiveFailures >= this.maxRetries) {
-            reject(
-              new Error(`Failed to reconnect after ${this.maxRetries} consecutive attempts`),
-            );
+            reject(new Error(`Failed to reconnect after ${this.maxRetries} consecutive attempts`));
             return;
           }
 
