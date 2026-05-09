@@ -1,6 +1,6 @@
 # 🏗️ Post Builder Demo
 
-[mixi2-js](https://github.com/otoneko1102/mixi2-js) の拡張機能 `PostBuilder` と `MediaUploader` を使ったサンプルです。
+[mixi2-js](https://github.com/otnc/mixi2-js) の拡張機能 `PostBuilder` と `MediaUploader` を使ったサンプルです。
 
 `PostBuilder` でメソッドチェーンを使ってポストを組み立て、
 `MediaUploader` で画像アップロードの完了待機を簡潔に行います。
