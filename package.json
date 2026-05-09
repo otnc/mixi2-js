@@ -14,13 +14,13 @@
   ],
   "homepage": "https://mixi2.js.org/",
   "bugs": {
-    "url": "https://github.com/otoneko1102/mixi2-js/issues"
+    "url": "https://github.com/otnc/mixi2-js/issues"
   },
   "license": "Apache-2.0",
   "author": "otoneko.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/otoneko1102/mixi2-js.git"
+    "url": "git+https://github.com/otnc/mixi2-js.git"
   },
   "files": [
     "dist",
