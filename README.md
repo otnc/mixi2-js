@@ -15,7 +15,7 @@
 [![License](https://img.shields.io/github/license/otoneko1102/mixi2-js?color=blue)](LICENSE)
 [![Node.js](https://img.shields.io/node/v/mixi2-js?color=339933&logo=nodedotjs&logoColor=white)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Build](https://img.shields.io/github/actions/workflow/status/otoneko1102/mixi2-js/publish.yml?label=build&logo=github)](https://github.com/otoneko1102/mixi2-js/actions)
+[![Build](https://img.shields.io/github/actions/workflow/status/otoneko1102/mixi2-js/publish.yml?label=build&logo=github)](https://github.com/otnc/mixi2-js/actions)
 [![Vite+](https://img.shields.io/badge/Vite%2B-enabled-646CFF?logo=vite&logoColor=white)](vite.config.ts)
 
 <div align="center">
@@ -97,7 +97,7 @@ ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.
 
 ### 貢献者
 
-<a href="https://github.com/otoneko1102/mixi2-js/graphs/contributors">
+<a href="https://github.com/otnc/mixi2-js/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=otoneko1102/mixi2-js" alt="Made with contrib.rocks" />
 </a>
 
