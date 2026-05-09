@@ -36,7 +36,7 @@
 
 ## 執行
 
-不正行為は、[GitHub Issues](https://github.com/otoneko1102/mixi2-js/issues) で報告することができます。すべての苦情は迅速かつ公正にレビューおよび調査されます。
+不正行為は、[GitHub Issues](https://github.com/otnc/mixi2-js/issues) で報告することができます。すべての苦情は迅速かつ公正にレビューおよび調査されます。
 
 ## 帰属
 
