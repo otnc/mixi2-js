@@ -1,6 +1,6 @@
 # 🔀 Event Router Bot
 
-[mixi2-js](https://github.com/otoneko1102/mixi2-js) の拡張機能 `EventRouter` と `ReasonFilter` を使ったサンプルです。
+[mixi2-js](https://github.com/otnc/mixi2-js) の拡張機能 `EventRouter` と `ReasonFilter` を使ったサンプルです。
 
 `switch` 文の代わりに `EventRouter` でイベント種別ごとにハンドラを登録し、
 `ReasonFilter` で処理対象を特定の理由のみに絞り込みます。
