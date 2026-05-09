@@ -79,7 +79,7 @@ export default defineConfig({
         root: { label: "日本語", lang: "ja" },
       },
       social: [
-        { icon: "github", label: "GitHub", href: "https://github.com/otoneko1102/mixi2-js" },
+        { icon: "github", label: "GitHub", href: "https://github.com/otnc/mixi2-js" },
         { icon: "npm", label: "npm", href: "https://www.npmjs.com/package/mixi2-js" },
         { icon: "jsr", label: "JSR", href: "https://jsr.io/@otoneko1102/mixi2-js" },
       ],
