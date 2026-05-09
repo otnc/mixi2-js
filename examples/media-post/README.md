@@ -1,6 +1,6 @@
 # 📷 Media Post
 
-[mixi2-js](https://github.com/otoneko1102/mixi2-js) を使った画像付きポストの投稿サンプルです。
+[mixi2-js](https://github.com/otnc/mixi2-js) を使った画像付きポストの投稿サンプルです。
 
 メディアアップロード API の一連のフローを実演します。
 
