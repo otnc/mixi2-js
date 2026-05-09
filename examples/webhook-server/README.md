@@ -1,6 +1,6 @@
 # 🔔 Webhook Server
 
-[mixi2-js](https://github.com/otoneko1102/mixi2-js) の `WebhookServer` を使ったイベントハンドラのサンプルです。
+[mixi2-js](https://github.com/otnc/mixi2-js) の `WebhookServer` を使ったイベントハンドラのサンプルです。
 
 Ed25519 署名検証付きの HTTP Webhook サーバーを起動し、以下のイベントに対応します。
 
