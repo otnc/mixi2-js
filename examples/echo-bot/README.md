@@ -1,6 +1,6 @@
 # 🤖 Echo Bot
 
-[mixi2-js](https://github.com/otoneko1102/mixi2-js) を使った最もシンプルなサンプルです。
+[mixi2-js](https://github.com/otnc/mixi2-js) を使った最もシンプルなサンプルです。
 
 アプリケーションに DM を送ると、同じ内容をそのまま返信します。
 
