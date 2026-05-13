@@ -44,7 +44,7 @@ export class OAuth2Authenticator implements Authenticator {
 
   private async refreshToken(): Promise<void> {
     const credentials = Buffer.from(
-      `${encodeURIComponent(this.clientId)}:${encodeURIComponent(this.clientSecret)}`,
+      `${encodeURIComponent(this.clientId)}:${encodeURIComponent(this.clientSecret)}`
     ).toString("base64");
 
     const response = await fetch(this.tokenUrl, {
@@ -57,7 +57,9 @@ export class OAuth2Authenticator implements Authenticator {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to acquire access token: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Failed to acquire access token: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = (await response.json()) as TokenResponse;

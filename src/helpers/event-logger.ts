@@ -29,7 +29,9 @@ export class EventLogger implements EventHandler {
 
   async handle(event: Event): Promise<void> {
     if (this.verbose) {
-      this.logger(`[mixi2] event received: type=${event.eventType} id=${event.eventId}`);
+      this.logger(
+        `[mixi2] event received: type=${event.eventType} id=${event.eventId}`
+      );
     } else {
       this.logger(`[mixi2] event received: type=${event.eventType}`);
     }

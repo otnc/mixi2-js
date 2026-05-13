@@ -1,0 +1,6 @@
+.github/**
+pages/**
+proto/**
+dist/**
+scripts/**
+package-lock.json

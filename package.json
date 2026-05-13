@@ -54,29 +54,34 @@
   },
   "scripts": {
     "setup": "npm install && node scripts/setup.js",
-    "test": "vp test",
-    "check": "vp check",
-    "check:all": "vp check && vp test && vp pack",
+    "test": "vitest run",
+    "check": "tsc --noEmit",
+    "check:all": "tsc --noEmit && vitest run && tsdown",
     "check:types": "tsc --noEmit",
     "checkversion": "ncu",
     "up": "ncu -u && npm install",
-    "lint": "vp lint",
-    "lint:fix": "vp lint --fix",
-    "build": "vp pack",
-    "format": "vp fmt",
-    "format:check": "vp fmt --check"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "build": "tsdown",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.3",
     "@grpc/proto-loader": "^0.8.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.5.0",
     "consola": "^3.4.2",
     "dotenv": "^17.3.1",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.8",
     "npm-check-updates": "^19.6.5",
-    "typescript": "^5.9.3",
-    "vite-plus": "^0.1.13"
+    "prettier": "^3.8.3",
+    "tsdown": "^0.22.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
   },
   "engines": {
     "node": ">=18.0.0"
