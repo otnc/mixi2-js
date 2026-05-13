@@ -62,6 +62,12 @@ export class PostBuilder {
     return this;
   }
 
+  /** 投稿先コミュニティ ID を設定する。 */
+  community(communityId: string): this {
+    this.request.communityId = communityId;
+    return this;
+  }
+
   /** 配信設定を設定する。 */
   publishing(type: PostPublishingType): this {
     this.request.publishingType = type;
