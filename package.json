@@ -77,7 +77,7 @@
     "dotenv": "^17.3.1",
     "eslint": "latest",
     "eslint-config-prettier": "latest",
-    "npm-check-updates": "^19.6.5",
+    "npm-check-updates": "^22.2.0",
     "prettier": "latest",
     "tsdown": "0.21.10",
     "typescript": "6.0.3",
