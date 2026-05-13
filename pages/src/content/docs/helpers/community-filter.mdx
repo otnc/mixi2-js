@@ -1,0 +1,115 @@
+---
+title: CommunityFilter
+description: 特定のコミュニティに関連するイベントのみを通過させるミドルウェア（Plugin 専用）
+---
+
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+`CommunityFilter` は、指定したコミュニティ ID に関連するイベントのみを内部のハンドラに渡す `EventHandler` ミドルウェアです。複数のコミュニティにインストールされた Plugin で、特定のコミュニティだけを処理したい場合に便利です。
+
+<Aside type="caution">
+  このヘルパーは **Plugin 専用**です。Bot では利用できません。
+</Aside>
+
+## インストール
+
+追加インストールは不要です。`mixi2-js` に同梱されています。
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { CommunityFilter } from 'mixi2-js/helpers';
+    // CJS
+    const { CommunityFilter } = require('mixi2-js/helpers');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { CommunityFilter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+## 動作
+
+- コミュニティ ID を持つイベント（`PostCreatedEvent` の `communityId`、`CommunityMemberChangedEvent`、`CommunityPluginManagedEvent`）は、指定した ID と一致した場合のみ内部ハンドラに渡されます
+- PING など、コミュニティと無関係なイベントはそのまま通過します
+
+## 基本的な使い方
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { EventType, StreamWatcher } from 'mixi2-js';
+    import { EventRouter, CommunityFilter } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { EventType, StreamWatcher } from '@otoneko1102/mixi2-js';
+    import { EventRouter, CommunityFilter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const router = new EventRouter();
+
+router.on(EventType.POST_CREATED, async (event) => {
+  // community-id-1 のポストのみここに到達する
+  console.log("コミュニティのポスト:", event.postCreatedEvent?.post?.text);
+});
+
+// 特定のコミュニティのみ処理する
+const filter = new CommunityFilter(router, ['community-id-1']);
+
+const watcher = new StreamWatcher({ client, handler: filter });
+await watcher.watch();
+```
+
+### 複数コミュニティの場合
+
+```typescript
+// 複数のコミュニティ ID を指定できる
+const filter = new CommunityFilter(router, [
+  'community-id-1',
+  'community-id-2',
+]);
+```
+
+### EventDeduplicator と組み合わせる
+
+```typescript
+import { EventRouter, CommunityFilter, EventDeduplicator } from 'mixi2-js/helpers';
+
+const router = new EventRouter();
+const filter = new CommunityFilter(router, ['community-id-1']);
+const dedup = new EventDeduplicator(filter);
+
+// Webhook でも重複排除 + コミュニティフィルタが機能する
+const server = new WebhookServer({ handler: dedup, secret: '...' });
+```
+
+## API リファレンス
+
+### コンストラクタ
+
+```typescript
+new CommunityFilter(handler: EventHandler, communityIds: string[])
+```
+
+| 引数           | 型               | 説明                                   |
+| -------------- | ---------------- | -------------------------------------- |
+| `handler`      | `EventHandler`   | フィルタ通過後にイベントを渡すハンドラ |
+| `communityIds` | `string[]`       | 通過を許可するコミュニティ ID の一覧   |
+
+### メソッド
+
+| メソッド        | 説明                                                         |
+| --------------- | ------------------------------------------------------------ |
+| `handle(event)` | `EventHandler` インターフェースの実装。フィルタリングを行う |
+
+<Aside type="note">
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。
+</Aside>

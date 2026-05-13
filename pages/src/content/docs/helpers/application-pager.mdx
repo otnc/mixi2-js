@@ -1,0 +1,157 @@
+---
+title: ApplicationPager
+description: getCommunitiesUsingApplication のカーソルページネーションをラップし全件取得も可能なヘルパー（Plugin 専用）
+---
+
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+`ApplicationPager` は、`Client.getCommunitiesUsingApplication()` のカーソルページネーションをラップするヘルパーです。ページ単位の非同期ジェネレーター `iteratePages()` と、全件を一括取得する `fetchAll()` の 2 つの API を提供します。
+
+<Aside type="caution">
+  このヘルパーは **Plugin 専用**です。Bot では利用できません。
+</Aside>
+
+## インストール
+
+追加インストールは不要です。`mixi2-js` に同梱されています。
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { ApplicationPager } from 'mixi2-js/helpers';
+    // CJS
+    const { ApplicationPager } = require('mixi2-js/helpers');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { ApplicationPager } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+## 基本的な使い方
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { Client } from 'mixi2-js';
+    import { ApplicationPager } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { Client } from '@otoneko1102/mixi2-js';
+    import { ApplicationPager } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+### 全件を一括取得する
+
+アプリがインストールされているすべてのコミュニティを取得します。
+
+```typescript
+const pager = new ApplicationPager(client);
+const { communitiesUsingApplication, applicationVersions } = await pager.fetchAll();
+
+for (const { community, applicationVersionId } of communitiesUsingApplication) {
+  console.log(community?.name, 'version:', applicationVersionId);
+}
+```
+
+### ページ単位でイテレートする
+
+大量のコミュニティを扱う場合や、逐次処理したい場合は `iteratePages()` を使います。
+
+```typescript
+const pager = new ApplicationPager(client);
+
+for await (const page of pager.iteratePages()) {
+  console.log(`このページのコミュニティ数: ${page.communitiesUsingApplication.length}`);
+
+  for (const { community } of page.communitiesUsingApplication) {
+    if (community) {
+      console.log(community.name);
+    }
+  }
+}
+```
+
+### 最大ページ数を制限する
+
+```typescript
+// 最初の 2 ページ分だけ取得
+for await (const page of pager.iteratePages(undefined, { maxPages: 2 })) {
+  console.log(page.communitiesUsingApplication.length);
+}
+```
+
+### ApplicationVersion を参照する
+
+`getCommunitiesUsingApplication` は各コミュニティが使用しているバージョン情報も返します。
+
+```typescript
+const { communitiesUsingApplication, applicationVersions } = await pager.fetchAll();
+
+// バージョン ID → ApplicationVersion のマップを構築
+const versionMap = new Map(
+  applicationVersions.map((v) => [v.applicationVersionId, v])
+);
+
+for (const { community, applicationVersionId } of communitiesUsingApplication) {
+  const version = versionMap.get(applicationVersionId);
+  console.log(community?.name, 'requirements:', version?.requirements);
+}
+```
+
+## API リファレンス
+
+### コンストラクタ
+
+```typescript
+new ApplicationPager(client: Client)
+```
+
+| 引数     | 型       | 説明             |
+| -------- | -------- | ---------------- |
+| `client` | `Client` | API クライアント |
+
+### メソッド
+
+#### `fetchAll(request?)`
+
+```typescript
+fetchAll(request?: GetCommunitiesUsingApplicationRequest): Promise<ApplicationPagerPage>
+```
+
+全ページを取得してマージした結果を返します。
+
+**戻り値: `ApplicationPagerPage`**
+
+| フィールド                     | 型                            | 説明                           |
+| ------------------------------ | ----------------------------- | ------------------------------ |
+| `communitiesUsingApplication`  | `CommunityUsingApplication[]` | インストール済みコミュニティ一覧 |
+| `applicationVersions`          | `ApplicationVersion[]`        | アプリケーションバージョン一覧  |
+
+#### `iteratePages(request?, options?)`
+
+```typescript
+iteratePages(
+  request?: GetCommunitiesUsingApplicationRequest,
+  options?: ApplicationPagerOptions
+): AsyncGenerator<ApplicationPagerPage>
+```
+
+ページ単位で結果を yield する非同期ジェネレーターを返します。
+
+**`ApplicationPagerOptions`**
+
+| フィールド | 型       | デフォルト | 説明                     |
+| ---------- | -------- | ---------- | ------------------------ |
+| `maxPages` | `number` | 無制限     | 取得する最大ページ数     |
+
+<Aside type="note">
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。
+</Aside>
