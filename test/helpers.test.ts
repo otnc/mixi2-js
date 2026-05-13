@@ -1,8 +1,13 @@
 /// <reference types="vitest/globals" />
 import * as address from "../src/helpers/address";
+import { ApplicationPager } from "../src/helpers/application-pager";
+import { CommunityFilter } from "../src/helpers/community-filter";
 import { EventDeduplicator } from "../src/helpers/event-deduplicator";
 import { EventLogger } from "../src/helpers/event-logger";
 import { EventRouter } from "../src/helpers/event-router";
+import { MemberEventRouter } from "../src/helpers/member-event-router";
+import { MemberListPager } from "../src/helpers/member-list-pager";
+import { PluginManagedRouter } from "../src/helpers/plugin-managed-router";
 import { PostBuilder } from "../src/helpers/post-builder";
 import { ReasonFilter } from "../src/helpers/reason-filter";
 import { TextSplitter, maxPostLength } from "../src/helpers/text-splitter";
@@ -12,7 +17,7 @@ import {
   PostMaskType,
   PostPublishingType,
 } from "../src/types";
-import type { Event } from "../src/types";
+import type { Community, Event, User } from "../src/types";
 import type { EventHandler } from "../src/event";
 
 function createEvent(
@@ -255,6 +260,14 @@ describe("PostBuilder", () => {
       .publishing(PostPublishingType.NOT_PUBLISHING)
       .build();
     expect(request.publishingType).toBe(PostPublishingType.NOT_PUBLISHING);
+  });
+
+  test("builds community post with community()", () => {
+    const request = new PostBuilder("Hello community!")
+      .community("c-1")
+      .build();
+    expect(request.text).toBe("Hello community!");
+    expect(request.communityId).toBe("c-1");
   });
 
   test("supports method chaining", () => {
@@ -567,5 +580,488 @@ describe("EventLogger", () => {
 
     console.log = original;
     expect(messages).toHaveLength(1);
+  });
+});
+
+// ── helpers added in v1.5.0 ──────────────────────────────────────────────────
+
+const testCommunity: Community = {
+  communityId: "c-1",
+  name: "TestCommunity",
+  purpose: "",
+  isArchived: false,
+  visibility: 1,
+  accessLevel: 1,
+};
+
+const testUser: User = {
+  userId: "u-1",
+  isDisabled: false,
+  name: "user1",
+  displayName: "User One",
+  profile: "",
+  userAvatar: null,
+  visibility: 1,
+  accessLevel: 1,
+};
+
+describe("CommunityFilter", () => {
+  function makeHandler(received: Event[]): EventHandler {
+    return {
+      handle: async (e) => {
+        received.push(e);
+      },
+    };
+  }
+
+  test("passes post event matching community ID", async () => {
+    const received: Event[] = [];
+    const filter = new CommunityFilter(makeHandler(received), ["c-1"]);
+
+    await filter.handle(
+      createEvent(EventType.POST_CREATED, {
+        postCreatedEvent: {
+          eventReasonList: [EventReason.POST_COMMUNITY],
+          post: {
+            postId: "p1",
+            isDeleted: false,
+            creatorId: "u1",
+            text: "hi",
+            createdAt: null,
+            postMediaList: [],
+            communityId: "c-1",
+            visibility: 1,
+            accessLevel: 1,
+            stamps: [],
+          },
+          issuer: null,
+        },
+      })
+    );
+
+    expect(received).toHaveLength(1);
+  });
+
+  test("blocks post event from different community", async () => {
+    const received: Event[] = [];
+    const filter = new CommunityFilter(makeHandler(received), ["c-1"]);
+
+    await filter.handle(
+      createEvent(EventType.POST_CREATED, {
+        postCreatedEvent: {
+          eventReasonList: [EventReason.POST_COMMUNITY],
+          post: {
+            postId: "p1",
+            isDeleted: false,
+            creatorId: "u1",
+            text: "hi",
+            createdAt: null,
+            postMediaList: [],
+            communityId: "c-2",
+            visibility: 1,
+            accessLevel: 1,
+            stamps: [],
+          },
+          issuer: null,
+        },
+      })
+    );
+
+    expect(received).toHaveLength(0);
+  });
+
+  test("passes non-community events (e.g. PING)", async () => {
+    const received: Event[] = [];
+    const filter = new CommunityFilter(makeHandler(received), ["c-1"]);
+    await filter.handle(createEvent(EventType.PING));
+    expect(received).toHaveLength(1);
+  });
+
+  test("passes member changed event from matching community", async () => {
+    const received: Event[] = [];
+    const filter = new CommunityFilter(makeHandler(received), ["c-1"]);
+
+    await filter.handle(
+      createEvent(EventType.COMMUNITY_MEMBER_CHANGED, {
+        communityMemberChangedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_MEMBER_JOINED],
+          member: null,
+          community: testCommunity,
+        },
+      })
+    );
+
+    expect(received).toHaveLength(1);
+  });
+
+  test("blocks member changed event from different community", async () => {
+    const received: Event[] = [];
+    const filter = new CommunityFilter(makeHandler(received), ["c-1"]);
+
+    await filter.handle(
+      createEvent(EventType.COMMUNITY_MEMBER_CHANGED, {
+        communityMemberChangedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_MEMBER_JOINED],
+          member: null,
+          community: { ...testCommunity, communityId: "c-2" },
+        },
+      })
+    );
+
+    expect(received).toHaveLength(0);
+  });
+
+  test("passes plugin managed event from matching community", async () => {
+    const received: Event[] = [];
+    const filter = new CommunityFilter(makeHandler(received), ["c-1"]);
+
+    await filter.handle(
+      createEvent(EventType.COMMUNITY_PLUGIN_MANAGED, {
+        communityPluginManagedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_PLUGIN_INSTALLED],
+          community: testCommunity,
+        },
+      })
+    );
+
+    expect(received).toHaveLength(1);
+  });
+});
+
+describe("MemberEventRouter", () => {
+  test("calls onJoined for COMMUNITY_MEMBER_JOINED", async () => {
+    const joined: string[] = [];
+    const router = new MemberEventRouter().onJoined((member) => {
+      joined.push(member.userId);
+    });
+
+    await router.handle(
+      createEvent(EventType.COMMUNITY_MEMBER_CHANGED, {
+        communityMemberChangedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_MEMBER_JOINED],
+          member: testUser,
+          community: testCommunity,
+        },
+      })
+    );
+
+    expect(joined).toEqual(["u-1"]);
+  });
+
+  test("calls onLeft for COMMUNITY_MEMBER_LEFT", async () => {
+    const left: string[] = [];
+    const router = new MemberEventRouter().onLeft((member) => {
+      left.push(member.userId);
+    });
+
+    await router.handle(
+      createEvent(EventType.COMMUNITY_MEMBER_CHANGED, {
+        communityMemberChangedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_MEMBER_LEFT],
+          member: testUser,
+          community: testCommunity,
+        },
+      })
+    );
+
+    expect(left).toEqual(["u-1"]);
+  });
+
+  test("passes community info to listener", async () => {
+    const communityIds: string[] = [];
+    const router = new MemberEventRouter().onJoined((_, community) => {
+      communityIds.push(community.communityId);
+    });
+
+    await router.handle(
+      createEvent(EventType.COMMUNITY_MEMBER_CHANGED, {
+        communityMemberChangedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_MEMBER_JOINED],
+          member: testUser,
+          community: testCommunity,
+        },
+      })
+    );
+
+    expect(communityIds).toEqual(["c-1"]);
+  });
+
+  test("ignores non-member-changed events", async () => {
+    const called: boolean[] = [];
+    const router = new MemberEventRouter()
+      .onJoined(() => {
+        called.push(true);
+      })
+      .onLeft(() => {
+        called.push(true);
+      });
+
+    await router.handle(createEvent(EventType.POST_CREATED));
+    expect(called).toHaveLength(0);
+  });
+
+  test("ignores events with null member", async () => {
+    const called: boolean[] = [];
+    const router = new MemberEventRouter().onJoined(() => {
+      called.push(true);
+    });
+
+    await router.handle(
+      createEvent(EventType.COMMUNITY_MEMBER_CHANGED, {
+        communityMemberChangedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_MEMBER_JOINED],
+          member: null,
+          community: testCommunity,
+        },
+      })
+    );
+
+    expect(called).toHaveLength(0);
+  });
+
+  test("supports method chaining", () => {
+    const router = new MemberEventRouter();
+    expect(router.onJoined(() => {}).onLeft(() => {})).toBe(router);
+  });
+});
+
+describe("PluginManagedRouter", () => {
+  test("calls onInstalled for COMMUNITY_PLUGIN_INSTALLED", async () => {
+    const installed: string[] = [];
+    const router = new PluginManagedRouter().onInstalled((c) => {
+      installed.push(c.communityId);
+    });
+
+    await router.handle(
+      createEvent(EventType.COMMUNITY_PLUGIN_MANAGED, {
+        communityPluginManagedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_PLUGIN_INSTALLED],
+          community: testCommunity,
+        },
+      })
+    );
+
+    expect(installed).toEqual(["c-1"]);
+  });
+
+  test("calls onUninstalled for COMMUNITY_PLUGIN_UNINSTALLED", async () => {
+    const uninstalled: string[] = [];
+    const router = new PluginManagedRouter().onUninstalled((c) => {
+      uninstalled.push(c.communityId);
+    });
+
+    await router.handle(
+      createEvent(EventType.COMMUNITY_PLUGIN_MANAGED, {
+        communityPluginManagedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_PLUGIN_UNINSTALLED],
+          community: testCommunity,
+        },
+      })
+    );
+
+    expect(uninstalled).toEqual(["c-1"]);
+  });
+
+  test("ignores non-plugin-managed events", async () => {
+    const called: boolean[] = [];
+    const router = new PluginManagedRouter()
+      .onInstalled(() => {
+        called.push(true);
+      })
+      .onUninstalled(() => {
+        called.push(true);
+      });
+
+    await router.handle(createEvent(EventType.PING));
+    expect(called).toHaveLength(0);
+  });
+
+  test("ignores events with null community", async () => {
+    const called: boolean[] = [];
+    const router = new PluginManagedRouter().onInstalled(() => {
+      called.push(true);
+    });
+
+    await router.handle(
+      createEvent(EventType.COMMUNITY_PLUGIN_MANAGED, {
+        communityPluginManagedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_PLUGIN_INSTALLED],
+          community: null,
+        },
+      })
+    );
+
+    expect(called).toHaveLength(0);
+  });
+
+  test("supports method chaining", () => {
+    const router = new PluginManagedRouter();
+    expect(router.onInstalled(() => {}).onUninstalled(() => {})).toBe(router);
+  });
+});
+
+describe("MemberListPager", () => {
+  const member1: User = { ...testUser, userId: "u-1" };
+  const member2: User = { ...testUser, userId: "u-2" };
+
+  test("yields all members from single page", async () => {
+    const mockClient = {
+      getCommunityMemberList: vi.fn().mockResolvedValueOnce({
+        members: [member1, member2],
+        nextPaginationCursor: undefined,
+      }),
+    };
+    const pager = new MemberListPager(mockClient as never);
+
+    const result: string[] = [];
+    for await (const m of pager.iterate({ communityId: "c-1" })) {
+      result.push(m.userId);
+    }
+
+    expect(result).toEqual(["u-1", "u-2"]);
+    expect(mockClient.getCommunityMemberList).toHaveBeenCalledTimes(1);
+  });
+
+  test("follows cursor across multiple pages", async () => {
+    const mockClient = {
+      getCommunityMemberList: vi
+        .fn()
+        .mockResolvedValueOnce({
+          members: [member1],
+          nextPaginationCursor: "cursor-2",
+        })
+        .mockResolvedValueOnce({
+          members: [member2],
+          nextPaginationCursor: undefined,
+        }),
+    };
+    const pager = new MemberListPager(mockClient as never);
+
+    const result: string[] = [];
+    for await (const m of pager.iterate({ communityId: "c-1" })) {
+      result.push(m.userId);
+    }
+
+    expect(result).toEqual(["u-1", "u-2"]);
+    expect(mockClient.getCommunityMemberList).toHaveBeenCalledTimes(2);
+    expect(mockClient.getCommunityMemberList).toHaveBeenLastCalledWith({
+      communityId: "c-1",
+      paginationCursor: "cursor-2",
+    });
+  });
+
+  test("respects maxPages option", async () => {
+    const mockClient = {
+      getCommunityMemberList: vi.fn().mockResolvedValue({
+        members: [member1],
+        nextPaginationCursor: "next",
+      }),
+    };
+    const pager = new MemberListPager(mockClient as never);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for await (const _m of pager.iterate(
+      { communityId: "c-1" },
+      { maxPages: 1 }
+    )) {
+      /* drain */
+    }
+
+    expect(mockClient.getCommunityMemberList).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("ApplicationPager", () => {
+  const communityUsingApp = {
+    community: testCommunity,
+    applicationVersionId: "v-1",
+  };
+  const appVersion = {
+    applicationVersionId: "v-1",
+    applicationId: "app-1",
+    requirements: [],
+  };
+
+  test("fetchAll returns all results from single page", async () => {
+    const mockClient = {
+      getCommunitiesUsingApplication: vi.fn().mockResolvedValueOnce({
+        communitiesUsingApplication: [communityUsingApp],
+        applicationVersions: [appVersion],
+        nextCursor: undefined,
+      }),
+    };
+    const pager = new ApplicationPager(mockClient as never);
+    const result = await pager.fetchAll();
+
+    expect(result.communitiesUsingApplication).toHaveLength(1);
+    expect(result.applicationVersions).toHaveLength(1);
+  });
+
+  test("fetchAll merges results across pages", async () => {
+    const communityUsingApp2 = {
+      ...communityUsingApp,
+      community: { ...testCommunity, communityId: "c-2" },
+    };
+    const mockClient = {
+      getCommunitiesUsingApplication: vi
+        .fn()
+        .mockResolvedValueOnce({
+          communitiesUsingApplication: [communityUsingApp],
+          applicationVersions: [appVersion],
+          nextCursor: "cursor-2",
+        })
+        .mockResolvedValueOnce({
+          communitiesUsingApplication: [communityUsingApp2],
+          applicationVersions: [],
+          nextCursor: undefined,
+        }),
+    };
+    const pager = new ApplicationPager(mockClient as never);
+    const result = await pager.fetchAll();
+
+    expect(result.communitiesUsingApplication).toHaveLength(2);
+    expect(mockClient.getCommunitiesUsingApplication).toHaveBeenCalledTimes(2);
+  });
+
+  test("iteratePages yields page by page", async () => {
+    const mockClient = {
+      getCommunitiesUsingApplication: vi
+        .fn()
+        .mockResolvedValueOnce({
+          communitiesUsingApplication: [communityUsingApp],
+          applicationVersions: [appVersion],
+          nextCursor: "next",
+        })
+        .mockResolvedValueOnce({
+          communitiesUsingApplication: [],
+          applicationVersions: [],
+          nextCursor: undefined,
+        }),
+    };
+    const pager = new ApplicationPager(mockClient as never);
+    const pageSizes: number[] = [];
+    for await (const page of pager.iteratePages()) {
+      pageSizes.push(page.communitiesUsingApplication.length);
+    }
+
+    expect(pageSizes).toEqual([1, 0]);
+  });
+
+  test("respects maxPages option in iteratePages", async () => {
+    const mockClient = {
+      getCommunitiesUsingApplication: vi.fn().mockResolvedValue({
+        communitiesUsingApplication: [communityUsingApp],
+        applicationVersions: [appVersion],
+        nextCursor: "always-more",
+      }),
+    };
+    const pager = new ApplicationPager(mockClient as never);
+    const pages: unknown[] = [];
+    for await (const page of pager.iteratePages(undefined, { maxPages: 2 })) {
+      pages.push(page);
+    }
+
+    expect(pages).toHaveLength(2);
+    expect(mockClient.getCommunitiesUsingApplication).toHaveBeenCalledTimes(2);
   });
 });

@@ -311,10 +311,12 @@ describe("Client", () => {
           stampSetType: 1,
         },
       ],
+      communityStampSets: [],
     });
-    const stamps = await client.getStamps();
-    expect(stamps).toHaveLength(1);
-    expect(stamps[0]!.stampSetId).toBe("set-1");
+    const result = await client.getStamps();
+    expect(result.officialStampSets).toHaveLength(1);
+    expect(result.officialStampSets[0]!.stampSetId).toBe("set-1");
+    expect(result.communityStampSets).toHaveLength(0);
   });
 
   test("addStampToPost returns updated post", async () => {
@@ -324,6 +326,160 @@ describe("Client", () => {
     });
     const post = await client.addStampToPost("p1", "stamp-1");
     expect(post.postId).toBe("p1");
+  });
+
+  test("getCommunities returns mapped communities", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      communities: [
+        {
+          communityId: "comm-1",
+          name: "Test Comm",
+          purpose: "",
+          isArchived: false,
+          visibility: 1,
+          accessLevel: 1,
+        },
+      ],
+    });
+    const communities = await client.getCommunities(["comm-1"]);
+    expect(communities).toHaveLength(1);
+    expect(communities[0]!.communityId).toBe("comm-1");
+    expect(communities[0]!.name).toBe("Test Comm");
+  });
+
+  test("getCommunities returns empty array when response has no communities", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({});
+    const communities = await client.getCommunities([]);
+    expect(communities).toHaveLength(0);
+  });
+
+  test("getCommunityTimeline returns mapped posts", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      posts: [
+        {
+          postId: "p-c1",
+          text: "Community post",
+          postMediaList: [],
+          stamps: [],
+          communityId: "comm-1",
+        },
+      ],
+    });
+    const posts = await client.getCommunityTimeline({ communityId: "comm-1" });
+    expect(posts).toHaveLength(1);
+    expect(posts[0]!.postId).toBe("p-c1");
+    expect(posts[0]!.communityId).toBe("comm-1");
+  });
+
+  test("getCommunityMemberList returns members and cursor", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      members: [
+        {
+          userId: "user-10",
+          name: "member1",
+          isDisabled: false,
+          displayName: "Member One",
+          profile: "",
+          visibility: 1,
+          accessLevel: 1,
+        },
+      ],
+      nextPaginationCursor: "cursor-abc",
+    });
+    const result = await client.getCommunityMemberList({
+      communityId: "comm-1",
+    });
+    expect(result.members).toHaveLength(1);
+    expect(result.members[0]!.userId).toBe("user-10");
+    expect(result.nextPaginationCursor).toBe("cursor-abc");
+  });
+
+  test("getCommunityMemberList returns undefined cursor when absent", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({ members: [] });
+    const result = await client.getCommunityMemberList({
+      communityId: "comm-1",
+    });
+    expect(result.members).toHaveLength(0);
+    expect(result.nextPaginationCursor).toBeUndefined();
+  });
+
+  test("restrictCommunityPost resolves without error", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({});
+    await expect(
+      client.restrictCommunityPost({ postId: "p1" })
+    ).resolves.toBeUndefined();
+  });
+
+  test("getCommunitiesUsingApplication returns communities and versions", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      communitiesUsingApplication: [
+        {
+          community: {
+            communityId: "comm-1",
+            name: "Test Comm",
+            purpose: "",
+            isArchived: false,
+            visibility: 1,
+            accessLevel: 1,
+          },
+          applicationVersionId: "ver-1",
+        },
+      ],
+      applicationVersions: [
+        {
+          applicationVersionId: "ver-1",
+          applicationId: "app-1",
+          requirements: [1, 2],
+        },
+      ],
+      nextCursor: "next-cursor-xyz",
+    });
+    const result = await client.getCommunitiesUsingApplication();
+    expect(result.communitiesUsingApplication).toHaveLength(1);
+    expect(result.communitiesUsingApplication[0]!.community!.communityId).toBe(
+      "comm-1"
+    );
+    expect(result.applicationVersions).toHaveLength(1);
+    expect(result.applicationVersions[0]!.applicationVersionId).toBe("ver-1");
+    expect(result.nextCursor).toBe("next-cursor-xyz");
+  });
+
+  test("getCommunitiesUsingApplication returns undefined cursor when absent", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      communitiesUsingApplication: [],
+      applicationVersions: [],
+    });
+    const result = await client.getCommunitiesUsingApplication();
+    expect(result.nextCursor).toBeUndefined();
+  });
+
+  test("sendDirectMessageToCommunityMember returns chat message", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      message: {
+        roomId: "room-dm-1",
+        messageId: "msg-dm-1",
+        text: "Hello!",
+        creatorId: "bot",
+        createdAt: null,
+        mediaList: [],
+      },
+    });
+    const msg = await client.sendDirectMessageToCommunityMember({
+      receiverId: "user-10",
+      communityId: "comm-1",
+      text: "Hello!",
+    });
+    expect(msg.roomId).toBe("room-dm-1");
+    expect(msg.text).toBe("Hello!");
   });
 
   test("propagates gRPC errors to caller", async () => {
