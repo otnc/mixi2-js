@@ -25,7 +25,8 @@ function toDate(ts: unknown): Date | null {
   if (ts instanceof Date) return ts;
   const obj = ts as RawObject;
   if (obj.seconds !== undefined) {
-    const ms = Number(obj.seconds) * 1000 + Math.floor((obj.nanos || 0) / 1_000_000);
+    const ms =
+      Number(obj.seconds) * 1000 + Math.floor((obj.nanos || 0) / 1_000_000);
     return new Date(ms);
   }
   return null;
@@ -200,7 +201,9 @@ export function convertPostCreatedEvent(raw: unknown): PostCreatedEvent {
   };
 }
 
-export function convertChatMessageReceivedEvent(raw: unknown): ChatMessageReceivedEvent {
+export function convertChatMessageReceivedEvent(
+  raw: unknown
+): ChatMessageReceivedEvent {
   const r = raw as RawObject;
   return {
     eventReasonList: r.eventReasonList || [],
@@ -215,7 +218,9 @@ export function convertEvent(raw: unknown): Event {
     eventId: r.eventId || "",
     eventType: r.eventType || 0,
     pingEvent: r.pingEvent || undefined,
-    postCreatedEvent: r.postCreatedEvent ? convertPostCreatedEvent(r.postCreatedEvent) : undefined,
+    postCreatedEvent: r.postCreatedEvent
+      ? convertPostCreatedEvent(r.postCreatedEvent)
+      : undefined,
     chatMessageReceivedEvent: r.chatMessageReceivedEvent
       ? convertChatMessageReceivedEvent(r.chatMessageReceivedEvent)
       : undefined,

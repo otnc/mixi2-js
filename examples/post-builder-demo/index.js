@@ -5,11 +5,12 @@ import consola from "consola";
 import { OAuth2Authenticator, Client, MediaUploadType } from "mixi2-js";
 import { PostBuilder, MediaUploader } from "mixi2-js/helpers";
 
-const { CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_ADDRESS, AUTH_KEY } = process.env;
+const { CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_ADDRESS, AUTH_KEY } =
+  process.env;
 
 if (!CLIENT_ID || !CLIENT_SECRET || !TOKEN_URL || !API_ADDRESS) {
   consola.error(
-    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。",
+    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。"
   );
   process.exit(1);
 }
@@ -53,7 +54,9 @@ async function main() {
     const ext = imagePath.toLowerCase().match(/\.[^.]+$/)?.[0];
     const contentType = ext ? CONTENT_TYPES[ext] : undefined;
     if (!contentType) {
-      consola.error(`未対応の画像形式です。対応形式: ${Object.keys(CONTENT_TYPES).join(", ")}`);
+      consola.error(
+        `未対応の画像形式です。対応形式: ${Object.keys(CONTENT_TYPES).join(", ")}`
+      );
       process.exit(1);
     }
 
@@ -77,7 +80,9 @@ async function main() {
       body: new Uint8Array(imageData),
     });
     if (!response.ok) {
-      consola.error(`アップロード失敗: ${response.status} ${response.statusText}`);
+      consola.error(
+        `アップロード失敗: ${response.status} ${response.statusText}`
+      );
       process.exit(1);
     }
 

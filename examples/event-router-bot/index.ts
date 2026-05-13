@@ -1,13 +1,32 @@
 import "dotenv/config";
 import consola from "consola";
-import { OAuth2Authenticator, Client, StreamWatcher, EventType, EventReason } from "mixi2-js";
+import {
+  OAuth2Authenticator,
+  Client,
+  StreamWatcher,
+  EventType,
+  EventReason,
+} from "mixi2-js";
 import { EventRouter, ReasonFilter } from "mixi2-js/helpers";
 
-const { CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_ADDRESS, STREAM_ADDRESS, AUTH_KEY } = process.env;
+const {
+  CLIENT_ID,
+  CLIENT_SECRET,
+  TOKEN_URL,
+  API_ADDRESS,
+  STREAM_ADDRESS,
+  AUTH_KEY,
+} = process.env;
 
-if (!CLIENT_ID || !CLIENT_SECRET || !TOKEN_URL || !API_ADDRESS || !STREAM_ADDRESS) {
+if (
+  !CLIENT_ID ||
+  !CLIENT_SECRET ||
+  !TOKEN_URL ||
+  !API_ADDRESS ||
+  !STREAM_ADDRESS
+) {
   consola.error(
-    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。",
+    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。"
   );
   process.exit(1);
 }

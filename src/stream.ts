@@ -23,7 +23,10 @@ export class StreamWatcher {
 
   constructor(options: StreamWatcherOptions) {
     const ClientConstructor = getStreamServiceClient();
-    this.streamClient = new ClientConstructor(options.streamAddress, grpc.credentials.createSsl());
+    this.streamClient = new ClientConstructor(
+      options.streamAddress,
+      grpc.credentials.createSsl()
+    );
     this.authenticator = options.authenticator;
     this.authKey = options.authKey;
     this.maxRetries = options.maxRetries ?? 3;
@@ -41,16 +44,25 @@ export class StreamWatcher {
 
   private async connect(): Promise<grpc.ClientReadableStream<unknown>> {
     const metadata = await this.getMetadata();
-    const fn = (this.streamClient as unknown as Record<string, (...args: unknown[]) => unknown>)[
-      "subscribeEvents"
-    ];
+    const fn = (
+      this.streamClient as unknown as Record<
+        string,
+        (...args: unknown[]) => unknown
+      >
+    )["subscribeEvents"];
     if (!fn) {
       throw new Error("subscribeEvents method not found on stream client");
     }
-    return fn.call(this.streamClient, {}, metadata) as grpc.ClientReadableStream<unknown>;
+    return fn.call(
+      this.streamClient,
+      {},
+      metadata
+    ) as grpc.ClientReadableStream<unknown>;
   }
 
-  private async reconnect(retryIndex: number): Promise<grpc.ClientReadableStream<unknown>> {
+  private async reconnect(
+    retryIndex: number
+  ): Promise<grpc.ClientReadableStream<unknown>> {
     if (this.aborted) {
       throw new Error("Watcher aborted");
     }
@@ -88,7 +100,9 @@ export class StreamWatcher {
             clearTimeout(connectionTimeout);
             consecutiveFailures = 0;
           }
-          const events = ((response.events as unknown[]) || []).map(convertEvent);
+          const events = ((response.events as unknown[]) || []).map(
+            convertEvent
+          );
           for (const event of events) {
             if (event.eventType === EventType.PING) {
               continue;
@@ -113,7 +127,11 @@ export class StreamWatcher {
           }
 
           if (consecutiveFailures >= this.maxRetries) {
-            reject(new Error(`Failed to reconnect after ${this.maxRetries} consecutive attempts`));
+            reject(
+              new Error(
+                `Failed to reconnect after ${this.maxRetries} consecutive attempts`
+              )
+            );
             return;
           }
 

@@ -1,4 +1,4 @@
-/// <reference types="vite-plus/test/globals" />
+/// <reference types="vitest/globals" />
 import { OAuth2Authenticator } from "../src/auth";
 import {
   EventType,
@@ -128,7 +128,9 @@ describe("Converters", () => {
     expect(user.name).toBe("testuser");
     expect(user.displayName).toBe("Test User");
     expect(user.userAvatar).not.toBeNull();
-    expect(user.userAvatar!.largeImageUrl).toBe("https://example.com/large.png");
+    expect(user.userAvatar!.largeImageUrl).toBe(
+      "https://example.com/large.png"
+    );
     expect(user.visibility).toBe(UserVisibility.VISIBLE);
     expect(user.accessLevel).toBe(UserAccessLevel.PUBLIC);
   });
@@ -233,7 +235,9 @@ describe("Converters", () => {
     expect(event.postCreatedEvent).toBeDefined();
     expect(event.postCreatedEvent!.post!.postId).toBe("post-1");
     expect(event.postCreatedEvent!.issuer!.userId).toBe("user-1");
-    expect(event.postCreatedEvent!.eventReasonList).toContain(EventReason.POST_MENTIONED);
+    expect(event.postCreatedEvent!.eventReasonList).toContain(
+      EventReason.POST_MENTIONED
+    );
   });
 
   test("convertEvent for CHAT_MESSAGE_RECEIVED", () => {

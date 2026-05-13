@@ -54,7 +54,7 @@ export class TextSplitter {
           candidate.lastIndexOf("？"),
           candidate.lastIndexOf("!"),
           candidate.lastIndexOf("?"),
-          candidate.lastIndexOf("\n"),
+          candidate.lastIndexOf("\n")
         );
         if (lastBreak > 0) {
           splitAt = lastBreak + 1;

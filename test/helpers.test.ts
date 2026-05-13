@@ -1,4 +1,4 @@
-/// <reference types="vite-plus/test/globals" />
+/// <reference types="vitest/globals" />
 import * as address from "../src/helpers/address";
 import { EventDeduplicator } from "../src/helpers/event-deduplicator";
 import { EventLogger } from "../src/helpers/event-logger";
@@ -6,11 +6,19 @@ import { EventRouter } from "../src/helpers/event-router";
 import { PostBuilder } from "../src/helpers/post-builder";
 import { ReasonFilter } from "../src/helpers/reason-filter";
 import { TextSplitter, maxPostLength } from "../src/helpers/text-splitter";
-import { EventType, EventReason, PostMaskType, PostPublishingType } from "../src/types";
+import {
+  EventType,
+  EventReason,
+  PostMaskType,
+  PostPublishingType,
+} from "../src/types";
 import type { Event } from "../src/types";
 import type { EventHandler } from "../src/event";
 
-function createEvent(eventType: EventType, overrides: Partial<Event> = {}): Event {
+function createEvent(
+  eventType: EventType,
+  overrides: Partial<Event> = {}
+): Event {
   return {
     eventId: "test-event-id",
     eventType,
@@ -85,7 +93,10 @@ describe("EventRouter", () => {
     await router.handle(createEvent(EventType.POST_CREATED));
     await router.handle(createEvent(EventType.CHAT_MESSAGE_RECEIVED));
 
-    expect(types).toEqual([EventType.POST_CREATED, EventType.CHAT_MESSAGE_RECEIVED]);
+    expect(types).toEqual([
+      EventType.POST_CREATED,
+      EventType.CHAT_MESSAGE_RECEIVED,
+    ]);
   });
 
   test("off() removes a specific listener", async () => {
@@ -182,7 +193,7 @@ describe("EventRouter", () => {
           },
           issuer: null,
         },
-      }),
+      })
     );
 
     expect(capturedText).toBe("hello");
@@ -351,7 +362,9 @@ describe("ReasonFilter", () => {
       },
     };
 
-    const filter = new ReasonFilter(inner, [EventReason.DIRECT_MESSAGE_RECEIVED]);
+    const filter = new ReasonFilter(inner, [
+      EventReason.DIRECT_MESSAGE_RECEIVED,
+    ]);
 
     const event = createEvent(EventType.CHAT_MESSAGE_RECEIVED, {
       chatMessageReceivedEvent: {
@@ -398,8 +411,12 @@ describe("EventDeduplicator", () => {
     const received: Event[] = [];
     const dedup = new EventDeduplicator(makeHandler(received));
 
-    await dedup.handle(createEvent(EventType.POST_CREATED, { eventId: "ev-1" }));
-    await dedup.handle(createEvent(EventType.POST_CREATED, { eventId: "ev-2" }));
+    await dedup.handle(
+      createEvent(EventType.POST_CREATED, { eventId: "ev-1" })
+    );
+    await dedup.handle(
+      createEvent(EventType.POST_CREATED, { eventId: "ev-2" })
+    );
     expect(received).toHaveLength(2);
   });
 
@@ -418,11 +435,19 @@ describe("EventDeduplicator", () => {
     const received: Event[] = [];
     const dedup = new EventDeduplicator(makeHandler(received), { maxSize: 2 });
 
-    await dedup.handle(createEvent(EventType.POST_CREATED, { eventId: "ev-1" }));
-    await dedup.handle(createEvent(EventType.POST_CREATED, { eventId: "ev-2" }));
-    await dedup.handle(createEvent(EventType.POST_CREATED, { eventId: "ev-3" }));
+    await dedup.handle(
+      createEvent(EventType.POST_CREATED, { eventId: "ev-1" })
+    );
+    await dedup.handle(
+      createEvent(EventType.POST_CREATED, { eventId: "ev-2" })
+    );
+    await dedup.handle(
+      createEvent(EventType.POST_CREATED, { eventId: "ev-3" })
+    );
     // ev-1 should be evicted; re-sending it should pass through
-    await dedup.handle(createEvent(EventType.POST_CREATED, { eventId: "ev-1" }));
+    await dedup.handle(
+      createEvent(EventType.POST_CREATED, { eventId: "ev-1" })
+    );
     expect(received).toHaveLength(4);
   });
 });
@@ -506,9 +531,13 @@ describe("EventLogger", () => {
   test("calls logger with event info", async () => {
     const messages: string[] = [];
     const inner: EventHandler = { handle: async () => {} };
-    const logger = new EventLogger(inner, { logger: (msg) => messages.push(msg) });
+    const logger = new EventLogger(inner, {
+      logger: (msg) => messages.push(msg),
+    });
 
-    await logger.handle(createEvent(EventType.POST_CREATED, { eventId: "ev-1" }));
+    await logger.handle(
+      createEvent(EventType.POST_CREATED, { eventId: "ev-1" })
+    );
     expect(messages).toHaveLength(1);
     expect(messages[0]).toContain("ev-1");
     expect(messages[0]).toContain(String(EventType.POST_CREATED));
@@ -522,7 +551,9 @@ describe("EventLogger", () => {
       verbose: false,
     });
 
-    await logger.handle(createEvent(EventType.POST_CREATED, { eventId: "ev-1" }));
+    await logger.handle(
+      createEvent(EventType.POST_CREATED, { eventId: "ev-1" })
+    );
     expect(messages[0]).not.toContain("ev-1");
   });
 
