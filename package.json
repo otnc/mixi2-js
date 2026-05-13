@@ -56,13 +56,13 @@
     "setup": "npm install && node scripts/setup.js",
     "test": "vitest run",
     "check": "tsc --noEmit",
-    "check:all": "tsc --noEmit && vitest run && tsdown",
+    "check:all": "tsc --noEmit && vitest run && tsdown --entry src/index.ts --entry src/helpers/index.ts --format cjs,esm --dts --shims --clean",
     "check:types": "tsc --noEmit",
     "checkversion": "ncu",
     "up": "ncu -u && npm install",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "tsdown",
+    "build": "tsdown --entry src/index.ts --entry src/helpers/index.ts --format cjs,esm --dts --shims --clean",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -81,7 +81,6 @@
     "prettier": "latest",
     "tsdown": "0.21.10",
     "typescript": "6.0.3",
-    "unrun": "*",
     "vitest": "^4.1.6"
   },
   "engines": {
