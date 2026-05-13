@@ -71,19 +71,19 @@
     "@grpc/proto-loader": "^0.8.0"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "latest",
     "@types/node": "^25.5.0",
     "consola": "^3.4.2",
     "dotenv": "^17.3.1",
-    "eslint": "^10.3.0",
-    "eslint-config-prettier": "^10.1.8",
+    "eslint": "latest",
+    "eslint-config-prettier": "latest",
     "npm-check-updates": "^19.6.5",
-    "prettier": "^3.8.3",
-    "tsdown": "^0.22.0",
-    "typescript": "^6.0.3",
+    "prettier": "latest",
+    "tsdown": "0.21.10",
+    "typescript": "6.0.3",
     "vitest": "^4.1.6"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.19.0"
   }
 }
