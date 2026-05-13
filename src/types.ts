@@ -425,11 +425,4 @@ export type SendDirectMessageToCommunityMemberRequest =
       text?: string;
       mediaIds: string[];
       postId?: string;
-    }
-  | {
-      receiverId: string;
-      communityId: string;
-      text?: string;
-      mediaIds?: string[];
-      postId: string;
     };
