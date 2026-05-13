@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package social.mixi.application.const.v1;
+
+enum CommunityAccessLevel {
+  COMMUNITY_ACCESS_LEVEL_UNSPECIFIED = 0;
+  COMMUNITY_ACCESS_LEVEL_PUBLIC = 1;
+  COMMUNITY_ACCESS_LEVEL_APPROVAL_REQUIRED = 2;
+}

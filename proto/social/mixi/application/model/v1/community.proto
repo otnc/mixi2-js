@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package social.mixi.application.model.v1;
+
+import "social/mixi/application/const/v1/community_access_level.proto";
+import "social/mixi/application/const/v1/community_visibility.proto";
+
+message Community {
+  string community_id = 1;
+  string name = 2;
+  string purpose = 3;
+  bool is_archived = 4;
+  const.v1.CommunityVisibility visibility = 5;
+  const.v1.CommunityAccessLevel access_level = 6;
+}
+
+message CommunityUsingApplication {
+  Community community = 1;
+  string application_version_id = 2;
+}

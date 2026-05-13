@@ -21,3 +21,14 @@ message OfficialStamp {
   repeated string search_tags = 3;
   string url = 4;
 }
+
+message CommunityStampSet {
+  string community_id = 1;
+  repeated CommunityStamp stamps = 2;
+}
+
+message CommunityStamp {
+  string stamp_id = 1;
+  string url = 2;
+  repeated string search_tags = 3;
+}
