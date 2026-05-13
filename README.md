@@ -16,7 +16,9 @@
 [![Node.js](https://img.shields.io/node/v/mixi2-js?color=339933&logo=nodedotjs&logoColor=white)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Build](https://img.shields.io/github/actions/workflow/status/otoneko1102/mixi2-js/publish.yml?label=build&logo=github)](https://github.com/otnc/mixi2-js/actions)
-[![Vite+](https://img.shields.io/badge/Vite%2B-enabled-646CFF?logo=vite&logoColor=white)](vite.config.ts)
+[![Prettier](https://img.shields.io/badge/Prettier-latest-F7B93E?logo=prettier&logoColor=white)](https://prettier.io/)
+[![ESLint](https://img.shields.io/badge/ESLint-latest-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
+[![tsdown](https://img.shields.io/badge/tsdown-0.21.10-orange)](https://tsdown.dev/)
 
 <div align="center">
 
