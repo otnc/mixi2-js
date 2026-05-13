@@ -26,7 +26,7 @@ function getPackageDefinition(): protoLoader.PackageDefinition {
         "social/mixi/application/service/application_stream/v1/service.proto",
         "social/mixi/application/service/client_endpoint/v1/service.proto",
       ],
-      { ...PROTO_LOADER_OPTIONS, includeDirs: [PROTO_DIR] },
+      { ...PROTO_LOADER_OPTIONS, includeDirs: [PROTO_DIR] }
     );
   }
   return _packageDefinition;
@@ -55,7 +55,7 @@ export function getApiServiceClient(): grpc.ServiceClientConstructor {
   const grpcObj = getGrpcObject();
   return resolveNested(
     grpcObj,
-    "social.mixi.application.service.application_api.v1.ApplicationService",
+    "social.mixi.application.service.application_api.v1.ApplicationService"
   ) as grpc.ServiceClientConstructor;
 }
 
@@ -63,7 +63,7 @@ export function getStreamServiceClient(): grpc.ServiceClientConstructor {
   const grpcObj = getGrpcObject();
   return resolveNested(
     grpcObj,
-    "social.mixi.application.service.application_stream.v1.ApplicationService",
+    "social.mixi.application.service.application_stream.v1.ApplicationService"
   ) as grpc.ServiceClientConstructor;
 }
 
@@ -71,10 +71,14 @@ export function getSendEventRequestType(): {
   decode: (buffer: Uint8Array) => unknown;
 } {
   const pkgDef = getPackageDefinition();
-  const msgDef = pkgDef["social.mixi.application.service.client_endpoint.v1.SendEventRequest"];
+  const msgDef =
+    pkgDef[
+      "social.mixi.application.service.client_endpoint.v1.SendEventRequest"
+    ];
   if (!msgDef || !("type" in msgDef)) {
     throw new Error("SendEventRequest message type not found in proto");
   }
-  const pbType = (msgDef as { type: { decode: (buf: Uint8Array) => unknown } }).type;
+  const pbType = (msgDef as { type: { decode: (buf: Uint8Array) => unknown } })
+    .type;
   return pbType;
 }

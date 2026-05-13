@@ -1,0 +1,162 @@
+---
+title: MemberListPager
+description: getCommunityMemberList のカーソルページネーションをラップする非同期ジェネレーター（Plugin 専用）
+---
+
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+`MemberListPager` は、`Client.getCommunityMemberList()` のカーソルページネーションを自動的に追跡し、`for await...of` で全メンバーを順に取得できる非同期ジェネレーターを提供します。
+
+<Aside type="caution">
+  このヘルパーは **Plugin 専用**です。Bot では利用できません。`ApplicationRequirement.PERMISSION_COMMUNITY_MEMBER_LIST_READ` パーミッションが必要です。
+</Aside>
+
+## インストール
+
+追加インストールは不要です。`mixi2-js` に同梱されています。
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { MemberListPager } from 'mixi2-js/helpers';
+    // CJS
+    const { MemberListPager } = require('mixi2-js/helpers');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { MemberListPager } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+## なぜ MemberListPager を使うのか？
+
+`getCommunityMemberList` はカーソルベースのページネーションで結果を返します。手動でカーソルを管理するのは冗長です:
+
+```typescript
+// ❌ 手動でページネーション
+let cursor: string | undefined;
+const allMembers: User[] = [];
+do {
+  const result = await client.getCommunityMemberList({ communityId, paginationCursor: cursor });
+  allMembers.push(...result.members);
+  cursor = result.nextPaginationCursor;
+} while (cursor);
+```
+
+`MemberListPager` を使えば `for await` で自然に書けます:
+
+```typescript
+// ✅ シンプルに全件取得
+const pager = new MemberListPager(client);
+for await (const member of pager.iterate({ communityId })) {
+  console.log(member.displayName);
+}
+```
+
+## 基本的な使い方
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { Client } from 'mixi2-js';
+    import { MemberListPager } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { Client } from '@otoneko1102/mixi2-js';
+    import { MemberListPager } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const pager = new MemberListPager(client);
+
+// 全メンバーをイテレート
+for await (const member of pager.iterate({ communityId: 'community-id' })) {
+  console.log(member.userId, member.displayName);
+}
+```
+
+### 全件を配列に収集する
+
+```typescript
+const members: User[] = [];
+for await (const member of pager.iterate({ communityId: 'community-id' })) {
+  members.push(member);
+}
+console.log(`メンバー数: ${members.length}`);
+```
+
+### 最大ページ数を制限する
+
+大量メンバーのコミュニティで一部だけ取得したい場合は `maxPages` オプションを使います。
+
+```typescript
+// 最初の 3 ページ分だけ取得
+for await (const member of pager.iterate(
+  { communityId: 'community-id' },
+  { maxPages: 3 }
+)) {
+  console.log(member.displayName);
+}
+```
+
+### 途中から再開する
+
+初回取得時のカーソルを保存しておき、次回のリクエストに渡すことで途中から再開できます。
+
+```typescript
+// 最初の 1 ページを手動で取得してカーソルを保存
+const first = await client.getCommunityMemberList({ communityId: 'community-id' });
+const savedCursor = first.nextPaginationCursor;
+
+// 後で続きから再開
+if (savedCursor) {
+  for await (const member of pager.iterate({ communityId: 'community-id', paginationCursor: savedCursor })) {
+    console.log(member.displayName);
+  }
+}
+```
+
+## API リファレンス
+
+### コンストラクタ
+
+```typescript
+new MemberListPager(client: Client)
+```
+
+| 引数     | 型       | 説明             |
+| -------- | -------- | ---------------- |
+| `client` | `Client` | API クライアント |
+
+### メソッド
+
+#### `iterate(request, options?)`
+
+```typescript
+iterate(
+  request: GetCommunityMemberListRequest,
+  options?: MemberListPagerOptions
+): AsyncGenerator<User>
+```
+
+| 引数      | 型                              | 説明                               |
+| --------- | ------------------------------- | ---------------------------------- |
+| `request` | `GetCommunityMemberListRequest` | コミュニティ ID と初期カーソル     |
+| `options` | `MemberListPagerOptions`        | オプション（`maxPages` など）      |
+
+**`MemberListPagerOptions`**
+
+| フィールド  | 型       | デフォルト | 説明                     |
+| ----------- | -------- | ---------- | ------------------------ |
+| `maxPages`  | `number` | 無制限     | 取得する最大ページ数     |
+
+<Aside type="note">
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。
+</Aside>

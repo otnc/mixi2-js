@@ -4,10 +4,188 @@ package social.mixi.application.service.application_api.v1;
 
 import "social/mixi/application/const/v1/language_code.proto";
 import "social/mixi/application/const/v1/post_publishing_type.proto";
+import "social/mixi/application/model/v1/application.proto";
+import "social/mixi/application/model/v1/community.proto";
 import "social/mixi/application/model/v1/message.proto";
 import "social/mixi/application/model/v1/post.proto";
 import "social/mixi/application/model/v1/stamp.proto";
 import "social/mixi/application/model/v1/user.proto";
+
+message GetUsersRequest {
+  repeated string user_id_list = 1;
+}
+
+message GetUsersResponse {
+  repeated model.v1.User users = 1;
+}
+
+message GetPostsRequest {
+  repeated string post_id_list = 1;
+}
+
+message GetPostsResponse {
+  repeated model.v1.Post posts = 1;
+}
+
+message GetCommunitiesRequest {
+  repeated string community_id_list = 1;
+}
+
+message GetCommunitiesResponse {
+  repeated model.v1.Community communities = 1;
+}
+
+message InitiatePostMediaUploadRequest {
+  string content_type = 1;
+  uint64 data_size = 2;
+  Type media_type = 3;
+  optional string description = 4;
+
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    TYPE_IMAGE = 1;
+    TYPE_VIDEO = 2;
+  }
+}
+
+message InitiatePostMediaUploadResponse {
+  string media_id = 1;
+  string upload_url = 2;
+}
+
+message GetPostMediaStatusRequest {
+  string media_id = 1;
+}
+
+message GetPostMediaStatusResponse {
+  Status status = 1;
+
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_UPLOAD_PENDING = 1;
+    STATUS_PROCESSING = 2;
+    STATUS_COMPLETED = 3;
+    STATUS_FAILED = 4;
+  }
+}
+
+message CreatePostRequest {
+  string text = 1;
+  optional string in_reply_to_post_id = 2;
+  optional string quoted_post_id = 3;
+  optional string community_id = 4;
+  repeated string media_id_list = 5;
+  optional model.v1.PostMask post_mask = 6;
+  optional const.v1.PostPublishingType publishing_type = 7;
+}
+
+message CreatePostResponse {
+  model.v1.Post post = 1;
+}
+
+message DeletePostRequest {
+  string post_id = 1;
+}
+
+message DeletePostResponse {
+  bool deleted = 1;
+}
+
+message GetCommunityTimelineRequest {
+  string community_id = 1;
+  optional string until_cursor = 2;
+  optional string since_cursor = 3;
+}
+
+message GetCommunityTimelineResponse {
+  repeated model.v1.Post posts = 1;
+}
+
+message GetCommunityMemberListRequest {
+  string community_id = 1;
+  optional string pagination_cursor = 2;
+}
+
+message GetCommunityMemberListResponse {
+  repeated model.v1.User members = 1;
+  optional string next_pagination_cursor = 2;
+}
+
+message RestrictCommunityPostRequest {
+  string post_id = 1;
+}
+
+message RestrictCommunityPostResponse {}
+
+message GetCommunitiesUsingApplicationRequest {
+  optional string cursor = 1;
+}
+
+message GetCommunitiesUsingApplicationResponse {
+  repeated model.v1.CommunityUsingApplication communities_using_application = 1;
+  repeated model.v1.ApplicationVersion application_versions = 2;
+  optional string next_cursor = 3;
+}
+
+message SendChatMessageRequest {
+  string room_id = 1;
+  optional string text = 2;
+  optional string media_id = 3;
+}
+
+message SendChatMessageResponse {
+  model.v1.ChatMessage message = 1;
+}
+
+message GetStampsRequest {
+  optional const.v1.LanguageCode official_stamp_language = 1;
+  repeated string community_ids = 2;
+}
+
+message GetStampsResponse {
+  repeated model.v1.OfficialStampSet official_stamp_sets = 1;
+  repeated model.v1.CommunityStampSet community_stamp_sets = 2;
+}
+
+message AddStampToPostRequest {
+  string post_id = 1;
+  string stamp_id = 2;
+}
+
+message AddStampToPostResponse {
+  model.v1.Post post = 1;
+}
+
+message SendDirectMessageToCommunityMemberRequest {
+  string receiver_id = 1;
+  string community_id = 2;
+  optional string text = 3;
+  repeated string media_ids = 4;
+  optional string post_id = 5;
+}
+
+message SendDirectMessageToCommunityMemberResponse {
+  model.v1.ChatMessage message = 1;
+}
+
+service ApplicationService {
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
+  rpc GetPosts(GetPostsRequest) returns (GetPostsResponse);
+  rpc GetCommunities(GetCommunitiesRequest) returns (GetCommunitiesResponse);
+  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+  rpc InitiatePostMediaUpload(InitiatePostMediaUploadRequest) returns (InitiatePostMediaUploadResponse);
+  rpc GetPostMediaStatus(GetPostMediaStatusRequest) returns (GetPostMediaStatusResponse);
+  rpc GetCommunityTimeline(GetCommunityTimelineRequest) returns (GetCommunityTimelineResponse);
+  rpc GetCommunityMemberList(GetCommunityMemberListRequest) returns (GetCommunityMemberListResponse);
+  rpc RestrictCommunityPost(RestrictCommunityPostRequest) returns (RestrictCommunityPostResponse);
+  rpc GetCommunitiesUsingApplication(GetCommunitiesUsingApplicationRequest) returns (GetCommunitiesUsingApplicationResponse);
+  rpc SendChatMessage(SendChatMessageRequest) returns (SendChatMessageResponse);
+  rpc GetStamps(GetStampsRequest) returns (GetStampsResponse);
+  rpc AddStampToPost(AddStampToPostRequest) returns (AddStampToPostResponse);
+  rpc SendDirectMessageToCommunityMember(SendDirectMessageToCommunityMemberRequest) returns (SendDirectMessageToCommunityMemberResponse);
+}
+
 
 message GetUsersRequest {
   repeated string user_id_list = 1;

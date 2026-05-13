@@ -1,0 +1,291 @@
+---
+title: コミュニティプラグイン
+description: コミュニティプラグイン（Plugin）の概要と Plugin 固有の API の使い方
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+Plugin（コミュニティプラグイン）は、mixi2 のコミュニティにインストールして動作する拡張型アプリケーションです。Bot の機能に加え、コミュニティ固有のイベント受信や API 操作が行えます。
+
+## Bot との違い
+
+| 項目              | Bot                       | Plugin                                                                      |
+| ----------------- | ------------------------- | --------------------------------------------------------------------------- |
+| 提供対象          | ユーザー                  | ユーザー + コミュニティ                                                     |
+| 受信できるイベント | リプライ・メンション・DM  | リプライ・メンション・DM・コミュニティ内のポスト・メンバー参加/退出・インストール/アンインストール |
+| 使える API        | 基本 API                  | 基本 API ＋ コミュニティ操作 API                                            |
+| インストール      | 不要                      | コミュニティ管理者がインストール（最大 10 コミュニティ）                    |
+
+Plugin は Bot のすべての機能を持ちつつ、コミュニティ固有の機能も利用できるアプリケーションです。コミュニティに対してポストしたい、コミュニティメンバーに DM を送りたい、コミュニティのタイムラインを取得したいといった用途には Plugin を選択してください。
+
+## Requirement を設定する
+
+Requirement は Plugin 固有の概念で、Plugin がコミュニティに要求する**パーミッション**と受信したい**イベント**のセットです。
+
+### パーミッション
+
+コミュニティに対する操作権限です。使用する API に対応したパーミッションを宣言する必要があります。
+
+| パーミッション                                  | 説明                        | 対応 API                                |
+| ----------------------------------------------- | --------------------------- | --------------------------------------- |
+| `Community.Post.Read`                           | コミュニティのタイムラインを閲覧できます | `getCommunityTimeline`              |
+| `Community.Post.Create`                         | コミュニティへポストを投稿できます       | `createPost`（`communityId` 指定時）    |
+| `Community.Post.Restrict`                       | コミュニティのポストを非表示にできます   | `restrictCommunityPost`             |
+| `Community.MemberList.Read`                     | コミュニティのメンバー一覧を取得できます | `getCommunityMemberList`            |
+| `Community.Post.Stamp.Create`                   | コミュニティのポストにスタンプを付与できます | `addStampToPost`                  |
+| `Community.Member.DirectMessage.Create`         | コミュニティのメンバーに DM を送信できます | `sendDirectMessageToCommunityMember` |
+
+### イベント
+
+受信したいイベントを宣言します。宣言していないイベントは配信されません。
+
+| イベント                              | 説明                                              |
+| ------------------------------------- | ------------------------------------------------- |
+| `Reaction.Post.Replied`               | 作成したポストにリプライが付いたとき              |
+| `Reaction.Post.Mentioned`             | メンション付きのポストが作成されたとき            |
+| `Reaction.DirectMessage.Received`     | DM を受け取ったとき                               |
+| `Community.Post.Created`              | インストール済みコミュニティにポストが作成されたとき |
+| `Community.Member.Joined`             | インストール済みコミュニティにメンバーが参加・退出したとき |
+
+:::note
+Plugin のインストール・アンインストールイベント（`CommunityPluginManagedEvent`）は Requirement への宣言なしに、Plugin アプリケーション全てに自動で配信されます。
+:::
+
+## Plugin 固有のイベント
+
+### コミュニティメンバー変更イベント（`CommunityMemberChangedEvent`）
+
+コミュニティにメンバーが参加・退出したときに発生します（Requirement: `Community.Member.Joined`）。
+
+```typescript
+import { EventRouter } from 'mixi2-js/helpers';
+import { EventType, EventReason } from 'mixi2-js';
+
+const router = new EventRouter();
+
+router.on(EventType.COMMUNITY_MEMBER_CHANGED, async (event) => {
+  const e = event.communityMemberChangedEvent!;
+  const reason = e.eventReasonList[0];
+  if (reason === EventReason.COMMUNITY_MEMBER_JOINED) {
+    console.log(`${e.member?.name} が ${e.community?.name} に参加しました`);
+    // 参加メンバーに DM で挨拶を送る
+    await client.sendDirectMessageToCommunityMember({
+      receiverId: e.member!.userId,
+      communityId: e.community!.communityId,
+      text: 'コミュニティへようこそ！',
+    });
+  } else if (reason === EventReason.COMMUNITY_MEMBER_LEFT) {
+    console.log(`${e.member?.name} が ${e.community?.name} を退出しました`);
+  }
+});
+```
+
+| フィールド          | 型               | 説明                    |
+| ------------------- | ---------------- | ----------------------- |
+| `eventReasonList`   | `EventReason[]`  | イベントが発生した理由  |
+| `member`            | `User \| null`   | 参加・退出したユーザー  |
+| `community`         | `Community \| null` | 対象コミュニティ      |
+
+| `EventReason`                       | 値  | 説明                       |
+| ----------------------------------- | --- | -------------------------- |
+| `COMMUNITY_MEMBER_JOINED`           | 6   | コミュニティにメンバーが参加した  |
+| `COMMUNITY_MEMBER_LEFT`             | 7   | コミュニティからメンバーが退出した |
+
+### コミュニティプラグイン管理イベント（`CommunityPluginManagedEvent`）
+
+Plugin がコミュニティにインストール・アンインストールされたときに発生します。Requirement 宣言不要です。
+
+```typescript
+router.on(EventType.COMMUNITY_PLUGIN_MANAGED, async (event) => {
+  const e = event.communityPluginManagedEvent!;
+  const reason = e.eventReasonList[0];
+  if (reason === EventReason.COMMUNITY_PLUGIN_INSTALLED) {
+    console.log(`${e.community?.name} に Plugin がインストールされました`);
+    // 初期化処理
+  } else if (reason === EventReason.COMMUNITY_PLUGIN_UNINSTALLED) {
+    console.log(`${e.community?.name} から Plugin がアンインストールされました`);
+    // クリーンアップ処理
+  }
+});
+```
+
+| フィールド          | 型               | 説明                       |
+| ------------------- | ---------------- | -------------------------- |
+| `eventReasonList`   | `EventReason[]`  | インストール/アンインストール |
+| `community`         | `Community \| null` | 対象コミュニティ         |
+
+| `EventReason`                       | 値  | 説明                                  |
+| ----------------------------------- | --- | ------------------------------------- |
+| `COMMUNITY_PLUGIN_INSTALLED`        | 9   | Plugin がコミュニティにインストールされた    |
+| `COMMUNITY_PLUGIN_UNINSTALLED`      | 10  | Plugin がコミュニティからアンインストールされた |
+
+## Plugin 固有の API
+
+以下のサンプルコードは [API クライアント](/guides/api-client/#セットアップ) と同じクライアント初期化が完了している前提で記述しています。
+
+### インストール済みコミュニティの一覧を取得する
+
+Plugin がインストールされているコミュニティと各バージョン情報を取得します。
+
+```typescript
+const result = await client.getCommunitiesUsingApplication();
+
+for (const item of result.communitiesUsingApplication) {
+  console.log(item.community?.name, '- バージョン:', item.applicationVersionId);
+}
+
+// 次のページを取得
+if (result.nextCursor) {
+  const next = await client.getCommunitiesUsingApplication({ cursor: result.nextCursor });
+}
+```
+
+#### GetCommunitiesUsingApplicationRequest
+
+| フィールド | 型       | 必須 | 説明                        |
+| ---------- | -------- | ---- | --------------------------- |
+| `cursor`   | `string` | -    | ページング用カーソル（任意）|
+
+#### GetCommunitiesUsingApplicationResponse
+
+| フィールド                       | 型                          | 説明                                  |
+| -------------------------------- | --------------------------- | ------------------------------------- |
+| `communitiesUsingApplication`    | `CommunityUsingApplication[]` | インストール済みコミュニティ一覧     |
+| `applicationVersions`            | `ApplicationVersion[]`      | 各コミュニティのバージョン情報一覧    |
+| `nextCursor`                     | `string?`                   | 次ページ取得用カーソル                |
+
+### コミュニティのタイムラインを取得する
+
+インストール済みコミュニティのタイムライン（ポスト一覧）を取得します（Requirement: `Community.Post.Read`）。
+
+```typescript
+const posts = await client.getCommunityTimeline({ communityId: 'YOUR_COMMUNITY_ID' });
+
+// 古いページを取得する（ページング）
+const olderPosts = await client.getCommunityTimeline({
+  communityId: 'YOUR_COMMUNITY_ID',
+  untilCursor: posts[posts.length - 1]?.postId,
+});
+```
+
+#### GetCommunityTimelineRequest
+
+| フィールド    | 型       | 必須 | 説明                                                          |
+| ------------- | -------- | ---- | ------------------------------------------------------------- |
+| `communityId` | `string` | ○    | タイムラインを取得するコミュニティ ID                         |
+| `untilCursor` | `string` | -    | 指定したポスト ID より古いポストを返します（指定ポストは含まない）|
+| `sinceCursor` | `string` | -    | 指定したポスト ID より新しいポストを返します（指定ポストは含まない）|
+
+### コミュニティのメンバー一覧を取得する
+
+インストール済みコミュニティのメンバー一覧を取得します（Requirement: `Community.MemberList.Read`）。
+
+```typescript
+let cursor: string | undefined;
+do {
+  const result = await client.getCommunityMemberList({
+    communityId: 'YOUR_COMMUNITY_ID',
+    paginationCursor: cursor,
+  });
+  console.log('members:', result.members.map(m => m.name));
+  cursor = result.nextPaginationCursor;
+} while (cursor);
+```
+
+#### GetCommunityMemberListRequest
+
+| フィールド          | 型       | 必須 | 説明                              |
+| ------------------- | -------- | ---- | --------------------------------- |
+| `communityId`       | `string` | ○    | メンバー一覧を取得するコミュニティ ID |
+| `paginationCursor`  | `string` | -    | ページング用カーソル（任意）       |
+
+#### GetCommunityMemberListResponse
+
+| フィールド               | 型        | 説明                       |
+| ------------------------ | --------- | -------------------------- |
+| `members`                | `User[]`  | コミュニティメンバーの一覧 |
+| `nextPaginationCursor`   | `string?` | 次ページ取得用カーソル     |
+
+### コミュニティのポストを非表示にする
+
+指定したポストをコミュニティのタイムラインから非表示にします（削除ではありません）（Requirement: `Community.Post.Restrict`）。
+
+```typescript
+await client.restrictCommunityPost({ postId: 'POST_ID' });
+```
+
+#### RestrictCommunityPostRequest
+
+| フィールド | 型       | 必須 | 説明                |
+| ---------- | -------- | ---- | ------------------- |
+| `postId`   | `string` | ○    | 非表示にするポスト ID |
+
+### コミュニティメンバーに DM を送信する
+
+インストール済みコミュニティのメンバーにダイレクトメッセージを送信します（Requirement: `Community.Member.DirectMessage.Create`）。
+
+```typescript
+// テキスト DM
+await client.sendDirectMessageToCommunityMember({
+  receiverId: 'USER_ID',
+  communityId: 'COMMUNITY_ID',
+  text: 'こんにちは！',
+});
+
+// メディア付き DM
+await client.sendDirectMessageToCommunityMember({
+  receiverId: 'USER_ID',
+  communityId: 'COMMUNITY_ID',
+  mediaIds: ['MEDIA_ID'],
+});
+```
+
+#### SendDirectMessageToCommunityMemberRequest
+
+`text` または `mediaIds` のいずれかは必須です。
+
+| フィールド    | 型         | 必須 | 説明                                                |
+| ------------- | ---------- | ---- | --------------------------------------------------- |
+| `receiverId`  | `string`   | ○    | 受信者のユーザー ID                                 |
+| `communityId` | `string`   | ○    | 受信者が所属するコミュニティ ID                     |
+| `text`        | `string`   | △    | 本文テキスト（`text` または `mediaIds` が必須）     |
+| `mediaIds`    | `string[]` | △    | 添付メディア ID（最大 4 件）                        |
+| `postId`      | `string`   | -    | 引用するポスト ID（任意）                           |
+
+### コミュニティスタンプを取得する
+
+インストール済みコミュニティのスタンプを取得します。
+
+```typescript
+const result = await client.getStamps({
+  communityIds: ['COMMUNITY_ID'],
+});
+
+for (const set of result.communityStampSets) {
+  console.log('コミュニティ:', set.communityId);
+  for (const stamp of set.stamps) {
+    console.log(' -', stamp.stampId, stamp.url);
+  }
+}
+
+// コミュニティスタンプをポストに付与（Requirement: Community.Post.Stamp.Create）
+await client.addStampToPost('POST_ID', result.communityStampSets[0]!.stamps[0]!.stampId);
+```
+
+### コミュニティへのポスト作成
+
+コミュニティのタイムラインにポストします（Requirement: `Community.Post.Create`）。
+
+```typescript
+const post = await client.createPost({
+  text: 'コミュニティへの投稿です！',
+  communityId: 'COMMUNITY_ID',
+});
+```
+
+## 次のステップ
+
+- [API クライアント](/guides/api-client/) — Bot・Plugin 共通 API の詳細
+- [イベントを受信する（Webhook）](/guides/webhook/) — Webhook 方式の実装
+- [イベントを受信する（gRPC ストリーム）](/guides/streaming/) — gRPC 方式の実装
+- [API リファレンス](/reference/types/) — 型定義の一覧

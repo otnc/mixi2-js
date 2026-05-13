@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package social.mixi.application.model.v1;
+
+import "social/mixi/application/const/v1/application_requirement.proto";
+
+message ApplicationVersion {
+  string application_version_id = 1;
+  string application_id = 2;
+  repeated const.v1.ApplicationRequirement requirements = 3;
+}

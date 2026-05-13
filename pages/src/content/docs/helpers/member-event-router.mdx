@@ -1,0 +1,129 @@
+---
+title: MemberEventRouter
+description: コミュニティメンバーの参加・退出イベントを onJoined / onLeft にルーティングするハンドラ（Plugin 専用）
+---
+
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+`MemberEventRouter` は、`CommunityMemberChangedEvent` を参加（`COMMUNITY_MEMBER_JOINED`）と退出（`COMMUNITY_MEMBER_LEFT`）に分けてルーティングする `EventHandler` 実装です。
+
+<Aside type="caution">
+  このヘルパーは **Plugin 専用**です。Bot では利用できません。`ApplicationRequirement.EVENT_COMMUNITY_MEMBER_JOINED` パーミッションが必要です。
+</Aside>
+
+## インストール
+
+追加インストールは不要です。`mixi2-js` に同梱されています。
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { MemberEventRouter } from 'mixi2-js/helpers';
+    // CJS
+    const { MemberEventRouter } = require('mixi2-js/helpers');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { MemberEventRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+## 基本的な使い方
+
+### EventRouter と組み合わせる（推奨）
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { EventType, StreamWatcher } from 'mixi2-js';
+    import { EventRouter, MemberEventRouter } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { EventType, StreamWatcher } from '@otoneko1102/mixi2-js';
+    import { EventRouter, MemberEventRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const memberRouter = new MemberEventRouter()
+  .onJoined(async (member, community) => {
+    console.log(`${member.displayName} が ${community.name} に参加しました`);
+    // 参加時のウェルカムメッセージ送信など
+    await client.sendDirectMessageToCommunityMember({
+      receiverId: member.userId,
+      communityId: community.communityId,
+      text: `${community.name} へようこそ！`,
+    });
+  })
+  .onLeft(async (member, community) => {
+    console.log(`${member.displayName} が ${community.name} から退出しました`);
+  });
+
+const router = new EventRouter();
+router.on(EventType.COMMUNITY_MEMBER_CHANGED, (event) => memberRouter.handle(event));
+
+const watcher = new StreamWatcher({ client, handler: router });
+await watcher.watch();
+```
+
+### 単体で EventHandler として使う
+
+`MemberEventRouter` 自体が `EventHandler` を実装しているため、`EventRouter` なしで直接使えます。ただしその場合、`COMMUNITY_MEMBER_CHANGED` 以外のイベントは無視されます。
+
+```typescript
+const memberRouter = new MemberEventRouter()
+  .onJoined((member) => console.log("参加:", member.displayName));
+
+const watcher = new StreamWatcher({ client, handler: memberRouter });
+await watcher.watch();
+```
+
+### CommunityFilter と組み合わせる
+
+```typescript
+import { EventRouter, MemberEventRouter, CommunityFilter } from 'mixi2-js/helpers';
+
+const memberRouter = new MemberEventRouter()
+  .onJoined((member, community) => {
+    console.log(`${community.name}: ${member.displayName} 参加`);
+  });
+
+const router = new EventRouter();
+router.on(EventType.COMMUNITY_MEMBER_CHANGED, (e) => memberRouter.handle(e));
+
+// 特定コミュニティのみ処理
+const filter = new CommunityFilter(router, ['community-id-1']);
+await watcher.watch(filter);
+```
+
+## API リファレンス
+
+### コンストラクタ
+
+```typescript
+new MemberEventRouter()
+```
+
+引数はありません。
+
+### メソッド
+
+| メソッド                  | コールバック引数                              | 戻り値 | 説明                                          |
+| ------------------------- | --------------------------------------------- | ------ | --------------------------------------------- |
+| `onJoined(listener)`      | `(member: User, community: Community, event)` | `this` | コミュニティへの参加時に呼ばれるハンドラを登録 |
+| `onLeft(listener)`        | `(member: User, community: Community, event)` | `this` | コミュニティからの退出時に呼ばれるハンドラを登録 |
+| `handle(event)`           | -                                             | -      | `EventHandler` インターフェースの実装          |
+
+<Aside type="tip">
+  `onJoined` / `onLeft` は複数回呼べます。登録順にコールバックが実行されます。
+</Aside>
+
+<Aside type="note">
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。
+</Aside>

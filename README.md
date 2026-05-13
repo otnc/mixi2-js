@@ -14,7 +14,7 @@
 [![JSR Score](https://jsr.io/badges/@otoneko1102/mixi2-js/score)](https://jsr.io/@otoneko1102/mixi2-js)
 [![License](https://img.shields.io/github/license/otoneko1102/mixi2-js?color=blue)](LICENSE)
 [![Node.js](https://img.shields.io/node/v/mixi2-js?color=339933&logo=nodedotjs&logoColor=white)](package.json)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Build](https://img.shields.io/github/actions/workflow/status/otoneko1102/mixi2-js/publish.yml?label=build&logo=github)](https://github.com/otnc/mixi2-js/actions)
 [![Vite+](https://img.shields.io/badge/Vite%2B-enabled-646CFF?logo=vite&logoColor=white)](vite.config.ts)
 
@@ -28,12 +28,17 @@ mixi2 の [Application API](https://developer.mixi.social/docs) を利用する�
 
 [公式 Go SDK](https://github.com/mixigroup/mixi2-application-sdk-go) および [公式 API 仕様](https://github.com/mixigroup/mixi2-api) に基づいて作成されています。
 
-> [!Note]  
+> [!Note]
+>   
 > **これは MIXI 社公式のプロダクトではありません。コミュニティメンバーによるオープンソースプロジェクトです。**
 
 ---
 
 ## インストール
+
+> [!Warning]
+>   
+> **mixi2-js v1.5.0 より、Node.js v20.19.0 未満はサポートされなくなりました。** Node.js v18 系では動作しません。Node.js v20.19.0 以上をご使用ください。
 
 ```bash
 npm install mixi2-js

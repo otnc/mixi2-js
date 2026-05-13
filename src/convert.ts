@@ -12,9 +12,16 @@ import type {
   MediaVideo,
   OfficialStampSet,
   OfficialStamp,
+  CommunityStamp,
+  CommunityStampSet,
+  Community,
+  CommunityUsingApplication,
+  ApplicationVersion,
   Event,
   PostCreatedEvent,
+  CommunityMemberChangedEvent,
   ChatMessageReceivedEvent,
+  CommunityPluginManagedEvent,
 } from "./types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,7 +32,8 @@ function toDate(ts: unknown): Date | null {
   if (ts instanceof Date) return ts;
   const obj = ts as RawObject;
   if (obj.seconds !== undefined) {
-    const ms = Number(obj.seconds) * 1000 + Math.floor((obj.nanos || 0) / 1_000_000);
+    const ms =
+      Number(obj.seconds) * 1000 + Math.floor((obj.nanos || 0) / 1_000_000);
     return new Date(ms);
   }
   return null;
@@ -148,6 +156,7 @@ export function convertPost(raw: unknown): Post {
     postMediaList: (r.postMediaList || []).map(convertPostMedia),
     inReplyToPostId: r.inReplyToPostId || undefined,
     postMask: convertPostMask(r.postMask),
+    communityId: r.communityId || undefined,
     visibility: r.visibility || 0,
     accessLevel: r.accessLevel || 0,
     stamps: (r.stamps || []).map(convertPostStamp),
@@ -191,21 +200,95 @@ export function convertOfficialStampSet(raw: unknown): OfficialStampSet {
   };
 }
 
+export function convertCommunityStamp(raw: unknown): CommunityStamp {
+  const r = raw as RawObject;
+  return {
+    stampId: r.stampId || "",
+    url: r.url || "",
+    searchTags: r.searchTags || [],
+  };
+}
+
+export function convertCommunityStampSet(raw: unknown): CommunityStampSet {
+  const r = raw as RawObject;
+  return {
+    communityId: r.communityId || "",
+    stamps: (r.stamps || []).map(convertCommunityStamp),
+  };
+}
+
+export function convertCommunity(raw: unknown): Community {
+  const r = raw as RawObject;
+  return {
+    communityId: r.communityId || "",
+    name: r.name || "",
+    purpose: r.purpose || "",
+    isArchived: r.isArchived || false,
+    visibility: r.visibility || 0,
+    accessLevel: r.accessLevel || 0,
+  };
+}
+
+export function convertCommunityUsingApplication(
+  raw: unknown
+): CommunityUsingApplication {
+  const r = raw as RawObject;
+  return {
+    community: r.community ? convertCommunity(r.community) : null,
+    applicationVersionId: r.applicationVersionId || "",
+  };
+}
+
+export function convertApplicationVersion(raw: unknown): ApplicationVersion {
+  const r = raw as RawObject;
+  return {
+    applicationVersionId: r.applicationVersionId || "",
+    applicationId: r.applicationId || "",
+    requirements: r.requirements || [],
+  };
+}
+
 export function convertPostCreatedEvent(raw: unknown): PostCreatedEvent {
   const r = raw as RawObject;
   return {
     eventReasonList: r.eventReasonList || [],
     post: r.post ? convertPost(r.post) : null,
     issuer: r.issuer ? convertUser(r.issuer) : null,
+    postedCommunity: r.postedCommunity
+      ? convertCommunity(r.postedCommunity)
+      : undefined,
   };
 }
 
-export function convertChatMessageReceivedEvent(raw: unknown): ChatMessageReceivedEvent {
+export function convertCommunityMemberChangedEvent(
+  raw: unknown
+): CommunityMemberChangedEvent {
+  const r = raw as RawObject;
+  return {
+    eventReasonList: r.eventReasonList || [],
+    member: r.member ? convertUser(r.member) : null,
+    community: r.community ? convertCommunity(r.community) : null,
+  };
+}
+
+export function convertChatMessageReceivedEvent(
+  raw: unknown
+): ChatMessageReceivedEvent {
   const r = raw as RawObject;
   return {
     eventReasonList: r.eventReasonList || [],
     message: r.message ? convertChatMessage(r.message) : null,
     issuer: r.issuer ? convertUser(r.issuer) : null,
+  };
+}
+
+export function convertCommunityPluginManagedEvent(
+  raw: unknown
+): CommunityPluginManagedEvent {
+  const r = raw as RawObject;
+  return {
+    eventReasonList: r.eventReasonList || [],
+    community: r.community ? convertCommunity(r.community) : null,
   };
 }
 
@@ -215,9 +298,17 @@ export function convertEvent(raw: unknown): Event {
     eventId: r.eventId || "",
     eventType: r.eventType || 0,
     pingEvent: r.pingEvent || undefined,
-    postCreatedEvent: r.postCreatedEvent ? convertPostCreatedEvent(r.postCreatedEvent) : undefined,
+    postCreatedEvent: r.postCreatedEvent
+      ? convertPostCreatedEvent(r.postCreatedEvent)
+      : undefined,
+    communityMemberChangedEvent: r.communityMemberChangedEvent
+      ? convertCommunityMemberChangedEvent(r.communityMemberChangedEvent)
+      : undefined,
     chatMessageReceivedEvent: r.chatMessageReceivedEvent
       ? convertChatMessageReceivedEvent(r.chatMessageReceivedEvent)
+      : undefined,
+    communityPluginManagedEvent: r.communityPluginManagedEvent
+      ? convertCommunityPluginManagedEvent(r.communityPluginManagedEvent)
       : undefined,
   };
 }

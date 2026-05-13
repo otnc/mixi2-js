@@ -18,6 +18,7 @@ message Post {
   repeated PostMedia post_media_list = 6;
   optional string in_reply_to_post_id = 7;
   optional PostMask post_mask = 8;
+  optional string community_id = 9;
   const.v1.PostVisibility visibility = 10;
   const.v1.PostAccessLevel access_level = 11;
   repeated PostStamp stamps = 12;

@@ -1,4 +1,4 @@
-/// <reference types="vite-plus/test/globals" />
+/// <reference types="vitest/globals" />
 
 import http from "node:http";
 import crypto from "node:crypto";
@@ -20,13 +20,13 @@ vi.mock("../src/proto", () => {
       () =>
         class MockGrpcClient {
           close() {}
-        },
+        }
     ),
     getStreamServiceClient: vi.fn(
       () =>
         class MockStreamClient {
           close() {}
-        },
+        }
     ),
     getSendEventRequestType: vi.fn(() => ({
       decode: vi.fn(() => ({ events: [] })),
@@ -43,7 +43,7 @@ function makeAuth(token = "test-token"): Authenticator {
 /** Create a mock IncomingMessage that emits body data asynchronously */
 function makeReq(
   headers: Record<string, string | undefined>,
-  body: Buffer = Buffer.alloc(0),
+  body: Buffer = Buffer.alloc(0)
 ): http.IncomingMessage {
   const emitter = new EventEmitter();
   const req = Object.assign(emitter, {
@@ -74,10 +74,14 @@ function makeRes() {
 // Ed25519 key pair used across WebhookServer tests
 const ed25519 = crypto.generateKeyPairSync("ed25519");
 const webhookPublicKeyBytes = Buffer.from(
-  (ed25519.publicKey.export({ format: "der", type: "spki" }) as Buffer).slice(12),
+  (ed25519.publicKey.export({ format: "der", type: "spki" }) as Buffer).slice(
+    12
+  )
 );
 
-function makeWebhookServer(handler: EventHandler = { handle: vi.fn() }): WebhookServer {
+function makeWebhookServer(
+  handler: EventHandler = { handle: vi.fn() }
+): WebhookServer {
   return new WebhookServer({
     port: 8089,
     publicKey: webhookPublicKeyBytes,
@@ -102,7 +106,11 @@ describe("OAuth2Authenticator", () => {
   function stubToken(token: string, expiresIn = 3600) {
     return vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ access_token: token, token_type: "Bearer", expires_in: expiresIn }),
+      json: async () => ({
+        access_token: token,
+        token_type: "Bearer",
+        expires_in: expiresIn,
+      }),
     });
   }
 
@@ -147,7 +155,7 @@ describe("OAuth2Authenticator", () => {
             expires_in: 3600,
           }),
         });
-      }),
+      })
     );
 
     const auth = new OAuth2Authenticator(OPTS);
@@ -179,7 +187,11 @@ describe("OAuth2Authenticator", () => {
   test("throws when token endpoint returns HTTP error", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({ ok: false, status: 401, statusText: "Unauthorized" }),
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
+      })
     );
 
     const auth = new OAuth2Authenticator(OPTS);
@@ -198,8 +210,13 @@ describe("OAuth2Authenticator", () => {
     await auth.getAccessToken();
 
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    const authHeader = (init.headers as Record<string, string>)["Authorization"]!;
-    const decoded = Buffer.from(authHeader.replace("Basic ", ""), "base64").toString();
+    const authHeader = (init.headers as Record<string, string>)[
+      "Authorization"
+    ]!;
+    const decoded = Buffer.from(
+      authHeader.replace("Basic ", ""),
+      "base64"
+    ).toString();
     // Raw special chars must not appear unencoded
     expect(decoded).not.toContain("@");
     expect(decoded).not.toContain("=");
@@ -211,7 +228,10 @@ describe("OAuth2Authenticator", () => {
 
 describe("Client", () => {
   function createClient(token = "test-token") {
-    return new Client({ apiAddress: "localhost:443", authenticator: makeAuth(token) });
+    return new Client({
+      apiAddress: "localhost:443",
+      authenticator: makeAuth(token),
+    });
   }
 
   test("getAccessToken delegates to authenticator", async () => {
@@ -291,10 +311,12 @@ describe("Client", () => {
           stampSetType: 1,
         },
       ],
+      communityStampSets: [],
     });
-    const stamps = await client.getStamps();
-    expect(stamps).toHaveLength(1);
-    expect(stamps[0]!.stampSetId).toBe("set-1");
+    const result = await client.getStamps();
+    expect(result.officialStampSets).toHaveLength(1);
+    expect(result.officialStampSets[0]!.stampSetId).toBe("set-1");
+    expect(result.communityStampSets).toHaveLength(0);
   });
 
   test("addStampToPost returns updated post", async () => {
@@ -306,16 +328,174 @@ describe("Client", () => {
     expect(post.postId).toBe("p1");
   });
 
+  test("getCommunities returns mapped communities", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      communities: [
+        {
+          communityId: "comm-1",
+          name: "Test Comm",
+          purpose: "",
+          isArchived: false,
+          visibility: 1,
+          accessLevel: 1,
+        },
+      ],
+    });
+    const communities = await client.getCommunities(["comm-1"]);
+    expect(communities).toHaveLength(1);
+    expect(communities[0]!.communityId).toBe("comm-1");
+    expect(communities[0]!.name).toBe("Test Comm");
+  });
+
+  test("getCommunities returns empty array when response has no communities", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({});
+    const communities = await client.getCommunities([]);
+    expect(communities).toHaveLength(0);
+  });
+
+  test("getCommunityTimeline returns mapped posts", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      posts: [
+        {
+          postId: "p-c1",
+          text: "Community post",
+          postMediaList: [],
+          stamps: [],
+          communityId: "comm-1",
+        },
+      ],
+    });
+    const posts = await client.getCommunityTimeline({ communityId: "comm-1" });
+    expect(posts).toHaveLength(1);
+    expect(posts[0]!.postId).toBe("p-c1");
+    expect(posts[0]!.communityId).toBe("comm-1");
+  });
+
+  test("getCommunityMemberList returns members and cursor", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      members: [
+        {
+          userId: "user-10",
+          name: "member1",
+          isDisabled: false,
+          displayName: "Member One",
+          profile: "",
+          visibility: 1,
+          accessLevel: 1,
+        },
+      ],
+      nextPaginationCursor: "cursor-abc",
+    });
+    const result = await client.getCommunityMemberList({
+      communityId: "comm-1",
+    });
+    expect(result.members).toHaveLength(1);
+    expect(result.members[0]!.userId).toBe("user-10");
+    expect(result.nextPaginationCursor).toBe("cursor-abc");
+  });
+
+  test("getCommunityMemberList returns undefined cursor when absent", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({ members: [] });
+    const result = await client.getCommunityMemberList({
+      communityId: "comm-1",
+    });
+    expect(result.members).toHaveLength(0);
+    expect(result.nextPaginationCursor).toBeUndefined();
+  });
+
+  test("restrictCommunityPost resolves without error", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({});
+    await expect(
+      client.restrictCommunityPost({ postId: "p1" })
+    ).resolves.toBeUndefined();
+  });
+
+  test("getCommunitiesUsingApplication returns communities and versions", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      communitiesUsingApplication: [
+        {
+          community: {
+            communityId: "comm-1",
+            name: "Test Comm",
+            purpose: "",
+            isArchived: false,
+            visibility: 1,
+            accessLevel: 1,
+          },
+          applicationVersionId: "ver-1",
+        },
+      ],
+      applicationVersions: [
+        {
+          applicationVersionId: "ver-1",
+          applicationId: "app-1",
+          requirements: [1, 2],
+        },
+      ],
+      nextCursor: "next-cursor-xyz",
+    });
+    const result = await client.getCommunitiesUsingApplication();
+    expect(result.communitiesUsingApplication).toHaveLength(1);
+    expect(result.communitiesUsingApplication[0]!.community!.communityId).toBe(
+      "comm-1"
+    );
+    expect(result.applicationVersions).toHaveLength(1);
+    expect(result.applicationVersions[0]!.applicationVersionId).toBe("ver-1");
+    expect(result.nextCursor).toBe("next-cursor-xyz");
+  });
+
+  test("getCommunitiesUsingApplication returns undefined cursor when absent", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      communitiesUsingApplication: [],
+      applicationVersions: [],
+    });
+    const result = await client.getCommunitiesUsingApplication();
+    expect(result.nextCursor).toBeUndefined();
+  });
+
+  test("sendDirectMessageToCommunityMember returns chat message", async () => {
+    const client = createClient();
+    vi.spyOn(client as any, "call").mockResolvedValue({
+      message: {
+        roomId: "room-dm-1",
+        messageId: "msg-dm-1",
+        text: "Hello!",
+        creatorId: "bot",
+        createdAt: null,
+        mediaList: [],
+      },
+    });
+    const msg = await client.sendDirectMessageToCommunityMember({
+      receiverId: "user-10",
+      communityId: "comm-1",
+      text: "Hello!",
+    });
+    expect(msg.roomId).toBe("room-dm-1");
+    expect(msg.text).toBe("Hello!");
+  });
+
   test("propagates gRPC errors to caller", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockRejectedValue(new Error("UNAVAILABLE: connection refused"));
+    vi.spyOn(client as any, "call").mockRejectedValue(
+      new Error("UNAVAILABLE: connection refused")
+    );
     await expect(client.getPosts(["p1"])).rejects.toThrow("UNAVAILABLE");
   });
 
   test("call rejects when method not found on gRPC client", async () => {
     const client = createClient();
     // grpcClient is a MockGrpcClient with no methods — call() should reject
-    await expect(client.getPosts(["p1"])).rejects.toThrow('Method "getPosts" not found');
+    await expect(client.getPosts(["p1"])).rejects.toThrow(
+      'Method "getPosts" not found'
+    );
   });
 });
 
@@ -388,7 +568,7 @@ describe("WebhookServer", () => {
         "x-mixi2-application-event-signature": badSig,
         "x-mixi2-application-event-timestamp": timestamp,
       },
-      Buffer.alloc(0),
+      Buffer.alloc(0)
     );
     const res = makeRes();
     await server.eventHandlerFunc(req, res as unknown as http.ServerResponse);
@@ -397,7 +577,9 @@ describe("WebhookServer", () => {
   });
 
   test("returns 204 and dispatches non-PING event with valid signature", async () => {
-    const handler: EventHandler = { handle: vi.fn().mockResolvedValue(undefined) };
+    const handler: EventHandler = {
+      handle: vi.fn().mockResolvedValue(undefined),
+    };
     const server = makeWebhookServer(handler);
 
     const body = Buffer.alloc(0);
@@ -425,7 +607,7 @@ describe("WebhookServer", () => {
         "x-mixi2-application-event-signature": sig,
         "x-mixi2-application-event-timestamp": timestamp,
       },
-      body,
+      body
     );
     const res = makeRes();
 
@@ -438,7 +620,9 @@ describe("WebhookServer", () => {
   });
 
   test("skips PING events without calling handler", async () => {
-    const handler: EventHandler = { handle: vi.fn().mockResolvedValue(undefined) };
+    const handler: EventHandler = {
+      handle: vi.fn().mockResolvedValue(undefined),
+    };
     const server = makeWebhookServer(handler);
 
     const body = Buffer.alloc(0);
@@ -456,7 +640,7 @@ describe("WebhookServer", () => {
         "x-mixi2-application-event-signature": sig,
         "x-mixi2-application-event-timestamp": timestamp,
       },
-      body,
+      body
     );
     const res = makeRes();
 
@@ -507,7 +691,7 @@ describe("WebhookServer", () => {
         "x-mixi2-application-event-signature": sig,
         "x-mixi2-application-event-timestamp": timestamp,
       },
-      body,
+      body
     );
     const res = makeRes();
 
@@ -536,32 +720,47 @@ describe("MediaUploader", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const uploader = new MediaUploader(client);
-    await uploader.upload("https://upload.example.com/media", new ArrayBuffer(8));
+    await uploader.upload(
+      "https://upload.example.com/media",
+      new ArrayBuffer(8)
+    );
 
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://upload.example.com/media");
     expect(init.method).toBe("POST");
-    expect((init.headers as Record<string, string>)["Authorization"]).toBe("Bearer upload-tok");
+    expect((init.headers as Record<string, string>)["Authorization"]).toBe(
+      "Bearer upload-tok"
+    );
     expect((init.headers as Record<string, string>)["Content-Type"]).toBe(
-      "application/octet-stream",
+      "application/octet-stream"
     );
   });
 
   test("upload throws on HTTP error with status code", async () => {
-    const client = new Client({ apiAddress: "localhost:443", authenticator: makeAuth() });
+    const client = new Client({
+      apiAddress: "localhost:443",
+      authenticator: makeAuth(),
+    });
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({ ok: false, status: 403, text: async () => "Forbidden" }),
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 403,
+        text: async () => "Forbidden",
+      })
     );
 
     const uploader = new MediaUploader(client);
     await expect(
-      uploader.upload("https://upload.example.com/", new ArrayBuffer(4)),
+      uploader.upload("https://upload.example.com/", new ArrayBuffer(4))
     ).rejects.toThrow("403");
   });
 
   test("initiate returns mediaId and uploadUrl", async () => {
-    const client = new Client({ apiAddress: "localhost:443", authenticator: makeAuth() });
+    const client = new Client({
+      apiAddress: "localhost:443",
+      authenticator: makeAuth(),
+    });
     vi.spyOn(client, "initiatePostMediaUpload").mockResolvedValue({
       mediaId: "m-init",
       uploadUrl: "https://upload.example.com/m-init",
@@ -578,7 +777,10 @@ describe("MediaUploader", () => {
   });
 
   test("waitForReady resolves immediately when status is COMPLETED", async () => {
-    const client = new Client({ apiAddress: "localhost:443", authenticator: makeAuth() });
+    const client = new Client({
+      apiAddress: "localhost:443",
+      authenticator: makeAuth(),
+    });
     vi.spyOn(client, "getPostMediaStatus").mockResolvedValue({
       status: MediaUploadStatus.COMPLETED,
     });
@@ -589,12 +791,18 @@ describe("MediaUploader", () => {
   });
 
   test("waitForReady polls until COMPLETED", async () => {
-    const client = new Client({ apiAddress: "localhost:443", authenticator: makeAuth() });
+    const client = new Client({
+      apiAddress: "localhost:443",
+      authenticator: makeAuth(),
+    });
     let pollCount = 0;
     vi.spyOn(client, "getPostMediaStatus").mockImplementation(async () => {
       pollCount++;
       return {
-        status: pollCount < 3 ? MediaUploadStatus.PROCESSING : MediaUploadStatus.COMPLETED,
+        status:
+          pollCount < 3
+            ? MediaUploadStatus.PROCESSING
+            : MediaUploadStatus.COMPLETED,
       };
     });
 
@@ -604,7 +812,10 @@ describe("MediaUploader", () => {
   });
 
   test("waitForReady throws on FAILED status", async () => {
-    const client = new Client({ apiAddress: "localhost:443", authenticator: makeAuth() });
+    const client = new Client({
+      apiAddress: "localhost:443",
+      authenticator: makeAuth(),
+    });
     vi.spyOn(client, "getPostMediaStatus").mockResolvedValue({
       status: MediaUploadStatus.FAILED,
     });
@@ -614,12 +825,18 @@ describe("MediaUploader", () => {
   });
 
   test("waitForReady throws when timeout expires", async () => {
-    const client = new Client({ apiAddress: "localhost:443", authenticator: makeAuth() });
+    const client = new Client({
+      apiAddress: "localhost:443",
+      authenticator: makeAuth(),
+    });
     vi.spyOn(client, "getPostMediaStatus").mockResolvedValue({
       status: MediaUploadStatus.PROCESSING,
     });
 
-    const uploader = new MediaUploader(client, { pollInterval: 10, timeout: 25 });
+    const uploader = new MediaUploader(client, {
+      pollInterval: 10,
+      timeout: 25,
+    });
     await expect(uploader.waitForReady("m4")).rejects.toThrow("timed out");
   });
 });

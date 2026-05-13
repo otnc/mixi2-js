@@ -1,6 +1,6 @@
 {
   "name": "mixi2-js",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "TypeScript/JavaScript SDK for mixi2 Application API",
   "keywords": [
     "api",
@@ -54,31 +54,36 @@
   },
   "scripts": {
     "setup": "npm install && node scripts/setup.js",
-    "test": "vp test",
-    "check": "vp check",
-    "check:all": "vp check && vp test && vp pack",
+    "test": "vitest run",
+    "check": "tsc --noEmit",
+    "check:all": "tsc --noEmit && vitest run && tsdown --config-loader native",
     "check:types": "tsc --noEmit",
     "checkversion": "ncu",
     "up": "ncu -u && npm install",
-    "lint": "vp lint",
-    "lint:fix": "vp lint --fix",
-    "build": "vp pack",
-    "format": "vp fmt",
-    "format:check": "vp fmt --check"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "build": "tsdown --config-loader native",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.3",
     "@grpc/proto-loader": "^0.8.0"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@eslint/js": "latest",
+    "@types/node": "^25.7.0",
     "consola": "^3.4.2",
     "dotenv": "^17.3.1",
-    "npm-check-updates": "^19.6.5",
-    "typescript": "^5.9.3",
-    "vite-plus": "^0.1.13"
+    "eslint": "latest",
+    "eslint-config-prettier": "latest",
+    "npm-check-updates": "^22.2.0",
+    "prettier": "latest",
+    "tsdown": "0.21.10",
+    "typescript": "6.0.3",
+    "vitest": "^4.1.6"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.19.0"
   }
 }

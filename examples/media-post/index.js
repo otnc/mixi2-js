@@ -2,13 +2,19 @@ import "dotenv/config";
 import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
 import consola from "consola";
-import { OAuth2Authenticator, Client, MediaUploadType, MediaUploadStatus } from "mixi2-js";
+import {
+  OAuth2Authenticator,
+  Client,
+  MediaUploadType,
+  MediaUploadStatus,
+} from "mixi2-js";
 
-const { CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_ADDRESS, AUTH_KEY } = process.env;
+const { CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_ADDRESS, AUTH_KEY } =
+  process.env;
 
 if (!CLIENT_ID || !CLIENT_SECRET || !TOKEN_URL || !API_ADDRESS) {
   consola.error(
-    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。",
+    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。"
   );
   process.exit(1);
 }
@@ -63,7 +69,9 @@ async function main() {
   // 1. 画像ファイル読み込み
   const imageData = await readFile(IMAGE_PATH);
   const contentType = getContentType(IMAGE_PATH);
-  consola.info(`  ファイルサイズ: ${(imageData.length / 1024).toFixed(1)} KB (${contentType})`);
+  consola.info(
+    `  ファイルサイズ: ${(imageData.length / 1024).toFixed(1)} KB (${contentType})`
+  );
 
   // 2. アップロード開始
   consola.info("📤 アップロードを開始...");
@@ -83,7 +91,7 @@ async function main() {
   });
   if (!uploadResponse.ok) {
     consola.error(
-      `アップロードに失敗しました: ${uploadResponse.status} ${uploadResponse.statusText}`,
+      `アップロードに失敗しました: ${uploadResponse.status} ${uploadResponse.statusText}`
     );
     process.exit(1);
   }

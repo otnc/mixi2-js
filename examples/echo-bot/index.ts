@@ -1,13 +1,32 @@
 import "dotenv/config";
 import consola from "consola";
-import { OAuth2Authenticator, Client, StreamWatcher, EventType, EventReason } from "mixi2-js";
+import {
+  OAuth2Authenticator,
+  Client,
+  StreamWatcher,
+  EventType,
+  EventReason,
+} from "mixi2-js";
 import type { Event } from "mixi2-js";
 
-const { CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_ADDRESS, STREAM_ADDRESS, AUTH_KEY } = process.env;
+const {
+  CLIENT_ID,
+  CLIENT_SECRET,
+  TOKEN_URL,
+  API_ADDRESS,
+  STREAM_ADDRESS,
+  AUTH_KEY,
+} = process.env;
 
-if (!CLIENT_ID || !CLIENT_SECRET || !TOKEN_URL || !API_ADDRESS || !STREAM_ADDRESS) {
+if (
+  !CLIENT_ID ||
+  !CLIENT_SECRET ||
+  !TOKEN_URL ||
+  !API_ADDRESS ||
+  !STREAM_ADDRESS
+) {
   consola.error(
-    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。",
+    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。"
   );
   process.exit(1);
 }
@@ -40,7 +59,12 @@ watcher
 
       const messageEvent = event.chatMessageReceivedEvent;
       if (!messageEvent) return;
-      if (!messageEvent.eventReasonList.includes(EventReason.DIRECT_MESSAGE_RECEIVED)) return;
+      if (
+        !messageEvent.eventReasonList.includes(
+          EventReason.DIRECT_MESSAGE_RECEIVED
+        )
+      )
+        return;
 
       const message = messageEvent.message;
       const issuer = messageEvent.issuer;
@@ -52,7 +76,7 @@ watcher
           text: message.text,
         });
         consola.success(
-          `${issuer?.displayName ?? "不明"} さんのメッセージをエコー: ${message.text}`,
+          `${issuer?.displayName ?? "不明"} さんのメッセージをエコー: ${message.text}`
         );
       } catch (err) {
         consola.error("メッセージの送信に失敗しました:", err);

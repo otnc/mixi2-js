@@ -1,0 +1,107 @@
+---
+title: PluginManagedRouter
+description: Plugin のインストール・アンインストールイベントを onInstalled / onUninstalled にルーティングするハンドラ（Plugin 専用）
+---
+
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+`PluginManagedRouter` は、`CommunityPluginManagedEvent` をインストール（`COMMUNITY_PLUGIN_INSTALLED`）とアンインストール（`COMMUNITY_PLUGIN_UNINSTALLED`）に分けてルーティングする `EventHandler` 実装です。
+
+<Aside type="caution">
+  このヘルパーは **Plugin 専用**です。Bot では利用できません。
+</Aside>
+
+## インストール
+
+追加インストールは不要です。`mixi2-js` に同梱されています。
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    // ESM
+    import { PluginManagedRouter } from 'mixi2-js/helpers';
+    // CJS
+    const { PluginManagedRouter } = require('mixi2-js/helpers');
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { PluginManagedRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+## 基本的な使い方
+
+### EventRouter と組み合わせる（推奨）
+
+<Tabs>
+  <TabItem label="npm">
+    ```typescript
+    import { EventType, StreamWatcher } from 'mixi2-js';
+    import { EventRouter, PluginManagedRouter } from 'mixi2-js/helpers';
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```typescript
+    import { EventType, StreamWatcher } from '@otoneko1102/mixi2-js';
+    import { EventRouter, PluginManagedRouter } from '@otoneko1102/mixi2-js/helpers';
+    ```
+  </TabItem>
+</Tabs>
+
+```typescript
+const pluginRouter = new PluginManagedRouter()
+  .onInstalled(async (community) => {
+    console.log(`Plugin が ${community.name} にインストールされました`);
+    // 初期設定の実施など
+  })
+  .onUninstalled(async (community) => {
+    console.log(`Plugin が ${community.name} からアンインストールされました`);
+    // データのクリーンアップなど
+  });
+
+const router = new EventRouter();
+router.on(EventType.COMMUNITY_PLUGIN_MANAGED, (event) => pluginRouter.handle(event));
+
+const watcher = new StreamWatcher({ client, handler: router });
+await watcher.watch();
+```
+
+### コールバックの第 2 引数（イベント全体）
+
+詳細情報が必要な場合は第 2 引数からイベントオブジェクト全体を参照できます。
+
+```typescript
+const pluginRouter = new PluginManagedRouter()
+  .onInstalled(async (community, event) => {
+    // event: CommunityPluginManagedEvent
+    console.log("理由リスト:", event.eventReasonList);
+  });
+```
+
+## API リファレンス
+
+### コンストラクタ
+
+```typescript
+new PluginManagedRouter()
+```
+
+引数はありません。
+
+### メソッド
+
+| メソッド               | コールバック引数                                    | 戻り値 | 説明                                              |
+| ---------------------- | --------------------------------------------------- | ------ | ------------------------------------------------- |
+| `onInstalled(listener)`   | `(community: Community, event)` | `this` | インストール時に呼ばれるハンドラを登録            |
+| `onUninstalled(listener)` | `(community: Community, event)` | `this` | アンインストール時に呼ばれるハンドラを登録        |
+| `handle(event)`           | -                               | -      | `EventHandler` インターフェースの実装             |
+
+<Aside type="tip">
+  `onInstalled` / `onUninstalled` は複数回呼べます。登録順にコールバックが実行されます。
+</Aside>
+
+<Aside type="note">
+  このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。
+</Aside>

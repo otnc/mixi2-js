@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package social.mixi.application.const.v1;
+
+enum CommunityVisibility {
+  COMMUNITY_VISIBILITY_UNSPECIFIED = 0;
+  COMMUNITY_VISIBILITY_VISIBLE = 1;
+  COMMUNITY_VISIBILITY_INVISIBLE = 2;
+}

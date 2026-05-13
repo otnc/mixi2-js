@@ -1,14 +1,33 @@
 import "dotenv/config";
 import consola from "consola";
-import { OAuth2Authenticator, Client, WebhookServer, EventType, EventReason } from "mixi2-js";
+import {
+  OAuth2Authenticator,
+  Client,
+  WebhookServer,
+  EventType,
+  EventReason,
+} from "mixi2-js";
 import type { Event } from "mixi2-js";
 
-const { CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_ADDRESS, AUTH_KEY, SIGNATURE_PUBLIC_KEY, PORT } =
-  process.env;
+const {
+  CLIENT_ID,
+  CLIENT_SECRET,
+  TOKEN_URL,
+  API_ADDRESS,
+  AUTH_KEY,
+  SIGNATURE_PUBLIC_KEY,
+  PORT,
+} = process.env;
 
-if (!CLIENT_ID || !CLIENT_SECRET || !TOKEN_URL || !API_ADDRESS || !SIGNATURE_PUBLIC_KEY) {
+if (
+  !CLIENT_ID ||
+  !CLIENT_SECRET ||
+  !TOKEN_URL ||
+  !API_ADDRESS ||
+  !SIGNATURE_PUBLIC_KEY
+) {
   consola.error(
-    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。",
+    "必要な環境変数が設定されていません。.env.example を参考に .env を作成してください。"
   );
   process.exit(1);
 }

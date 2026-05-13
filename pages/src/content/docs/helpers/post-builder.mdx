@@ -113,16 +113,17 @@ new PostBuilder(text: string)
 
 ### メソッド
 
-| メソッド              | 引数                 | 戻り値              | 説明                                |
-| --------------------- | -------------------- | ------------------- | ----------------------------------- |
-| `reply(postId)`       | `string`             | `this`              | 返信先を設定（`quote` をクリア）    |
-| `quote(postId)`       | `string`             | `this`              | 引用先を設定（`reply` をクリア）    |
-| `media(mediaIdList)`  | `string[]`           | `this`              | 添付メディア ID を設定（最大 4 件） |
-| `sensitive(caption?)` | `string?`            | `this`              | センシティブマスクを設定            |
-| `spoiler(caption?)`   | `string?`            | `this`              | ネタバレマスクを設定                |
-| `mask(postMask)`      | `PostMask`           | `this`              | カスタムマスクを設定                |
-| `publishing(type)`    | `PostPublishingType` | `this`              | 配信設定を変更                      |
-| `build()`             | -                    | `CreatePostRequest` | リクエストオブジェクトを構築        |
+| メソッド              | 引数                 | 戻り値              | 説明                                        |
+| --------------------- | -------------------- | ------------------- | ------------------------------------------- |
+| `reply(postId)`       | `string`             | `this`              | 返信先を設定（`quote` をクリア）            |
+| `quote(postId)`       | `string`             | `this`              | 引用先を設定（`reply` をクリア）            |
+| `community(id)`       | `string`             | `this`              | 投稿先コミュニティ ID を設定（Plugin のみ） |
+| `media(mediaIdList)`  | `string[]`           | `this`              | 添付メディア ID を設定（最大 4 件）         |
+| `sensitive(caption?)` | `string?`            | `this`              | センシティブマスクを設定                    |
+| `spoiler(caption?)`   | `string?`            | `this`              | ネタバレマスクを設定                        |
+| `mask(postMask)`      | `PostMask`           | `this`              | カスタムマスクを設定                        |
+| `publishing(type)`    | `PostPublishingType` | `this`              | 配信設定を変更                              |
+| `build()`             | -                    | `CreatePostRequest` | リクエストオブジェクトを構築                |
 
 <Aside type="note">
   このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については

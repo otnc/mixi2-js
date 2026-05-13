@@ -3,6 +3,7 @@ syntax = "proto3";
 package social.mixi.application.model.v1;
 
 import "social/mixi/application/const/v1/event_type.proto";
+import "social/mixi/application/model/v1/community.proto";
 import "social/mixi/application/model/v1/message.proto";
 import "social/mixi/application/model/v1/post.proto";
 import "social/mixi/application/model/v1/user.proto";
@@ -13,7 +14,9 @@ message Event {
   oneof body {
     PingEvent ping_event = 3;
     PostCreatedEvent post_created_event = 4;
+    CommunityMemberChangedEvent community_member_changed_event = 5;
     ChatMessageReceivedEvent chat_message_received_event = 6;
+    CommunityPluginManagedEvent community_plugin_managed_event = 7;
   }
 }
 
@@ -23,10 +26,22 @@ message PostCreatedEvent {
   repeated const.v1.EventReason event_reason_list = 1;
   Post post = 2;
   User issuer = 3;
+  optional Community posted_community = 4;
+}
+
+message CommunityMemberChangedEvent {
+  repeated const.v1.EventReason event_reason_list = 1;
+  User member = 2;
+  Community community = 3;
 }
 
 message ChatMessageReceivedEvent {
   repeated const.v1.EventReason event_reason_list = 1;
   ChatMessage message = 2;
   User issuer = 3;
+}
+
+message CommunityPluginManagedEvent {
+  repeated const.v1.EventReason event_reason_list = 1;
+  Community community = 2;
 }

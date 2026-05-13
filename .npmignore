@@ -21,7 +21,10 @@ test/
 .gitignore
 .gitattributes
 .prettierignore
-.prettierrc.json
-jest.config.json
+.prettierrc
+eslint.config.js
+tsdown.config.js
+vitest.config.ts
 tsconfig.json
+tsconfig.test.json
 .env

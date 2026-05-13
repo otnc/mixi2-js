@@ -7,11 +7,15 @@ import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 ## 前提条件
 
-- **Node.js 18 以上**
+- **Node.js 20.19.0 以上**
 - [mixi2 Developer Platform](https://developer.mixi.social) で開発者登録が完了していること
 - アプリケーションを作成し、認証情報（Client ID / Client Secret / Token URL 等）を取得済みであること
 
 ## インストール
+
+:::caution[Node.js バージョンについて]
+**mixi2-js v1.5.0 より、Node.js v20.19.0 未満はサポートされなくなりました。** Node.js v18 系では動作しません。Node.js v20.19.0 以上をご使用ください。
+:::
 
 <Tabs>
   <TabItem label="npm">
