@@ -2,6 +2,44 @@
 
 このプロジェクトのすべての注目すべき変更をバージョンごとに記録します。
 
+## [1.5.0] - 2026-05-13
+
+**mixi2 API v1.2.0** のコミュニティプラグイン機能に対応
+
+### Added
+
+- **コミュニティプラグイン API** — Plugin 専用の 6 つの RPC メソッドを追加
+  - `Client.getCommunities(request)` — インストール済みコミュニティの情報を取得
+  - `Client.getCommunityTimeline(request)` — コミュニティのタイムラインを取得
+  - `Client.getCommunityMemberList(request)` — コミュニティのメンバー一覧を取得
+  - `Client.restrictCommunityPost(request)` — コミュニティのポストを非表示にする
+  - `Client.getCommunitiesUsingApplication(request)` — アプリがインストールされているコミュニティ一覧を取得
+  - `Client.sendDirectMessageToCommunityMember(request)` — コミュニティメンバーに DM を送信
+- **新しいイベント型** — Plugin 専用イベントを追加
+  - `CommunityMemberChangedEvent` — コミュニティメンバーの参加・退出イベント（`EventType.COMMUNITY_MEMBER_CHANGED`）
+  - `CommunityPluginManagedEvent` — Plugin のインストール・アンインストールイベント（`EventType.COMMUNITY_PLUGIN_MANAGED`）
+- **新しいモデル型** — `Community`, `CommunityUsingApplication`, `ApplicationVersion`, `CommunityStamp`, `CommunityStampSet`
+- **新しい Enum** — `CommunityVisibility`, `CommunityAccessLevel`, `ApplicationRequirement`
+- **`EventReason` に新しい値を追加** — `POST_COMMUNITY`(5), `COMMUNITY_MEMBER_JOINED`(6), `COMMUNITY_MEMBER_LEFT`(7), `COMMUNITY_PLUGIN_INSTALLED`(9), `COMMUNITY_PLUGIN_UNINSTALLED`(10)
+- **`CreatePostRequest`** — `communityId` フィールドを追加（コミュニティへの投稿）
+- **`PostCreatedEvent`** — `postedCommunity` フィールドを追加（投稿されたコミュニティ情報）
+- **`getStamps`** の戻り値を `OfficialStampSet[]` から `GetStampsResponse` に変更し、`communityStampSets` を追加
+- **新しい helpers** — Plugin 開発向けのヘルパーを追加（`mixi2-js/helpers`）
+  - `CommunityFilter` — 指定したコミュニティ ID のイベントのみを通過させるミドルウェア
+  - `MemberEventRouter` — `CommunityMemberChangedEvent` を `onJoined`/`onLeft` にルーティング
+  - `PluginManagedRouter` — `CommunityPluginManagedEvent` を `onInstalled`/`onUninstalled` にルーティング
+  - `MemberListPager` — `getCommunityMemberList` のカーソルページネーションをラップする非同期ジェネレーター
+  - `ApplicationPager` — `getCommunitiesUsingApplication` のカーソルページネーションをラップし `fetchAll()` も提供
+- **`PostBuilder.community(communityId)`** — コミュニティ ID を設定するメソッドを追加
+- GitHub Actions CI ワークフロー（`check:all` の自動実行）を追加
+
+### Changed
+
+- ビルドツールチェーンを **Vite+** から **tsdown + Prettier + ESLint** に移行
+  - `vp pack` → `tsdown`
+  - `vp test` → `vitest`
+  - `vp check` → `prettier` + `eslint`
+
 ## [1.4.1] - 2026-04-12
 
 ### Fixed
