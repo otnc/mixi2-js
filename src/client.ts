@@ -5,19 +5,33 @@ import type {
   Post,
   User,
   ChatMessage,
-  OfficialStampSet,
+  Community,
+  CommunityUsingApplication,
+  ApplicationVersion,
+  GetStampsResponse,
   CreatePostRequest,
   InitiatePostMediaUploadRequest,
   InitiatePostMediaUploadResponse,
   GetPostMediaStatusResponse,
   SendChatMessageRequest,
   GetStampsRequest,
+  GetCommunityTimelineRequest,
+  GetCommunityMemberListRequest,
+  GetCommunityMemberListResponse,
+  RestrictCommunityPostRequest,
+  GetCommunitiesUsingApplicationRequest,
+  GetCommunitiesUsingApplicationResponse,
+  SendDirectMessageToCommunityMemberRequest,
 } from "./types";
 import {
   convertPost,
   convertUser,
   convertChatMessage,
   convertOfficialStampSet,
+  convertCommunityStampSet,
+  convertCommunity,
+  convertCommunityUsingApplication,
+  convertApplicationVersion,
 } from "./convert";
 
 export interface ClientOptions {
@@ -100,6 +114,16 @@ export class Client {
     return (response.posts || []).map(convertPost);
   }
 
+  async getCommunities(communityIdList: string[]): Promise<Community[]> {
+    const response = await this.call<
+      { communityIdList: string[] },
+      { communities: unknown[] }
+    >("getCommunities", {
+      communityIdList,
+    });
+    return (response.communities || []).map(convertCommunity);
+  }
+
   async createPost(request: CreatePostRequest): Promise<Post> {
     const response = await this.call<CreatePostRequest, { post: unknown }>(
       "createPost",
@@ -146,12 +170,83 @@ export class Client {
     return convertChatMessage(response.message);
   }
 
-  async getStamps(request?: GetStampsRequest): Promise<OfficialStampSet[]> {
+  async getCommunityTimeline(
+    request: GetCommunityTimelineRequest
+  ): Promise<Post[]> {
+    const response = await this.call<
+      GetCommunityTimelineRequest,
+      { posts: unknown[] }
+    >("getCommunityTimeline", request);
+    return (response.posts || []).map(convertPost);
+  }
+
+  async getCommunityMemberList(
+    request: GetCommunityMemberListRequest
+  ): Promise<GetCommunityMemberListResponse> {
+    const response = await this.call<
+      GetCommunityMemberListRequest,
+      { members: unknown[]; nextPaginationCursor?: string }
+    >("getCommunityMemberList", request);
+    return {
+      members: (response.members || []).map(convertUser),
+      nextPaginationCursor: response.nextPaginationCursor || undefined,
+    };
+  }
+
+  async restrictCommunityPost(
+    request: RestrictCommunityPostRequest
+  ): Promise<void> {
+    await this.call<RestrictCommunityPostRequest, Record<string, never>>(
+      "restrictCommunityPost",
+      request
+    );
+  }
+
+  async getCommunitiesUsingApplication(
+    request?: GetCommunitiesUsingApplicationRequest
+  ): Promise<GetCommunitiesUsingApplicationResponse> {
+    const response = await this.call<
+      GetCommunitiesUsingApplicationRequest | Record<string, never>,
+      {
+        communitiesUsingApplication: unknown[];
+        applicationVersions: unknown[];
+        nextCursor?: string;
+      }
+    >("getCommunitiesUsingApplication", request || {});
+    return {
+      communitiesUsingApplication: (
+        response.communitiesUsingApplication || []
+      ).map(convertCommunityUsingApplication),
+      applicationVersions: (response.applicationVersions || []).map(
+        convertApplicationVersion
+      ),
+      nextCursor: response.nextCursor || undefined,
+    } satisfies GetCommunitiesUsingApplicationResponse;
+  }
+
+  async getStamps(request?: GetStampsRequest): Promise<GetStampsResponse> {
     const response = await this.call<
       GetStampsRequest | Record<string, never>,
-      { officialStampSets: unknown[] }
+      { officialStampSets: unknown[]; communityStampSets: unknown[] }
     >("getStamps", request || {});
-    return (response.officialStampSets || []).map(convertOfficialStampSet);
+    return {
+      officialStampSets: (response.officialStampSets || []).map(
+        convertOfficialStampSet
+      ),
+      communityStampSets: (response.communityStampSets || []).map(
+        convertCommunityStampSet
+      ),
+    };
+  }
+
+  async sendDirectMessageToCommunityMember(
+    request: SendDirectMessageToCommunityMemberRequest
+  ): Promise<ChatMessage> {
+    const response = await this.call<
+      SendDirectMessageToCommunityMemberRequest,
+      { message: unknown }
+    >("sendDirectMessageToCommunityMember", request);
+    return convertChatMessage(response.message);
   }
 
   async addStampToPost(postId: string, stampId: string): Promise<Post> {
