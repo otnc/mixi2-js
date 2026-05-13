@@ -23,7 +23,7 @@ test/
 .prettierignore
 .prettierrc
 eslint.config.js
-tsdown.config.ts
+tsdown.config.js
 vitest.config.ts
 tsconfig.json
 tsconfig.test.json
