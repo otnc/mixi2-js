@@ -23,9 +23,10 @@ export class WebhookServer {
   private readonly syncHandling: boolean;
 
   constructor(options: WebhookServerOptions) {
-    this.port = options.port || 8080;
+    // ?? so port: 0 (random ephemeral port) is honored.
+    this.port = options.port ?? 8080;
     this.handler = options.handler;
-    this.syncHandling = options.syncHandling || false;
+    this.syncHandling = options.syncHandling ?? false;
 
     // Convert raw Ed25519 public key bytes to Node.js KeyObject
     const derPrefix = Buffer.from("302a300506032b6570032100", "hex");
@@ -169,8 +170,11 @@ export class WebhookServer {
   }
 
   start(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      const onError = (err: Error) => reject(err);
+      this.server.once("error", onError);
       this.server.listen(this.port, () => {
+        this.server.off("error", onError);
         resolve();
       });
     });
