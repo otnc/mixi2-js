@@ -18,14 +18,16 @@ export interface WebhookServerOptions {
 export class WebhookServer {
   private readonly server: http.Server;
   private readonly port: number;
+  private boundPort?: number;
   private readonly publicKey: crypto.KeyObject;
   private readonly handler: EventHandler;
   private readonly syncHandling: boolean;
 
   constructor(options: WebhookServerOptions) {
-    this.port = options.port || 8080;
+    // ?? so port: 0 (random ephemeral port) is honored.
+    this.port = options.port ?? 8080;
     this.handler = options.handler;
-    this.syncHandling = options.syncHandling || false;
+    this.syncHandling = options.syncHandling ?? false;
 
     // Convert raw Ed25519 public key bytes to Node.js KeyObject
     const derPrefix = Buffer.from("302a300506032b6570032100", "hex");
@@ -169,8 +171,15 @@ export class WebhookServer {
   }
 
   start(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      const onError = (err: Error) => reject(err);
+      this.server.once("error", onError);
       this.server.listen(this.port, () => {
+        this.server.off("error", onError);
+        const addr = this.server.address();
+        if (addr && typeof addr === "object" && "port" in addr) {
+          this.boundPort = addr.port;
+        }
         resolve();
       });
     });
@@ -179,14 +188,19 @@ export class WebhookServer {
   shutdown(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.server.close((err) => {
+        this.boundPort = undefined;
         if (err) reject(err);
         else resolve();
       });
     });
   }
 
+  /**
+   * 起動済みの場合は OS が割り当てた実バインドポート、それ以外は構築時に指定されたポートを返す。
+   * `port: 0` を指定したケースでも、起動後は実際のリスニングポートが反映される。
+   */
   get address(): string {
-    return `:${this.port}`;
+    return `:${this.boundPort ?? this.port}`;
   }
 
   get httpServer(): http.Server {

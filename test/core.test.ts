@@ -74,9 +74,9 @@ function makeRes() {
 // Ed25519 key pair used across WebhookServer tests
 const ed25519 = crypto.generateKeyPairSync("ed25519");
 const webhookPublicKeyBytes = Buffer.from(
-  (ed25519.publicKey.export({ format: "der", type: "spki" }) as Buffer).slice(
-    12
-  )
+  (
+    ed25519.publicKey.export({ format: "der", type: "spki" }) as Buffer
+  ).subarray(12)
 );
 
 function makeWebhookServer(
@@ -196,6 +196,19 @@ describe("OAuth2Authenticator", () => {
 
     const auth = new OAuth2Authenticator(OPTS);
     await expect(auth.getAccessToken()).rejects.toThrow("401");
+  });
+
+  test("caches token even for short expires_in (< 120s)", async () => {
+    const fetchMock = stubToken("short-tok", 30);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const auth = new OAuth2Authenticator(OPTS);
+    await auth.getAccessToken();
+    await auth.getAccessToken();
+
+    // expires_in=30 used to compute (30 - 60) * 1000 = -30000 → immediately expired.
+    // The fixed version should still cache for roughly half the lifetime.
+    expect(fetchMock).toHaveBeenCalledOnce();
   });
 
   test("URL-encodes special characters in client credentials", async () => {
@@ -649,6 +662,46 @@ describe("WebhookServer", () => {
 
     expect(res.statusCode).toBe(204);
     expect(handler.handle as ReturnType<typeof vi.fn>).not.toHaveBeenCalled();
+  });
+
+  test("start() listens on the configured port and shutdown() closes it", async () => {
+    const server = new WebhookServer({
+      port: 0, // ephemeral port — requires ?? defaulting (|| would have rewritten 0 to 8080)
+      publicKey: webhookPublicKeyBytes,
+      handler: { handle: vi.fn() },
+    });
+
+    await expect(server.start()).resolves.toBeUndefined();
+    const addr = server.httpServer.address();
+    expect(addr).not.toBeNull();
+    expect(typeof addr === "object" && addr && "port" in addr).toBe(true);
+
+    // After binding, the address getter should reflect the OS-assigned port,
+    // not the original 0 passed at construction time.
+    const boundPort = (addr as { port: number }).port;
+    expect(boundPort).toBeGreaterThan(0);
+    expect(server.address).toBe(`:${boundPort}`);
+
+    await expect(server.shutdown()).resolves.toBeUndefined();
+  });
+
+  test("start() rejects when the underlying http server errors before listening", async () => {
+    // Provoking a real EADDRINUSE cross-platform (esp. on Windows where 0.0.0.0
+    // and 127.0.0.1 don't always conflict) is flaky, so synthesize the error
+    // event directly to verify the listen-error path is wired up.
+    const server = new WebhookServer({
+      port: 0,
+      publicKey: webhookPublicKeyBytes,
+      handler: { handle: vi.fn() },
+    });
+
+    const startPromise = server.start();
+    server.httpServer.emit("error", new Error("synthetic startup failure"));
+
+    await expect(startPromise).rejects.toThrow("synthetic startup failure");
+    if (server.httpServer.listening) {
+      await server.shutdown();
+    }
   });
 
   test("syncHandling awaits handler before eventHandlerFunc resolves", async () => {

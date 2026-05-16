@@ -4,3 +4,4 @@ proto/**
 dist/**
 scripts/**
 package-lock.json
+*.md

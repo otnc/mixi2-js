@@ -64,7 +64,9 @@ export class OAuth2Authenticator implements Authenticator {
 
     const data = (await response.json()) as TokenResponse;
     this.accessToken = data.access_token;
-    // Refresh 1 minute before expiry
-    this.expiresAt = Date.now() + (data.expires_in - 60) * 1000;
+    // Refresh 1 minute before expiry. For short-lived tokens (< 120s), back off
+    // to half the lifetime so we don't end up with a zero/negative cache window.
+    const refreshLead = Math.min(60, Math.floor(data.expires_in / 2));
+    this.expiresAt = Date.now() + (data.expires_in - refreshLead) * 1000;
   }
 }

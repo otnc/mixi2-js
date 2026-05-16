@@ -32,10 +32,18 @@ function createEvent(
 }
 
 describe("Address", () => {
-  test("address value", () => {
-    expect(typeof address.tokenUrl).toBe("string");
-    expect(typeof address.apiAddress).toBe("string");
-    expect(typeof address.streamAddress).toBe("string");
+  test("tokenUrl is the mixi2 OAuth2 token endpoint", () => {
+    expect(address.tokenUrl).toBe(
+      "https://application-auth.mixi.social/oauth2/token"
+    );
+  });
+
+  test("apiAddress points to mixi.social", () => {
+    expect(address.apiAddress).toBe("application-api.mixi.social");
+  });
+
+  test("streamAddress points to mixi.social", () => {
+    expect(address.streamAddress).toBe("application-stream.mixi.social");
   });
 });
 
@@ -522,6 +530,27 @@ describe("TextSplitter", () => {
     expect(splitter.split(text)).toHaveLength(1);
     const text2 = "a".repeat(150);
     expect(splitter.split(text2)).toHaveLength(2);
+  });
+
+  test("counts a single emoji (surrogate pair) as one character", () => {
+    const splitter = new TextSplitter({ maxLength: 5 });
+    // 6 emoji = 6 graphemes = 12 UTF-16 code units. Old code split mid-surrogate.
+    const chunks = splitter.split("🎉🎉🎉🎉🎉🎉");
+    expect(chunks).toEqual(["🎉🎉🎉🎉🎉", "🎉"]);
+  });
+
+  test("a single emoji within maxLength is returned as one chunk", () => {
+    const splitter = new TextSplitter({ maxLength: 3 });
+    expect(splitter.split("🎉")).toEqual(["🎉"]);
+  });
+
+  test("counts ZWJ emoji sequence as a single grapheme", () => {
+    const splitter = new TextSplitter({ maxLength: 3, splitOnWord: false });
+    // 👨‍👩‍👧 is a single grapheme (multiple codepoints joined by U+200D).
+    const chunks = splitter.split("👨‍👩‍👧abcd");
+    // 5 graphemes total, maxLength 3 → first chunk has the family emoji + 2 letters.
+    expect(chunks[0]).toBe("👨‍👩‍👧ab");
+    expect(chunks[1]).toBe("cd");
   });
 });
 

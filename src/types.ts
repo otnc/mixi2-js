@@ -125,28 +125,6 @@ export enum ApplicationRequirement {
 
 // Models
 
-export interface UserAvatar {
-  largeImageUrl: string;
-  largeImageMimeType: string;
-  largeImageHeight: number;
-  largeImageWidth: number;
-  smallImageUrl: string;
-  smallImageMimeType: string;
-  smallImageHeight: number;
-  smallImageWidth: number;
-}
-
-export interface User {
-  userId: string;
-  isDisabled: boolean;
-  name: string;
-  displayName: string;
-  profile: string;
-  userAvatar: UserAvatar | null;
-  visibility: UserVisibility;
-  accessLevel: UserAccessLevel;
-}
-
 export interface MediaImage {
   largeImageUrl: string;
   largeImageMimeType: string;
@@ -183,33 +161,23 @@ export interface Media {
   video?: MediaVideo;
 }
 
-export interface PostMediaImage {
-  largeImageUrl: string;
-  largeImageMimeType: string;
-  largeImageHeight: number;
-  largeImageWidth: number;
-  smallImageUrl: string;
-  smallImageMimeType: string;
-  smallImageHeight: number;
-  smallImageWidth: number;
-}
+// Aliases kept for backwards compatibility — these shapes are structurally identical to the Media* counterparts.
+export type UserAvatar = MediaImage;
+export type PostMediaImage = MediaImage;
+export type PostMediaVideo = MediaVideo;
+// PostMedia keeps its own mediaType enum so existing consumers comparing
+// against PostMediaType continue to type-check. Numeric values match MediaType.
+export type PostMedia = Omit<Media, "mediaType"> & { mediaType: PostMediaType };
 
-export interface PostMediaVideo {
-  videoUrl: string;
-  videoMimeType: string;
-  videoHeight: number;
-  videoWidth: number;
-  previewImageUrl: string;
-  previewImageMimeType: string;
-  previewImageHeight: number;
-  previewImageWidth: number;
-  duration: number;
-}
-
-export interface PostMedia {
-  mediaType: PostMediaType;
-  image?: PostMediaImage;
-  video?: PostMediaVideo;
+export interface User {
+  userId: string;
+  isDisabled: boolean;
+  name: string;
+  displayName: string;
+  profile: string;
+  userAvatar: UserAvatar | null;
+  visibility: UserVisibility;
+  accessLevel: UserAccessLevel;
 }
 
 export interface PostMask {
