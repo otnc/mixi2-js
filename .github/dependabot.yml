@@ -12,3 +12,7 @@ updates:
     versioning-strategy: "increase"
     allow:
       - dependency-type: "direct"
+    ignore:
+      # Pin these manually — Dependabot must not bump them.
+      - dependency-name: "tsdown"
+      - dependency-name: "typescript"
