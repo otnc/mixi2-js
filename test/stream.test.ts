@@ -130,9 +130,10 @@ describe("StreamWatcher", () => {
     await expect(watchPromise).rejects.toThrow("1 consecutive");
   });
 
-  test("does not reset consecutiveFailures if disconnect arrives without data", async () => {
-    // With maxRetries: 1 a single failure exceeds the threshold, so we only
-    // need one failure to assert the early reject behavior.
+  test("treats a clean 'end' before data as a retryable failure", async () => {
+    // 'end' (clean close) should follow the same failure-counting path as
+    // 'error'. maxRetries: 1 lets a single disconnect-without-data trip the
+    // reject path without waiting on backoff.
     const handler: EventHandler = { handle: vi.fn() };
     const watcher = new StreamWatcher({
       streamAddress: "localhost:443",
