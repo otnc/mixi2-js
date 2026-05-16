@@ -2,6 +2,20 @@
   "name": "mixi2-js",
   "version": "1.5.3",
   "description": "TypeScript/JavaScript SDK for mixi2 Application API",
+  "scripts": {
+    "setup": "npm install && node scripts/setup.js",
+    "test": "vitest run",
+    "check": "tsc --noEmit",
+    "check:all": "tsc --noEmit && vitest run && tsdown --config-loader native",
+    "check:types": "tsc --noEmit",
+    "checkversion": "ncu",
+    "up": "ncu -u && npm install",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "build": "tsdown --config-loader native",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
   "keywords": [
     "api",
     "bot",
@@ -51,20 +65,6 @@
         "default": "./dist/helpers/index.cjs"
       }
     }
-  },
-  "scripts": {
-    "setup": "npm install && node scripts/setup.js",
-    "test": "vitest run",
-    "check": "tsc --noEmit",
-    "check:all": "tsc --noEmit && vitest run && tsdown --config-loader native",
-    "check:types": "tsc --noEmit",
-    "checkversion": "ncu",
-    "up": "ncu -u && npm install",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "build": "tsdown --config-loader native",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.3",
