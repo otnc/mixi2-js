@@ -8,9 +8,28 @@ export interface TextSplitterOptions {
   splitOnWord?: boolean;
 }
 
+const WORD_BREAK_CHARS = new Set([
+  " ",
+  "　",
+  "、",
+  "。",
+  "！",
+  "？",
+  "!",
+  "?",
+  "\n",
+]);
+
+const graphemeSegmenter = new Intl.Segmenter("ja", { granularity: "grapheme" });
+
+function toGraphemes(text: string): string[] {
+  return Array.from(graphemeSegmenter.segment(text), (s) => s.segment);
+}
+
 /**
  * 長いテキストを mixi2 の文字数制限内に収まる複数チャンクに分割するヘルパー。
  * デフォルトは 149 文字制限（mixi2 のポスト本文上限）に準拠。
+ * 文字数は mixi2 のカウント仕様に合わせ、絵文字（ZWJ シーケンスを含む）を 1 文字として数える。
  *
  * @example
  * const splitter = new TextSplitter();
@@ -33,40 +52,44 @@ export class TextSplitter {
    * テキストが maxLength 以内の場合は 1 要素の配列を返す。
    */
   split(text: string): string[] {
-    if (text.length <= this.maxLength) {
+    const graphemes = toGraphemes(text);
+    if (graphemes.length <= this.maxLength) {
       return [text];
     }
 
     const chunks: string[] = [];
-    let remaining = text;
+    let remaining = graphemes;
 
     while (remaining.length > this.maxLength) {
       let splitAt = this.maxLength;
 
       if (this.splitOnWord) {
-        const candidate = remaining.slice(0, this.maxLength);
-        const lastBreak = Math.max(
-          candidate.lastIndexOf(" "),
-          candidate.lastIndexOf("　"),
-          candidate.lastIndexOf("、"),
-          candidate.lastIndexOf("。"),
-          candidate.lastIndexOf("！"),
-          candidate.lastIndexOf("？"),
-          candidate.lastIndexOf("!"),
-          candidate.lastIndexOf("?"),
-          candidate.lastIndexOf("\n")
-        );
+        let lastBreak = -1;
+        for (let i = this.maxLength - 1; i >= 0; i--) {
+          if (WORD_BREAK_CHARS.has(remaining[i]!)) {
+            lastBreak = i;
+            break;
+          }
+        }
         if (lastBreak > 0) {
           splitAt = lastBreak + 1;
         }
       }
 
-      chunks.push(remaining.slice(0, splitAt).trimEnd());
-      remaining = remaining.slice(splitAt).trimStart();
+      chunks.push(remaining.slice(0, splitAt).join("").trimEnd());
+      remaining = remaining.slice(splitAt);
+      // Trim leading whitespace graphemes from the next chunk.
+      let leading = 0;
+      while (leading < remaining.length && remaining[leading]!.trim() === "") {
+        leading++;
+      }
+      if (leading > 0) {
+        remaining = remaining.slice(leading);
+      }
     }
 
     if (remaining.length > 0) {
-      chunks.push(remaining);
+      chunks.push(remaining.join(""));
     }
 
     return chunks;
