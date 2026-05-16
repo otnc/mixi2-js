@@ -5,5 +5,4 @@ pages/** linguist-documentation
 
 dist/** linguist-generated
 examples/** linguist-vendored
-scripts/** linguist-vendored
 test/** linguist-vendored

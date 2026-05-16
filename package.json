@@ -3,7 +3,6 @@
   "version": "1.5.3",
   "description": "TypeScript/JavaScript SDK for mixi2 Application API",
   "scripts": {
-    "setup": "npm install && node scripts/setup.js",
     "test": "vitest run",
     "check": "tsc --noEmit",
     "check:all": "tsc --noEmit && vitest run && tsdown --config-loader native",
