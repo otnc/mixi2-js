@@ -105,7 +105,7 @@ ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.
 ### 貢献者
 
 <a href="https://github.com/otnc/mixi2-js/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=otoneko1102/mixi2-js" alt="Made with contrib.rocks" />
+  <img src="https://contrib.rocks/image?repo=otnc/mixi2-js" alt="Made with contrib.rocks" />
 </a>
 
 ---
