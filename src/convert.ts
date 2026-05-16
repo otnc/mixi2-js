@@ -3,6 +3,7 @@ import type {
   UserAvatar,
   Post,
   PostMedia,
+  PostMediaType,
   PostMask,
   PostStamp,
   MediaStamp,
@@ -108,8 +109,13 @@ export function convertMediaStamp(raw: unknown): MediaStamp | null {
   };
 }
 
-// PostMedia is a structural alias of Media — share the same converter.
-export const convertPostMedia: (raw: unknown) => PostMedia = convertMedia;
+// PostMedia mirrors Media at runtime but its mediaType is typed as
+// PostMediaType so consumers comparing against PostMediaType keep working.
+// MediaType and PostMediaType share numeric values, so the cast is safe.
+export function convertPostMedia(raw: unknown): PostMedia {
+  const m = convertMedia(raw);
+  return { ...m, mediaType: m.mediaType as unknown as PostMediaType };
+}
 
 export function convertPostMask(raw: unknown): PostMask | undefined {
   if (!raw) return undefined;

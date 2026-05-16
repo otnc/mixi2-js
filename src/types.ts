@@ -165,7 +165,9 @@ export interface Media {
 export type UserAvatar = MediaImage;
 export type PostMediaImage = MediaImage;
 export type PostMediaVideo = MediaVideo;
-export type PostMedia = Media;
+// PostMedia keeps its own mediaType enum so existing consumers comparing
+// against PostMediaType continue to type-check. Numeric values match MediaType.
+export type PostMedia = Omit<Media, "mediaType"> & { mediaType: PostMediaType };
 
 export interface User {
   userId: string;
