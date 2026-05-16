@@ -18,6 +18,7 @@ export interface WebhookServerOptions {
 export class WebhookServer {
   private readonly server: http.Server;
   private readonly port: number;
+  private boundPort?: number;
   private readonly publicKey: crypto.KeyObject;
   private readonly handler: EventHandler;
   private readonly syncHandling: boolean;
@@ -175,6 +176,10 @@ export class WebhookServer {
       this.server.once("error", onError);
       this.server.listen(this.port, () => {
         this.server.off("error", onError);
+        const addr = this.server.address();
+        if (addr && typeof addr === "object" && "port" in addr) {
+          this.boundPort = addr.port;
+        }
         resolve();
       });
     });
@@ -183,14 +188,19 @@ export class WebhookServer {
   shutdown(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.server.close((err) => {
+        this.boundPort = undefined;
         if (err) reject(err);
         else resolve();
       });
     });
   }
 
+  /**
+   * 起動済みの場合は OS が割り当てた実バインドポート、それ以外は構築時に指定されたポートを返す。
+   * `port: 0` を指定したケースでも、起動後は実際のリスニングポートが反映される。
+   */
   get address(): string {
-    return `:${this.port}`;
+    return `:${this.boundPort ?? this.port}`;
   }
 
   get httpServer(): http.Server {

@@ -675,6 +675,13 @@ describe("WebhookServer", () => {
     const addr = server.httpServer.address();
     expect(addr).not.toBeNull();
     expect(typeof addr === "object" && addr && "port" in addr).toBe(true);
+
+    // After binding, the address getter should reflect the OS-assigned port,
+    // not the original 0 passed at construction time.
+    const boundPort = (addr as { port: number }).port;
+    expect(boundPort).toBeGreaterThan(0);
+    expect(server.address).toBe(`:${boundPort}`);
+
     await expect(server.shutdown()).resolves.toBeUndefined();
   });
 
