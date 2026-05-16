@@ -7,7 +7,6 @@ export default [
   {
     ignores: [
       "dist/**",
-      "scripts/**",
       "**/*.test.ts",
       ".private/**",
       ".sample/**",
