@@ -56,8 +56,12 @@ npm install
 
 ### 必要な環境
 
-- Node.js 23 以上
-- npm
+- Node.js v20.19.0 (mixi2-js 最低動作保証環境)
+  - 以下のようなツールでのバージョン管理を推奨
+    - [nvm](https://github.com/nvm-sh/nvm) (MacOS / Linux)
+    - [nvm-windows](https://github.com/coreybutler/nvm-windows) (Windows)
+    - その他、これらとの互換性があるツール
+- npm (v9 以上推奨)
 
 ### 主なコマンド
 
