@@ -40,18 +40,7 @@ function toDate(ts: unknown): Date | null {
 }
 
 export function convertUserAvatar(raw: unknown): UserAvatar | null {
-  if (!raw) return null;
-  const r = raw as RawObject;
-  return {
-    largeImageUrl: r.largeImageUrl || "",
-    largeImageMimeType: r.largeImageMimeType || "",
-    largeImageHeight: r.largeImageHeight || 0,
-    largeImageWidth: r.largeImageWidth || 0,
-    smallImageUrl: r.smallImageUrl || "",
-    smallImageMimeType: r.smallImageMimeType || "",
-    smallImageHeight: r.smallImageHeight || 0,
-    smallImageWidth: r.smallImageWidth || 0,
-  };
+  return convertMediaImage(raw) ?? null;
 }
 
 export function convertUser(raw: unknown): User {
@@ -119,14 +108,8 @@ export function convertMediaStamp(raw: unknown): MediaStamp | null {
   };
 }
 
-export function convertPostMedia(raw: unknown): PostMedia {
-  const r = raw as RawObject;
-  return {
-    mediaType: r.mediaType || 0,
-    image: r.image ? convertMediaImage(r.image) : undefined,
-    video: r.video ? convertMediaVideo(r.video) : undefined,
-  };
-}
+// PostMedia is a structural alias of Media — share the same converter.
+export const convertPostMedia: (raw: unknown) => PostMedia = convertMedia;
 
 export function convertPostMask(raw: unknown): PostMask | undefined {
   if (!raw) return undefined;
