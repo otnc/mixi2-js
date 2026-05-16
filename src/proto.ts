@@ -75,10 +75,21 @@ export function getSendEventRequestType(): {
     pkgDef[
       "social.mixi.application.service.client_endpoint.v1.SendEventRequest"
     ];
-  if (!msgDef || !("type" in msgDef)) {
+  // proto-loader exposes the runtime decoder as `deserialize` on the
+  // MessageTypeDefinition. The `type` field is only a JSON descriptor with no
+  // .decode() method, so reaching for it produced a silent webhook-decode bug
+  // (the WebhookServer caught the TypeError and returned HTTP 400).
+  if (
+    !msgDef ||
+    typeof (msgDef as { deserialize?: unknown }).deserialize !== "function"
+  ) {
     throw new Error("SendEventRequest message type not found in proto");
   }
-  const pbType = (msgDef as { type: { decode: (buf: Uint8Array) => unknown } })
-    .type;
-  return pbType;
+  const deserialize = (
+    msgDef as { deserialize: (buf: Buffer | Uint8Array) => unknown }
+  ).deserialize;
+  return {
+    decode: (buffer: Uint8Array) =>
+      deserialize(Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer)),
+  };
 }
