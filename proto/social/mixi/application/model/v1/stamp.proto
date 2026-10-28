@@ -5,30 +5,50 @@ package social.mixi.application.model.v1;
 import "google/protobuf/timestamp.proto";
 import "social/mixi/application/const/v1/stamp_set_type.proto";
 
+// 公式スタンプセットを表します。
 message OfficialStampSet {
+  // スタンプセットの名前です。
   string name = 1;
+  // スタンプセットのスプライト画像のURLです。
   string sprite_url = 2;
+  // スタンプセットに含まれるスタンプ一覧です。
   repeated OfficialStamp stamps = 3;
+  // スタンプセットIDです。
   string stamp_set_id = 4;
+  // スタンプセットが利用可能になる開始日時です。未指定の場合、開始日時は限定されません。
   optional google.protobuf.Timestamp start_at = 5;
+  // スタンプセットが利用可能でなくなる終了日時です。未指定の場合、終了日時は限定されません。
   optional google.protobuf.Timestamp end_at = 6;
+  // スタンプセットのタイプです。
   const.v1.StampSetType stamp_set_type = 7;
 }
 
+// 公式スタンプを表します。
 message OfficialStamp {
+  // スタンプIDです。
   string stamp_id = 1;
+  // スタンプセット（スプライト）内での並び順です。
   uint32 index = 2;
+  // スタンプの検索用タグの一覧です。
   repeated string search_tags = 3;
+  // スタンプの画像のURLです。
   string url = 4;
 }
 
+// コミュニティスタンプセットを表します。
 message CommunityStampSet {
+  // コミュニティIDです。
   string community_id = 1;
+  // コミュニティ固有スタンプの一覧です。
   repeated CommunityStamp stamps = 2;
 }
 
+// コミュニティスタンプを表します。
 message CommunityStamp {
+  // スタンプIDです。
   string stamp_id = 1;
+  // スタンプの画像のURLです。
   string url = 2;
+  // スタンプの検索用タグの一覧です。
   repeated string search_tags = 3;
 }

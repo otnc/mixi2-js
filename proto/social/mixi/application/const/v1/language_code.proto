@@ -2,8 +2,12 @@ syntax = "proto3";
 
 package social.mixi.application.const.v1;
 
+// 言語コードを示す列挙型
 enum LanguageCode {
+  // 未指定
   LANGUAGE_CODE_UNSPECIFIED = 0;
+  // 日本語
   LANGUAGE_CODE_JP = 1;
+  // 英語
   LANGUAGE_CODE_EN = 2;
 }

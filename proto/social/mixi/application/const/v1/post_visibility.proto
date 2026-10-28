@@ -2,8 +2,12 @@ syntax = "proto3";
 
 package social.mixi.application.const.v1;
 
+// ポストを閲覧できるかどうかを示す列挙型
 enum PostVisibility {
+  // 未指定
   POST_VISIBILITY_UNSPECIFIED = 0;
+  // ポストを閲覧できる
   POST_VISIBILITY_VISIBLE = 1;
+  // ポストを閲覧できない
   POST_VISIBILITY_INVISIBLE = 2;
 }

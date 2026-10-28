@@ -1,16 +1,23 @@
 syntax = "proto3";
-
 package social.mixi.application.model.v1;
 
 import "google/protobuf/timestamp.proto";
 import "social/mixi/application/model/v1/media.proto";
 
+// チャットメッセージを表します。
 message ChatMessage {
+  // メッセージが送信されたルームのIDです。
   string room_id = 1;
+  // メッセージIDです。
   string message_id = 2;
+  // メッセージ送信者のユーザーIDです。
   string creator_id = 3;
+  // メッセージのテキストです。
   string text = 4;
+  // メッセージ送信日時です。
   google.protobuf.Timestamp created_at = 5;
+  // メッセージに添付されたメディア一覧です。
   repeated Media media_list = 6;
+  // メッセージに引用されているポストIDです。
   optional string post_id = 7;
 }

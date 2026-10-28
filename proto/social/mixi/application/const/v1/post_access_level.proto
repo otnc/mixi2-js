@@ -2,8 +2,12 @@ syntax = "proto3";
 
 package social.mixi.application.const.v1;
 
+// ポストの公開設定を示す列挙型
 enum PostAccessLevel {
+  // 未指定
   POST_ACCESS_LEVEL_UNSPECIFIED = 0;
+  // 公開
   POST_ACCESS_LEVEL_PUBLIC = 1;
+  // 非公開（特定のユーザーのみ閲覧可能）
   POST_ACCESS_LEVEL_PRIVATE = 2;
 }

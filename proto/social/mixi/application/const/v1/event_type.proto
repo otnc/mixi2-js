@@ -2,25 +2,44 @@ syntax = "proto3";
 
 package social.mixi.application.const.v1;
 
+// イベントの発生理由を示す列挙型
 enum EventReason {
+  // 未指定
   EVENT_REASON_UNSPECIFIED = 0;
+  // 接続確認
   EVENT_REASON_PING = 1;
+  // ポストに返信された
   EVENT_REASON_POST_REPLY = 2;
+  // ポストでメンションされた
   EVENT_REASON_POST_MENTIONED = 3;
+  // ポストが引用された
   EVENT_REASON_POST_QUOTED = 4;
+  // コミュニティに新しいポストが投稿された
   EVENT_REASON_POST_COMMUNITY = 5;
+  // コミュニティにメンバーが参加した
   EVENT_REASON_COMMUNITY_MEMBER_JOINED = 6;
+  // コミュニティにメンバーが退出した
   EVENT_REASON_COMMUNITY_MEMBER_LEFT = 7;
+  // チャット/ダイレクトメッセージを受信した
   EVENT_REASON_DIRECT_MESSAGE_RECEIVED = 8;
+  // コミュニティにプラグインが導入された
   EVENT_REASON_COMMUNITY_PLUGIN_INSTALLED = 9;
+  // コミュニティからプラグインが削除された
   EVENT_REASON_COMMUNITY_PLUGIN_UNINSTALLED = 10;
 }
 
+// イベントの種別を示す列挙型
 enum EventType {
+  // 未指定
   EVENT_TYPE_UNSPECIFIED = 0;
+  // 接続確認
   EVENT_TYPE_PING = 1;
+  // ポスト作成
   EVENT_TYPE_POST_CREATED = 2;
+  // コミュニティメンバー変更（参加/退出）
   EVENT_TYPE_COMMUNITY_MEMBER_CHANGED = 3;
+  // メッセージ受信（チャット/ダイレクトメッセージ）
   EVENT_TYPE_CHAT_MESSAGE_RECEIVED = 4;
+  // コミュニティプラグイン管理（導入/削除）
   EVENT_TYPE_COMMUNITY_PLUGIN_MANAGED = 5;
 }

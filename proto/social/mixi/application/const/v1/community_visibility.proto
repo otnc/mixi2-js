@@ -2,8 +2,12 @@ syntax = "proto3";
 
 package social.mixi.application.const.v1;
 
+// コミュニティを閲覧できるか示す列挙型
 enum CommunityVisibility {
+  // 未指定
   COMMUNITY_VISIBILITY_UNSPECIFIED = 0;
+  // コミュニティを閲覧できる
   COMMUNITY_VISIBILITY_VISIBLE = 1;
+  // コミュニティを閲覧できない
   COMMUNITY_VISIBILITY_INVISIBLE = 2;
 }

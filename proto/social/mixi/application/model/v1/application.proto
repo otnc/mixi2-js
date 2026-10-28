@@ -4,8 +4,13 @@ package social.mixi.application.model.v1;
 
 import "social/mixi/application/const/v1/application_requirement.proto";
 
+// アプリケーションのバージョン情報です。
+// アプリケーションは複数のバージョンを持つことができ、アプリケーションの要件を変更する際に新しいバージョンを作成します。
 message ApplicationVersion {
+  // アプリケーションバージョンIDです。
   string application_version_id = 1;
+  // アプリケーションIDです。
   string application_id = 2;
+  // アプリケーションの要件一覧です。
   repeated const.v1.ApplicationRequirement requirements = 3;
 }

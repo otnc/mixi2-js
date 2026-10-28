@@ -2,7 +2,10 @@ syntax = "proto3";
 
 package social.mixi.application.const.v1;
 
+// ポストの投稿先設定を示す列挙型
 enum PostPublishingType {
+  // 未指定（自分のフォロワーのタイムライン、もしくはコミュニティのタイムラインに公開）
   POST_PUBLISHING_TYPE_UNSPECIFIED = 0;
+  // ポストを自分のプロフィールにのみ公開
   POST_PUBLISHING_TYPE_NOT_PUBLISHING = 1;
 }
