@@ -1,0 +1,38 @@
+# git-cliff configuration: https://git-cliff.org/docs/configuration
+# The release workflow inserts the generated section at the top of CHANGELOG.md, so entries written by hand for earlier versions are kept.
+# Preview the next section with: npx git-cliff --unreleased
+
+[changelog]
+header = ""
+body = """
+{% if version %}## [{{ version | trim_start_matches(pat="v") }}](https://github.com/otnc/mixi2-js/releases/tag/{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}{% else %}## Unreleased{% endif %}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim | upper_first }}
+
+{% for commit in commits -%}
+- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message | upper_first }}
+{% endfor -%}
+{% endfor %}
+"""
+footer = ""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+filter_commits = false
+topo_order = false
+sort_commits = "oldest"
+tag_pattern = "v[0-9].*"
+# Groups are ordered by their key, hence the numeric prefix (stripped in the template).
+commit_parsers = [
+  { message = "^release", skip = true },
+  { message = "^Revert", skip = true },
+  { message = "^feat", group = "<!-- 0 -->Features" },
+  { message = "^fix", group = "<!-- 1 -->Bug fixes" },
+  { message = "^perf", group = "<!-- 2 -->Performance" },
+  { message = "^refactor", group = "<!-- 3 -->Refactoring" },
+  { message = "^docs", group = "<!-- 4 -->Documentation" },
+  # Everything else (test, ci, chore, build, style) is not user-facing.
+  { message = ".*", skip = true },
+]
