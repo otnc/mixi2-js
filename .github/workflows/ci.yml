@@ -78,6 +78,51 @@ jobs:
       - run: npm ci
       - run: npm test
 
+  # Runs the built package on each runtime against a local TLS gRPC server (scripts/runtime-smoke). Features listed as supported in the README must pass.
+  runtimes:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [node, bun, deno]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - if: matrix.runtime == 'bun'
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - if: matrix.runtime == 'deno'
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.x
+      - run: npm ci
+      - run: npm run build
+      - name: Start the test gRPC server
+        run: |
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=localhost" \
+            -addext "subjectAltName=DNS:localhost" \
+            -keyout "$RUNNER_TEMP/key.pem" -out "$RUNNER_TEMP/cert.pem"
+          node scripts/runtime-smoke/server.mjs "$RUNNER_TEMP/cert.pem" "$RUNNER_TEMP/key.pem" > "$RUNNER_TEMP/port" &
+          for _ in $(seq 1 20); do [ -s "$RUNNER_TEMP/port" ] && break; sleep 0.5; done
+          echo "GRPC_ADDRESS=localhost:$(cat "$RUNNER_TEMP/port")" >> "$GITHUB_ENV"
+          echo "GRPC_DEFAULT_SSL_ROOTS_FILE_PATH=$RUNNER_TEMP/cert.pem" >> "$GITHUB_ENV"
+      - name: Smoke test
+        env:
+          RUNTIME: ${{ matrix.runtime }}
+        run: |
+          case "$RUNTIME" in
+            node) node scripts/runtime-smoke/smoke.mjs ;;
+            bun) bun scripts/runtime-smoke/smoke.mjs ;;
+            deno) deno run --allow-all scripts/runtime-smoke/smoke.mjs ;;
+          esac
+
   # Documentation can leak secrets too, so the scan runs for every change.
   secrets:
     runs-on: ubuntu-latest
@@ -95,7 +140,7 @@ jobs:
 
   # The single required check. Skipped jobs count as passing; a failed or cancelled job fails it.
   ci:
-    needs: [changes, check, test, secrets]
+    needs: [changes, check, test, runtimes, secrets]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
