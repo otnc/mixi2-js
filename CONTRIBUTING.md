@@ -65,18 +65,18 @@ npm install
 
 ### 主なコマンド
 
-| コマンド               | 説明                                   |
-| ---------------------- | -------------------------------------- |
-| `npm run ci`           | フォーマットと Lint の確認 (CI と同じ) |
-| `npm run check`        | フォーマットと Lint の自動修正         |
-| `npm run typecheck`    | 型チェック (`src/` と `test/`)         |
-| `npm test`             | テスト実行 (Vitest)                    |
-| `npm run test:watch`   | テストを watch モードで実行            |
-| `npm run build`        | ビルド (ESM + CJS + `.d.ts`) (tsdown)  |
-| `npm run lint`         | Lint 実行 (ESLint + typescript-eslint) |
-| `npm run lint:fix`     | Lint エラーの自動修正                  |
-| `npm run format`       | コードフォーマット適用 (Prettier)      |
-| `npm run format:check` | フォーマットの確認 (Prettier)          |
+| コマンド                | 説明                                                                 |
+| ----------------------- | -------------------------------------------------------------------- |
+| `npm run ci`            | フォーマットと Lint の確認 (CI と同じ)                               |
+| `npm run check`         | フォーマットと Lint の自動修正                                       |
+| `npm run typecheck`     | 型チェック (`src/` と `test/`)                                       |
+| `npm test`              | テスト実行 (Vitest)                                                  |
+| `npm run test:watch`    | テストを watch モードで実行                                          |
+| `npm run build`         | ビルド (ESM + CJS + `.d.ts`) (tsdown)                                |
+| `npm run lint`          | Lint 実行 (ESLint + typescript-eslint)                               |
+| `npm run lint:fix`      | Lint エラーの自動修正                                                |
+| `npm run format`        | コードフォーマット適用 (Prettier)                                    |
+| `npm run format:check`  | フォーマットの確認 (Prettier)                                        |
 | `npm run check:package` | 公開パッケージの検証 (publint + attw、事前に `npm run build` が必要) |
 
 ### コミットメッセージ
