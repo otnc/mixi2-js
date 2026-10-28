@@ -1,3 +1,4 @@
 {
-  "reject": ["tsdown", "typescript"]
+  "reject": ["typescript", "@types/node"],
+  "enginesNode": true
 }

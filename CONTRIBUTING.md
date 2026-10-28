@@ -114,6 +114,20 @@ npm install
 | [mixi2-application-sdk-go](https://github.com/mixigroup/mixi2-application-sdk-go) | 公式 SDK のアーキテクチャ・動作仕様             |
 | [公式ドキュメント](https://developer.mixi.social/docs)                            | API リファレンス・イベント仕様・レート制限等    |
 
+## リリース (メンテナー向け)
+
+GitHub Actions の `release` ワークフローを手動実行します。`version` には `patch` / `minor` / `major` / `prerelease`、または `1.6.0` のような明示的なバージョンを指定します。
+
+ワークフローは次の処理を行います。
+
+1. チェック・テスト・ビルドを実行
+2. `package.json` と `jsr.json` のバージョンを更新
+3. Conventional Commits から生成した節を `CHANGELOG.md` の先頭に追加 (git-cliff)
+4. npm と JSR に公開 (どちらも OIDC 認証。トークン不要)
+5. バージョン更新をコミットしてタグを push し、GitHub Release を作成
+
+正式リリース (prerelease ではなく、latest になるもの) が公開されると、`announce-release` ワークフローが mixi2 の mixi2-js アカウントにリリース告知を投稿します。1 投稿目にリポジトリの URL、リプライのツリーにリリースノート、末尾にリリースページの URL を載せます。手動実行では `dry_run` (デフォルト有効) で投稿内容だけを確認できます。
+
 ## バグ報告
 
 [Issues](https://github.com/otnc/mixi2-js/issues) からバグ報告をお願いします。
