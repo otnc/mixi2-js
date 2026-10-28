@@ -1,5 +1,5 @@
-import http from "http";
-import crypto from "crypto";
+import http from "node:http";
+import crypto from "node:crypto";
 import { dispatchEvent, type EventHandler } from "./event";
 import type { Event } from "./types";
 import { EventType } from "./types";
