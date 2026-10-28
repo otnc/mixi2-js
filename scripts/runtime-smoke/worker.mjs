@@ -48,13 +48,10 @@ export default {
         }
       },
       async webhook() {
-        const server = new sdk.WebhookServer({
-          port: 0,
-          publicKey: new Uint8Array(32),
-          handler: { handle() {} },
-        });
-        await withTimeout(server.start(), 5000);
-        await server.shutdown();
+        // WebhookServer can start a node:http server here, but Workers deliver requests to the fetch handler, so it never receives events.
+        throw new Error(
+          "WebhookServer needs a node:http server, which never receives requests on Workers"
+        );
       },
       async stream() {
         const watcher = new sdk.StreamWatcher({

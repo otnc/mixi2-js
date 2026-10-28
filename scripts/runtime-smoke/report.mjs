@@ -5,7 +5,8 @@ export const required = {
   node: ["auth", "client", "webhook", "stream"],
   bun: ["auth", "client", "webhook", "stream"],
   deno: ["auth", "client", "webhook", "stream"],
-  workers: [],
+  // API calls and streaming cannot work on Workers: the mixi2 API only accepts gRPC over HTTP/2.
+  workers: ["auth"],
 };
 
 /** Prints the results as a Markdown table (also to the job summary) and exits non-zero when a required feature failed. */
