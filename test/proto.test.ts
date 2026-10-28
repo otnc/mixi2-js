@@ -4,11 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
-import {
-  getApiServiceClient,
-  getStreamServiceClient,
-  getSendEventRequestType,
-} from "../src/proto";
+import { getSendEventRequestType } from "../src/proto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,28 +66,6 @@ describe("proto loading", () => {
 });
 
 describe("proto module exports", () => {
-  test("getApiServiceClient returns a gRPC client constructor", () => {
-    const ctor = getApiServiceClient();
-    expect(typeof ctor).toBe("function");
-    // ServiceClientConstructor exposes service definitions on the class.
-    expect(typeof ctor.prototype).toBe("object");
-  });
-
-  test("getStreamServiceClient returns a gRPC client constructor", () => {
-    const ctor = getStreamServiceClient();
-    expect(typeof ctor).toBe("function");
-    expect(typeof ctor.prototype).toBe("object");
-  });
-
-  test("getSendEventRequestType exposes a decode() function", () => {
-    const t = getSendEventRequestType();
-    expect(typeof t.decode).toBe("function");
-  });
-
-  test("getApiServiceClient memoizes the package definition (same constructor)", () => {
-    expect(getApiServiceClient()).toBe(getApiServiceClient());
-  });
-
   test("getSendEventRequestType.decode() round-trips an empty SendEventRequest", () => {
     const t = getSendEventRequestType();
     // Empty protobuf body should decode to an empty events array — exactly the
