@@ -2,8 +2,8 @@
 // Usage: <runtime> scripts/runtime-smoke/smoke.mjs
 // Env: GRPC_ADDRESS (the server from server.mjs) and GRPC_DEFAULT_SSL_ROOTS_FILE_PATH (its certificate).
 import crypto from "node:crypto";
-import fs from "node:fs";
 import http from "node:http";
+import { report } from "./report.mjs";
 
 const sdk = await import("../../dist/index.mjs");
 
@@ -13,13 +13,6 @@ const runtime =
     : typeof globalThis.Bun !== "undefined"
       ? "bun"
       : "node";
-
-// Features documented as supported must keep working; the others are only reported.
-const required = {
-  node: ["auth", "client", "webhook", "stream"],
-  bun: ["auth", "client", "webhook", "stream"],
-  deno: ["auth", "client", "webhook", "stream"],
-};
 
 const authenticator = { getAccessToken: async () => "token" };
 const grpcAddress = process.env.GRPC_ADDRESS;
@@ -128,28 +121,8 @@ for (const [name, run] of Object.entries(checks)) {
   }
 }
 
-const rows = Object.entries(results).map(
-  ([name, result]) =>
-    `| ${name} | ${result === "ok" ? "✅" : "❌"} | ${required[runtime].includes(name) ? "yes" : "no"} | ${result} |`
+report(
+  runtime,
+  process.versions.bun ?? globalThis.Deno?.version?.deno ?? process.version,
+  results
 );
-const summary = [
-  `### ${runtime} ${process.versions.bun ?? globalThis.Deno?.version?.deno ?? process.version}`,
-  "",
-  "| feature | result | required | detail |",
-  "| --- | --- | --- | --- |",
-  ...rows,
-  "",
-].join("\n");
-console.log(summary);
-if (process.env.GITHUB_STEP_SUMMARY) {
-  fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
-}
-
-const failedRequired = required[runtime].filter(
-  (name) => results[name] !== "ok"
-);
-if (failedRequired.length > 0) {
-  console.error(`Required features failed: ${failedRequired.join(", ")}`);
-  process.exit(1);
-}
-process.exit(0);

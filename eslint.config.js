@@ -25,5 +25,11 @@ export default tseslint.config(
       "n/prefer-node-protocol": "error",
     },
   },
+  {
+    // This file runs on Cloudflare Workers, not on the Node.js range in engines.node.
+    files: ["scripts/runtime-smoke/worker.mjs"],
+    languageOptions: { globals: globals.serviceworker },
+    rules: { "n/no-unsupported-features/node-builtins": "off" },
+  },
   eslintConfigPrettier
 );
