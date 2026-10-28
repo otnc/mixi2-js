@@ -1,18 +1,83 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: npm
+    directory: /
     schedule:
-      interval: "weekly"
-    versioning-strategy: "increase"
-    allow:
-      - dependency-type: "direct"
+      interval: weekly
+      day: monday
+      timezone: Asia/Tokyo
+    # Wait a week before proposing a new release, so a compromised or broken version has time to be pulled.
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
     ignore:
-      # Pin these manually — Dependabot must not bump them.
-      - dependency-name: "tsdown"
-      - dependency-name: "typescript"
+      # TypeScript is upgraded by hand.
+      - dependency-name: typescript
+      # @types/node follows the minimum supported Node.js line (20.19).
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
+      # These tools need Node.js 22 or later from their next major (tsdown from 0.22), while engines.node still allows 20.19.
+      - dependency-name: vitest
+        update-types: [version-update:semver-major]
+      - dependency-name: lint-staged
+        update-types: [version-update:semver-major]
+      - dependency-name: "@commitlint/*"
+        update-types: [version-update:semver-major]
+      - dependency-name: npm-check-updates
+        update-types: [version-update:semver-major]
+      - dependency-name: tsdown
+        update-types: [version-update:semver-major, version-update:semver-minor]
+
+  - package-ecosystem: npm
+    directory: /pages
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Tokyo
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      pages:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directories: ["/examples/*"]
+    schedule:
+      interval: monthly
+      timezone: Asia/Tokyo
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      examples:
+        patterns: ["*"]
+    ignore:
+      # The examples always install the latest published SDK.
+      - dependency-name: mixi2-js
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Tokyo
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns: ["*"]
