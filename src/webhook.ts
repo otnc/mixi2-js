@@ -6,7 +6,22 @@ import { EventType } from "./types";
 import { getSendEventRequestType } from "./proto";
 import { convertEvent } from "./convert";
 
-const TIMESTAMP_TOLERANCE = 300; // 5 minutes in seconds
+const TIMESTAMP_TOLERANCE_SECONDS = 300;
+const ED25519_SPKI_DER_PREFIX = Buffer.from("302a300506032b6570032100", "hex");
+
+function unauthorized(res: http.ServerResponse, message: string): void {
+  res.writeHead(401);
+  res.end(message);
+}
+
+function readBody(req: http.IncomingMessage): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on("data", (chunk: Buffer) => chunks.push(chunk));
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
+}
 
 export interface WebhookServerOptions {
   port?: number;
@@ -29,11 +44,8 @@ export class WebhookServer {
     this.handler = options.handler;
     this.syncHandling = options.syncHandling ?? false;
 
-    // Convert raw Ed25519 public key bytes to Node.js KeyObject
-    const derPrefix = Buffer.from("302a300506032b6570032100", "hex");
-    const derKey = Buffer.concat([derPrefix, options.publicKey]);
     this.publicKey = crypto.createPublicKey({
-      key: derKey,
+      key: Buffer.concat([ED25519_SPKI_DER_PREFIX, options.publicKey]),
       format: "der",
       type: "spki",
     });
@@ -64,61 +76,46 @@ export class WebhookServer {
     req: http.IncomingMessage,
     res: http.ServerResponse
   ): Promise<void> {
-    // Validate signature header
     const signatureBase64 = req.headers[
       "x-mixi2-application-event-signature"
     ] as string | undefined;
     if (!signatureBase64) {
-      res.writeHead(401);
-      res.end("missing x-mixi2-application-event-signature");
+      unauthorized(res, "missing x-mixi2-application-event-signature");
       return;
     }
 
     const signature = Buffer.from(signatureBase64, "base64");
     if (signature.length === 0) {
-      res.writeHead(401);
-      res.end("x-mixi2-application-event-signature is invalid");
+      unauthorized(res, "x-mixi2-application-event-signature is invalid");
       return;
     }
 
-    // Validate timestamp header
     const timestamp = req.headers["x-mixi2-application-event-timestamp"] as
       | string
       | undefined;
     if (!timestamp) {
-      res.writeHead(401);
-      res.end("missing x-mixi2-application-event-timestamp");
+      unauthorized(res, "missing x-mixi2-application-event-timestamp");
       return;
     }
 
     const unixTime = parseInt(timestamp, 10);
     if (isNaN(unixTime)) {
-      res.writeHead(401);
-      res.end("x-mixi2-application-event-timestamp is invalid");
+      unauthorized(res, "x-mixi2-application-event-timestamp is invalid");
       return;
     }
 
     const diff = Math.floor(Date.now() / 1000) - unixTime;
-    if (diff > TIMESTAMP_TOLERANCE) {
-      res.writeHead(401);
-      res.end("x-mixi2-application-event-timestamp is too old");
+    if (diff > TIMESTAMP_TOLERANCE_SECONDS) {
+      unauthorized(res, "x-mixi2-application-event-timestamp is too old");
       return;
     }
-    if (diff < -TIMESTAMP_TOLERANCE) {
-      res.writeHead(401);
-      res.end("x-mixi2-application-event-timestamp is in the future");
+    if (diff < -TIMESTAMP_TOLERANCE_SECONDS) {
+      unauthorized(res, "x-mixi2-application-event-timestamp is in the future");
       return;
     }
 
-    // Read request body
-    const body = await new Promise<Buffer>((resolve, reject) => {
-      const chunks: Buffer[] = [];
-      req.on("data", (chunk: Buffer) => chunks.push(chunk));
-      req.on("end", () => resolve(Buffer.concat(chunks)));
-      req.on("error", reject);
-    });
+    const body = await readBody(req);
 
-    // Verify Ed25519 signature: sign(body + timestamp)
     const dataToVerify = Buffer.concat([body, Buffer.from(timestamp)]);
     const isValid = crypto.verify(
       null,
@@ -127,12 +124,10 @@ export class WebhookServer {
       signature
     );
     if (!isValid) {
-      res.writeHead(401);
-      res.end("Signature is invalid");
+      unauthorized(res, "Signature is invalid");
       return;
     }
 
-    // Decode protobuf body
     let events: Event[];
     try {
       const sendEventType = getSendEventRequestType();
@@ -146,11 +141,9 @@ export class WebhookServer {
       return;
     }
 
-    // Respond immediately
     res.writeHead(204);
     res.end();
 
-    // Handle events
     for (const event of events) {
       if (event.eventType === EventType.PING) {
         continue;
