@@ -1,7 +1,6 @@
 import * as grpc from "@grpc/grpc-js";
 import type { Authenticator } from "./auth";
-import type { EventHandler } from "./event";
-import type { Event } from "./types";
+import { dispatchEvent, type EventHandler } from "./event";
 import { EventType } from "./types";
 import { getStreamServiceClient } from "./proto";
 import { createAuthMetadata } from "./metadata";
@@ -98,7 +97,7 @@ export class StreamWatcher {
             if (event.eventType === EventType.PING) {
               continue;
             }
-            this.handleEvent(handler, event);
+            void dispatchEvent(handler, event);
           }
         });
 
@@ -140,12 +139,6 @@ export class StreamWatcher {
       };
 
       setupStream(stream);
-    });
-  }
-
-  private handleEvent(handler: EventHandler, event: Event): void {
-    Promise.resolve(handler.handle(event)).catch((err) => {
-      console.error(`Failed to handle event ${event.eventId}:`, err);
     });
   }
 

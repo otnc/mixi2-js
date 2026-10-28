@@ -1,6 +1,6 @@
 import http from "http";
 import crypto from "crypto";
-import type { EventHandler } from "./event";
+import { dispatchEvent, type EventHandler } from "./event";
 import type { Event } from "./types";
 import { EventType } from "./types";
 import { getSendEventRequestType } from "./proto";
@@ -156,16 +156,9 @@ export class WebhookServer {
         continue;
       }
 
+      const handled = dispatchEvent(this.handler, event);
       if (this.syncHandling) {
-        try {
-          await this.handler.handle(event);
-        } catch (err) {
-          console.error(`Failed to handle event ${event.eventId}:`, err);
-        }
-      } else {
-        Promise.resolve(this.handler.handle(event)).catch((err) => {
-          console.error(`Failed to handle event ${event.eventId}:`, err);
-        });
+        await handled;
       }
     }
   }
