@@ -3,7 +3,6 @@
 import { EventEmitter } from "node:events";
 import { StreamWatcher } from "../src/stream";
 import { EventType } from "../src/types";
-import type { Authenticator } from "../src/auth";
 import type { EventHandler } from "../src/event";
 
 class TestStream extends EventEmitter {

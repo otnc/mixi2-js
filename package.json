@@ -3,17 +3,19 @@
   "version": "1.5.3",
   "description": "TypeScript/JavaScript SDK for mixi2 Application API",
   "scripts": {
+    "build": "tsdown --config-loader native",
     "test": "vitest run",
-    "check": "tsc --noEmit",
-    "check:all": "tsc --noEmit && vitest run && tsdown --config-loader native",
-    "check:types": "tsc --noEmit",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "check": "prettier --write . && eslint --fix .",
+    "ci": "prettier --check . && eslint .",
     "checkversion": "ncu",
     "up": "ncu -u && npm install",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "build": "tsdown --config-loader native",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "api",
@@ -76,10 +78,12 @@
     "dotenv": "^17.4.2",
     "eslint": "latest",
     "eslint-config-prettier": "latest",
+    "globals": "^17.13.0",
     "npm-check-updates": "^22.2.0",
     "prettier": "latest",
     "tsdown": "0.21.10",
     "typescript": "6.0.3",
+    "typescript-eslint": "^8.72.1",
     "vitest": "^4.1.6"
   },
   "engines": {

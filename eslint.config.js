@@ -1,17 +1,14 @@
 import js from "@eslint/js";
-import prettierConfig from "eslint-config-prettier";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+import eslintConfigPrettier from "eslint-config-prettier";
 
-export default [
-  js.configs.recommended,
-  prettierConfig,
+export default tseslint.config(
   {
-    ignores: [
-      "dist/**",
-      "**/*.test.ts",
-      ".private/**",
-      ".sample/**",
-      "examples/**",
-      "pages/**",
-    ],
+    ignores: ["dist", "coverage", "pages", "examples", ".private", ".sample"],
   },
-];
+  js.configs.recommended,
+  tseslint.configs.recommended,
+  { languageOptions: { globals: globals.node } },
+  eslintConfigPrettier
+);
