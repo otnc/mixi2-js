@@ -25,16 +25,16 @@ mixi2-js は以下のランタイム API に依存しているため、環境に
 | Node.js            | ✅                           | ✅                          | ✅                        | ✅                                    |
 | Bun                | ✅                           | ✅                          | ✅                        | ✅                                    |
 | Deno               | ✅                           | ✅                          | ✅                        | ✅                                    |
-| Cloudflare Workers | ❓                           | ❌                          | ❌                        | ❌                                    |
+| Cloudflare Workers | ❌                           | ❌                          | ❌                        | ❌                                    |
 
 ✅ 動作確認済み、⚠️ 制限あり、❓ 未検証、❌ 非対応
 
-Node.js / Bun / Deno は、CI でビルド済みのパッケージを各ランタイムで動かし、ローカルの TLS gRPC サーバーに対する実際の通信 (API 呼び出しとストリームでのイベント受信)、Webhook の署名検証、認証を毎回確認しています。
+CI でビルド済みのパッケージを各ランタイムで動かし、結果を毎回確認しています。Node.js / Bun / Deno では、ローカルの TLS gRPC サーバーに対する実際の通信 (API 呼び出しとストリームでのイベント受信)、Webhook の署名検証、認証を確認しています。Cloudflare Workers は Wrangler 経由で workerd 上で動かしています。
 
 - **Node.js**: 20.19.0 以降。テストは 20.19.0 / 22 / 24 で実行しています
 - **Bun**: 最新版で確認しています (1.4 系で確認済み)
 - **Deno**: 2.x の最新版で確認しています (2.9 系で確認済み)。`npm:mixi2-js` または JSR 版を Node.js 互換レイヤーで動かします
-- **Cloudflare Workers**: 非対応です。gRPC (`node:http2`)、`node:http` のサーバー、実行時のファイル読み込みが使えないためです。認証は `nodejs_compat` を有効にすれば動く見込みですが未検証です
+- **Cloudflare Workers**: 非対応です。依存している protobufjs が実行時にコードを生成するため、`nodejs_compat` を有効にしてもパッケージの読み込みに失敗します。また mixi2 の API は HTTP/2 の gRPC だけを受け付けるため、Workers から API クライアントと gRPC ストリーミングを使うことはできません
 
 :::tip
 サーバーレス環境ではランタイムが対応していても gRPC ストリーミングを常時接続できない場合があります。環境に合わせて [Webhook](/guides/webhook/) と [gRPC ストリーミング](/guides/streaming/) を使い分けてください。
