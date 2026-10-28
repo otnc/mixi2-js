@@ -97,9 +97,37 @@ new WebhookServer(options: WebhookServerOptions)
 | 署名失敗レスポンス   | HTTP 401                                         |
 | 成功レスポンス       | HTTP 204                                         |
 
+### 接続確認
+
+Developer Platform で Webhook URL を登録して **接続確認を実行** を押すと、3 種類の Ping がランダムな順で送信されます。`WebhookServer` はそれぞれ期待どおりのレスポンスを自動で返します。
+
+| リクエスト         | レスポンス |
+| ------------------ | ---------- |
+| 正しい署名         | HTTP 204   |
+| 不正な署名         | HTTP 401   |
+| 古いタイムスタンプ | HTTP 401   |
+
+## URL の要件
+
+- HTTPS で公開されていること
+- 有効な CA 証明書を使っていること (自己署名証明書は不可)
+- パスが `/events` であること (例: `https://YOUR_HOST_NAME/events`)
+
+1 つのアプリケーションに複数の Webhook URL は設定できません。
+
+## タイムアウトとリトライ
+
+| 項目         | 値        |
+| ------------ | --------- |
+| タイムアウト | 3 秒      |
+| リトライ回数 | 最大 3 回 |
+| リトライ間隔 | 30 秒     |
+
+リトライにより同じイベントが複数回届く場合があるため、ハンドラは冪等に実装してください。重複の除外には [EventDeduplicator](/helpers/event-deduplicator/) が使えます。
+
 ## サーバーレス環境
 
-Vercel、AWS Lambda などレスポンス後にプロセスが終了する環境では `syncHandling: true` を設定してください:
+Vercel、AWS Lambda などレスポンス後にプロセスが終了する環境では `syncHandling: true` を設定してください。ハンドラの完了まで処理が終わらないため、3 秒以内に完了できる処理が適しています:
 
 ```typescript
 const server = new WebhookServer({
