@@ -56,12 +56,13 @@ npm install
 
 ### 必要な環境
 
-- Node.js v20.19.0 (mixi2-js 最低動作保証環境)
+- Node.js v24 (開発環境。`.nvmrc` で指定)
+  - mixi2-js 自体の最低動作保証は Node.js v20.19.0 です。`engines.node` より新しい API は eslint-plugin-n が検出し、CI では Node.js 20.19.0 / 22 / 24 でテストします
   - 以下のようなツールでのバージョン管理を推奨
+    - [fnm](https://github.com/Schniz/fnm)
     - [nvm](https://github.com/nvm-sh/nvm) (MacOS / Linux)
     - [nvm-windows](https://github.com/coreybutler/nvm-windows) (Windows)
-    - その他、これらとの互換性があるツール
-- npm (v9 以上推奨)
+- npm (v11 以上推奨。Node.js v24 に同梱)
 
 ### 主なコマンド
 
