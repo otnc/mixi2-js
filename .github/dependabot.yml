@@ -22,17 +22,9 @@ updates:
       # @types/node follows the minimum supported Node.js line (20.19).
       - dependency-name: "@types/node"
         update-types: [version-update:semver-major]
-      # These tools need Node.js 22 or later from their next major (tsdown from 0.22), while engines.node still allows 20.19.
+      # Tests still run on Node.js 20.19 (the minimum in engines.node), which vitest dropped in v5.
       - dependency-name: vitest
         update-types: [version-update:semver-major]
-      - dependency-name: lint-staged
-        update-types: [version-update:semver-major]
-      - dependency-name: "@commitlint/*"
-        update-types: [version-update:semver-major]
-      - dependency-name: npm-check-updates
-        update-types: [version-update:semver-major]
-      - dependency-name: tsdown
-        update-types: [version-update:semver-major, version-update:semver-minor]
 
   - package-ecosystem: npm
     directory: /pages
