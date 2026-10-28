@@ -157,7 +157,8 @@ jobs:
 
       - name: Create GitHub Release
         env:
-          GH_TOKEN: ${{ github.token }}
+          # A release created with GITHUB_TOKEN would not trigger the announce-release workflow.
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.bump.outputs.version }}
           PRERELEASE: ${{ steps.bump.outputs.prerelease }}
         run: |
