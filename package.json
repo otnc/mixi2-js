@@ -94,7 +94,8 @@
     "tsdown": "0.23.3",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.72.1",
-    "vitest": "^4.1.12"
+    "vitest": "^4.1.12",
+    "wrangler": "^4.154.0"
   },
   "engines": {
     "node": ">=20.19.0"
@@ -111,7 +112,9 @@
     "*.{json,jsonc,yml,yaml}": "prettier --write"
   },
   "allowScripts": {
-    "protobufjs": false,
-    "simple-git-hooks": false
+    "protobufjs": true,
+    "simple-git-hooks": true,
+    "esbuild": true,
+    "workerd": true
   }
 }
