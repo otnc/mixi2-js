@@ -6,11 +6,15 @@ import { getStreamServiceClient } from "./proto";
 import { createAuthMetadata } from "./metadata";
 import { convertEvent } from "./convert";
 
+const CONNECT_TIMEOUT_MS = 30000;
+
+type EventStream = grpc.ClientReadableStream<unknown>;
+
 export interface StreamWatcherOptions {
   streamAddress: string;
   authenticator: Authenticator;
   authKey?: string;
-  /** 再接続の最大試行回数。デフォルト: 3 */
+  /** 切断ごとの再接続の最大試行回数。待機時間は 1 秒, 2 秒, 4 秒, ... と倍になる。デフォルト: 3 */
   maxRetries?: number;
 }
 
@@ -20,6 +24,7 @@ export class StreamWatcher {
   private readonly streamClient: grpc.Client;
   private readonly maxRetries: number;
   private aborted = false;
+  private currentStream: EventStream | null = null;
 
   constructor(options: StreamWatcherOptions) {
     const ClientConstructor = getStreamServiceClient();
@@ -32,7 +37,7 @@ export class StreamWatcher {
     this.maxRetries = options.maxRetries ?? 3;
   }
 
-  private async connect(): Promise<grpc.ClientReadableStream<unknown>> {
+  private async connect(): Promise<EventStream> {
     const metadata = await createAuthMetadata(this.authenticator, this.authKey);
     const fn = (
       this.streamClient as unknown as Record<
@@ -43,107 +48,89 @@ export class StreamWatcher {
     if (!fn) {
       throw new Error("subscribeEvents method not found on stream client");
     }
-    return fn.call(
-      this.streamClient,
-      {},
-      metadata
-    ) as grpc.ClientReadableStream<unknown>;
+    const stream = fn.call(this.streamClient, {}, metadata) as EventStream;
+    this.currentStream = stream;
+
+    // grpc-js opens server streams lazily, so a connection failure only
+    // surfaces as a later "error". Response headers mark a live stream.
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        stream.cancel();
+        reject(new Error("Connection timeout: no response headers received"));
+      }, CONNECT_TIMEOUT_MS);
+      const onError = (err: Error) => {
+        clearTimeout(timer);
+        reject(err);
+      };
+      stream.once("error", onError);
+      stream.once("metadata", () => {
+        clearTimeout(timer);
+        stream.off("error", onError);
+        resolve(stream);
+      });
+    });
   }
 
-  private async reconnect(
-    retryIndex: number
-  ): Promise<grpc.ClientReadableStream<unknown>> {
-    if (this.aborted) {
-      throw new Error("Watcher aborted");
+  private async reconnect(): Promise<EventStream | null> {
+    let lastError: unknown;
+    for (let attempt = 0; attempt < this.maxRetries; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 1000 * 2 ** attempt));
+      if (this.aborted) return null;
+      try {
+        return await this.connect();
+      } catch (err) {
+        if (this.aborted) return null;
+        lastError = err;
+      }
     }
-
-    // Exponential backoff: 2s, 4s, 8s, ... (capped at 30s)
-    const backoff = Math.min(Math.pow(2, retryIndex) * 1000, 30000);
-    await new Promise((resolve) => setTimeout(resolve, backoff));
-
-    if (this.aborted) {
-      throw new Error("Watcher aborted");
-    }
-
-    return this.connect();
+    throw lastError;
   }
 
+  /** Resolves with the error that broke the stream, or null on a clean end. */
+  private consume(
+    stream: EventStream,
+    handler: EventHandler
+  ): Promise<Error | null> {
+    return new Promise((resolve) => {
+      stream.on("data", (response: Record<string, unknown>) => {
+        const events = ((response.events as unknown[]) || []).map(convertEvent);
+        for (const event of events) {
+          if (event.eventType === EventType.PING) {
+            continue;
+          }
+          void dispatchEvent(handler, event);
+        }
+      });
+      stream.once("error", (err: Error) => resolve(err));
+      stream.once("end", () => resolve(null));
+    });
+  }
+
+  /**
+   * イベントの受信を開始する。`stop()` が呼ばれるかサーバーがストリームを正常終了すると resolve する。
+   * 切断時は `maxRetries` 回まで再接続し、すべて失敗した場合は最後のエラーで reject する。
+   * 初回接続の失敗は再試行せずに reject する。
+   */
   async watch(handler: EventHandler): Promise<void> {
     this.aborted = false;
-    let stream = await this.connect();
-    let consecutiveFailures = 0;
-
-    return new Promise((resolve, reject) => {
-      const setupStream = (s: grpc.ClientReadableStream<unknown>) => {
-        let receivedData = false;
-
-        // Detect hung connections: if no data arrives within 30s, destroy the stream
-        const connectionTimeout = setTimeout(() => {
-          if (!receivedData && !this.aborted) {
-            s.destroy(new Error("Connection timeout: no data received"));
-          }
-        }, 30000);
-
-        s.on("data", (response: Record<string, unknown>) => {
-          if (!receivedData) {
-            receivedData = true;
-            clearTimeout(connectionTimeout);
-            consecutiveFailures = 0;
-          }
-          const events = ((response.events as unknown[]) || []).map(
-            convertEvent
-          );
-          for (const event of events) {
-            if (event.eventType === EventType.PING) {
-              continue;
-            }
-            void dispatchEvent(handler, event);
-          }
-        });
-
-        let disconnected = false;
-        const handleDisconnect = async () => {
-          clearTimeout(connectionTimeout);
-          if (disconnected) return;
-          disconnected = true;
-
-          if (this.aborted) {
-            resolve();
-            return;
-          }
-
-          if (!receivedData) {
-            consecutiveFailures++;
-          }
-
-          if (consecutiveFailures >= this.maxRetries) {
-            reject(
-              new Error(
-                `Failed to reconnect after ${this.maxRetries} consecutive attempts`
-              )
-            );
-            return;
-          }
-
-          try {
-            stream = await this.reconnect(consecutiveFailures);
-            setupStream(stream);
-          } catch (reconnectErr) {
-            reject(reconnectErr);
-          }
-        };
-
-        s.on("error", handleDisconnect);
-
-        s.on("end", handleDisconnect);
-      };
-
-      setupStream(stream);
-    });
+    let stream: EventStream | null;
+    try {
+      stream = await this.connect();
+    } catch (err) {
+      if (this.aborted) return;
+      throw err;
+    }
+    while (stream) {
+      const error = await this.consume(stream, handler);
+      this.currentStream = null;
+      if (!error || this.aborted) return;
+      stream = await this.reconnect();
+    }
   }
 
   stop(): void {
     this.aborted = true;
+    this.currentStream?.cancel();
     this.streamClient.close();
   }
 }
