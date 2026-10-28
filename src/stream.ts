@@ -4,6 +4,7 @@ import type { EventHandler } from "./event";
 import type { Event } from "./types";
 import { EventType } from "./types";
 import { getStreamServiceClient } from "./proto";
+import { createAuthMetadata } from "./metadata";
 import { convertEvent } from "./convert";
 
 export interface StreamWatcherOptions {
@@ -32,18 +33,8 @@ export class StreamWatcher {
     this.maxRetries = options.maxRetries ?? 3;
   }
 
-  private async getMetadata(): Promise<grpc.Metadata> {
-    const token = await this.authenticator.getAccessToken();
-    const metadata = new grpc.Metadata();
-    metadata.add("authorization", `Bearer ${token}`);
-    if (this.authKey) {
-      metadata.add("x-auth-key", this.authKey);
-    }
-    return metadata;
-  }
-
   private async connect(): Promise<grpc.ClientReadableStream<unknown>> {
-    const metadata = await this.getMetadata();
+    const metadata = await createAuthMetadata(this.authenticator, this.authKey);
     const fn = (
       this.streamClient as unknown as Record<
         string,

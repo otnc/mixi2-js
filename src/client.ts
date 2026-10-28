@@ -1,6 +1,7 @@
 import * as grpc from "@grpc/grpc-js";
 import type { Authenticator } from "./auth";
 import { getApiServiceClient } from "./proto";
+import { createAuthMetadata } from "./metadata";
 import type {
   Post,
   User,
@@ -59,18 +60,8 @@ export class Client {
     return this.authenticator.getAccessToken();
   }
 
-  private async getMetadata(): Promise<grpc.Metadata> {
-    const token = await this.authenticator.getAccessToken();
-    const metadata = new grpc.Metadata();
-    metadata.add("authorization", `Bearer ${token}`);
-    if (this.authKey) {
-      metadata.add("x-auth-key", this.authKey);
-    }
-    return metadata;
-  }
-
   private async call<TReq, TRes>(method: string, request: TReq): Promise<TRes> {
-    const metadata = await this.getMetadata();
+    const metadata = await createAuthMetadata(this.authenticator, this.authKey);
     return new Promise<TRes>((resolve, reject) => {
       const fn = (
         this.grpcClient as unknown as Record<
