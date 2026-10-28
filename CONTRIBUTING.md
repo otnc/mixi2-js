@@ -77,6 +77,14 @@ npm install
 | `npm run lint:fix`     | Lint エラーの自動修正                  |
 | `npm run format`       | コードフォーマット適用 (Prettier)      |
 | `npm run format:check` | フォーマットの確認 (Prettier)          |
+| `npm run check:package` | 公開パッケージの検証 (publint + attw、事前に `npm run build` が必要) |
+
+### コミットメッセージ
+
+[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/) に従ってください (例: `fix(stream): ...`、`docs: ...`)。`npm install` で git hook が導入され、コミット時に次のチェックが自動で走ります。
+
+- pre-commit: ステージしたファイルに ESLint と Prettier を適用 (lint-staged)
+- commit-msg: コミットメッセージを commitlint で検証
 
 ## プルリクエストの手順
 
