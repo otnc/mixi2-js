@@ -20,6 +20,7 @@ trim = true
 [git]
 conventional_commits = true
 filter_unconventional = true
+# Pull requests are squash-merged, so each commit on main is one pull request title.
 filter_commits = false
 topo_order = false
 sort_commits = "oldest"
