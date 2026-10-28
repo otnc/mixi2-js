@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as protoLoader from "@grpc/proto-loader";
 import { Client } from "../src/client";
+import * as convert from "../src/convert";
 import * as types from "../src/types";
 
 const PROTO_DIR = path.resolve(
@@ -119,4 +120,51 @@ describe("Client covers the ApplicationService proto", () => {
       ).toBe("function");
     }
   );
+});
+
+describe("converters keep every proto field", () => {
+  const MODEL_PACKAGE = "social.mixi.application.model.v1";
+  const converters: Record<string, (raw: unknown) => unknown> = {
+    ApplicationVersion: convert.convertApplicationVersion,
+    Community: convert.convertCommunity,
+    CommunityUsingApplication: convert.convertCommunityUsingApplication,
+    ChatMessage: convert.convertChatMessage,
+    Media: convert.convertMedia,
+    MediaImage: convert.convertMediaImage,
+    MediaVideo: convert.convertMediaVideo,
+    MediaStamp: convert.convertMediaStamp,
+    Post: convert.convertPost,
+    PostMedia: convert.convertPostMedia,
+    PostMediaImage: convert.convertMediaImage,
+    PostMediaVideo: convert.convertMediaVideo,
+    PostMask: convert.convertPostMask,
+    PostStamp: convert.convertPostStamp,
+    OfficialStampSet: convert.convertOfficialStampSet,
+    OfficialStamp: convert.convertOfficialStamp,
+    CommunityStampSet: convert.convertCommunityStampSet,
+    CommunityStamp: convert.convertCommunityStamp,
+    User: convert.convertUser,
+    UserAvatar: convert.convertUserAvatar,
+    Event: convert.convertEvent,
+    PostCreatedEvent: convert.convertPostCreatedEvent,
+    CommunityMemberChangedEvent: convert.convertCommunityMemberChangedEvent,
+    ChatMessageReceivedEvent: convert.convertChatMessageReceivedEvent,
+    CommunityPluginManagedEvent: convert.convertCommunityPluginManagedEvent,
+  };
+  const messages = Object.entries(packageDefinition)
+    .filter(([name]) => name.startsWith(`${MODEL_PACKAGE}.`))
+    .map(([name, definition]) => ({
+      name: name.slice(MODEL_PACKAGE.length + 1),
+      fields: (
+        definition as unknown as { type: { field: { name: string }[] } }
+      ).type.field.map((field) => field.name),
+    }))
+    .filter((message) => message.fields.length > 0);
+
+  test.each(messages)("$name", ({ name, fields }) => {
+    const convertMessage = converters[name];
+    expect(convertMessage, `no converter for ${name}`).toBeDefined();
+    const converted = convertMessage!({}) as Record<string, unknown>;
+    expect(Object.keys(converted).sort()).toEqual([...fields].sort());
+  });
 });
