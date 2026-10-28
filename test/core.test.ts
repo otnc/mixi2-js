@@ -614,6 +614,47 @@ describe("WebhookServer", () => {
     expect(handler.handle as ReturnType<typeof vi.fn>).toHaveBeenCalledOnce();
   });
 
+  test("keeps dispatching when a handler throws synchronously", async () => {
+    const handled: string[] = [];
+    const handler: EventHandler = {
+      handle: (event) => {
+        if (event.eventId === "e1") throw new Error("boom");
+        handled.push(event.eventId);
+      },
+    };
+    const server = makeWebhookServer(handler);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const body = Buffer.alloc(0);
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    vi.mocked(getSendEventRequestType).mockReturnValue({
+      decode: vi.fn().mockReturnValue({
+        events: [
+          { eventId: "e1", eventType: 2 },
+          { eventId: "e2", eventType: 2 },
+        ],
+      }),
+    } as ReturnType<typeof getSendEventRequestType>);
+
+    const req = makeReq(
+      {
+        "x-mixi2-application-event-signature": makeValidSignature(
+          body,
+          timestamp
+        ),
+        "x-mixi2-application-event-timestamp": timestamp,
+      },
+      body
+    );
+    const res = makeRes();
+
+    await server.eventHandlerFunc(req, res as unknown as http.ServerResponse);
+    expect(res.statusCode).toBe(204);
+    expect(handled).toEqual(["e2"]);
+    expect(errorSpy).toHaveBeenCalledOnce();
+    errorSpy.mockRestore();
+  });
+
   test("skips PING events without calling handler", async () => {
     const handler: EventHandler = {
       handle: vi.fn().mockResolvedValue(undefined),

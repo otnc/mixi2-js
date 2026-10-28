@@ -1,9 +1,9 @@
 import * as grpc from "@grpc/grpc-js";
 import type { Authenticator } from "./auth";
-import type { EventHandler } from "./event";
-import type { Event } from "./types";
+import { dispatchEvent, type EventHandler } from "./event";
 import { EventType } from "./types";
 import { getStreamServiceClient } from "./proto";
+import { createAuthMetadata } from "./metadata";
 import { convertEvent } from "./convert";
 
 export interface StreamWatcherOptions {
@@ -32,18 +32,8 @@ export class StreamWatcher {
     this.maxRetries = options.maxRetries ?? 3;
   }
 
-  private async getMetadata(): Promise<grpc.Metadata> {
-    const token = await this.authenticator.getAccessToken();
-    const metadata = new grpc.Metadata();
-    metadata.add("authorization", `Bearer ${token}`);
-    if (this.authKey) {
-      metadata.add("x-auth-key", this.authKey);
-    }
-    return metadata;
-  }
-
   private async connect(): Promise<grpc.ClientReadableStream<unknown>> {
-    const metadata = await this.getMetadata();
+    const metadata = await createAuthMetadata(this.authenticator, this.authKey);
     const fn = (
       this.streamClient as unknown as Record<
         string,
@@ -107,7 +97,7 @@ export class StreamWatcher {
             if (event.eventType === EventType.PING) {
               continue;
             }
-            this.handleEvent(handler, event);
+            void dispatchEvent(handler, event);
           }
         });
 
@@ -149,12 +139,6 @@ export class StreamWatcher {
       };
 
       setupStream(stream);
-    });
-  }
-
-  private handleEvent(handler: EventHandler, event: Event): void {
-    Promise.resolve(handler.handle(event)).catch((err) => {
-      console.error(`Failed to handle event ${event.eventId}:`, err);
     });
   }
 
