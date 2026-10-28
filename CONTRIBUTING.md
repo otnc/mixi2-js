@@ -65,34 +65,35 @@ npm install
 
 ### 主なコマンド
 
-| コマンド              | 説明                                                    |
-| --------------------- | ------------------------------------------------------- |
-| `npm run check`       | フォーマット + Lint + 型チェックを一括実行 (`vp check`) |
-| `npm run check:all`   | 上記 + テスト + ビルドをすべて実行                      |
-| `npm run check:types` | 型チェック (`tsc --noEmit`)                             |
-| `npm test`            | テスト実行 (`vp test`)                                  |
-| `npm run build`       | ビルド (ESM + CJS + `.d.ts`) (`vp pack`)                |
-| `npm run format`      | コードフォーマット適用 (`vp fmt`)                       |
-| `npm run lint`        | Lint 実行 (`vp lint`)                                   |
-| `npm run lint:fix`    | Lint エラーの自動修正 (`vp lint --fix`)                 |
+| コマンド               | 説明                                         |
+| ---------------------- | -------------------------------------------- |
+| `npm run check`        | 型チェック (`tsc --noEmit`)                  |
+| `npm run check:all`    | 型チェック + テスト + ビルドをすべて実行     |
+| `npm run check:types`  | 型チェック (`tsc --noEmit`)                  |
+| `npm test`             | テスト実行 (Vitest)                          |
+| `npm run build`        | ビルド (ESM + CJS + `.d.ts`) (tsdown)        |
+| `npm run lint`         | Lint 実行 (ESLint)                           |
+| `npm run lint:fix`     | Lint エラーの自動修正 (ESLint)               |
+| `npm run format`       | コードフォーマット適用 (Prettier)            |
+| `npm run format:check` | フォーマットの確認 (Prettier)                |
 
 ## プルリクエストの手順
 
 1. **Issue を確認する** — 既存の Issue に関連する場合はリンクしてください。大きな変更の場合は先に Issue で議論してください。
 2. **ブランチを作成する** — `main` から新しいブランチを作成してください。
 3. **変更を実装する** — 公式仕様に準拠していることを確認してください。
-4. **チェックを実行する** — `npm run check:all` ですべてのチェックが通ることを確認してください。
+4. **チェックを実行する** — `npm run check:all`、`npm run lint`、`npm run format:check` がすべて通ることを確認してください。
 5. **プルリクエストを作成する** — 変更内容と関連する公式ドキュメント / proto 定義への参照を含めてください。
 
 ## コーディング規約
 
 - **言語**: TypeScript（strict モード）
 - **型チェック**: `npm run check:types`
-- **Lint**: `npm run lint`（Oxlint）
-- **フォーマット**: `npm run format`（Oxfmt）
+- **Lint**: `npm run lint` (ESLint)
+- **フォーマット**: `npm run format` (Prettier)
 - **テスト**: Vitest（`npm test`）
-- **ビルド**: tsdown / Rolldown（`npm run build`、ESM `.mjs` + CJS `.cjs` + `.d.ts` を出力）
-- **一括チェック**: `npm run check:all`（フォーマット + Lint + 型 + テスト + ビルド）
+- **ビルド**: tsdown (`npm run build`、ESM `.mjs` + CJS `.cjs` + `.d.ts` を出力)
+- **一括チェック**: `npm run check:all` (型 + テスト + ビルド)
 
 ### 公式仕様との対応
 

@@ -17,18 +17,7 @@ description: 環境変数の設定とレート制限の仕様
 
 ## レート制限
 
-API ごとのレート制限（アプリケーション単位で適用）:
-
-| RPC                       | 制限           | ウィンドウ    |
-| ------------------------- | -------------- | ------------- |
-| `CreatePost`              | 10 回          | 1 分          |
-| `SendChatMessage`         | 10 回          | 1 分          |
-| `InitiatePostMediaUpload` | 10 回 / 100 回 | 1 分 / 1 時間 |
-| `AddStampToPost`          | 10 回          | 1 分          |
-| `GetUsers`                | 10 回          | 1 分          |
-| `GetPosts`                | 10 回          | 1 分          |
-
-`GetStamps`・`GetPostMediaStatus`・`SubscribeEvents` にはレート制限はありません。
+レート制限はアプリケーション単位で適用され、`SubscribeEvents` を除くすべての RPC に 1 分あたり 20 回の上限があります。`InitiatePostMediaUpload` には 1 時間あたり 200 回の上限もあります。RPC ごとの値は [レート制限](/reference/rate-limits/) を参照してください。
 
 制限超過時は gRPC ステータス `RESOURCE_EXHAUSTED` が返されます。`retry-after` ヘッダに従って待機してください。
 
