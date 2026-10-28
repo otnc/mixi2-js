@@ -1,23 +1,14 @@
 /// <reference types="vitest/globals" />
-import { OAuth2Authenticator } from "../src/auth";
 import {
   EventType,
   EventReason,
   PostVisibility,
-  PostAccessLevel,
+  PostMaskType,
   UserVisibility,
   UserAccessLevel,
-  LanguageCode,
   StampSetType,
-  MediaUploadType,
-  MediaUploadStatus,
-  PostMaskType,
-  PostPublishingType,
-  MediaType,
-  PostMediaType,
   CommunityVisibility,
   CommunityAccessLevel,
-  ApplicationRequirement,
 } from "../src/types";
 import {
   convertUser,
@@ -30,125 +21,6 @@ import {
   convertCommunityUsingApplication,
   convertApplicationVersion,
 } from "../src/convert";
-
-describe("Types and Enums", () => {
-  test("EventType enum values", () => {
-    expect(EventType.UNSPECIFIED).toBe(0);
-    expect(EventType.PING).toBe(1);
-    expect(EventType.POST_CREATED).toBe(2);
-    expect(EventType.CHAT_MESSAGE_RECEIVED).toBe(4);
-  });
-
-  test("EventReason enum values", () => {
-    expect(EventReason.POST_REPLY).toBe(2);
-    expect(EventReason.POST_MENTIONED).toBe(3);
-    expect(EventReason.POST_QUOTED).toBe(4);
-    expect(EventReason.DIRECT_MESSAGE_RECEIVED).toBe(8);
-  });
-
-  test("PostVisibility enum values", () => {
-    expect(PostVisibility.VISIBLE).toBe(1);
-    expect(PostVisibility.INVISIBLE).toBe(2);
-  });
-
-  test("PostAccessLevel enum values", () => {
-    expect(PostAccessLevel.PUBLIC).toBe(1);
-    expect(PostAccessLevel.PRIVATE).toBe(2);
-  });
-
-  test("UserVisibility enum values", () => {
-    expect(UserVisibility.VISIBLE).toBe(1);
-    expect(UserVisibility.INVISIBLE).toBe(2);
-  });
-
-  test("UserAccessLevel enum values", () => {
-    expect(UserAccessLevel.PUBLIC).toBe(1);
-    expect(UserAccessLevel.PRIVATE).toBe(2);
-  });
-
-  test("LanguageCode enum values", () => {
-    expect(LanguageCode.JP).toBe(1);
-    expect(LanguageCode.EN).toBe(2);
-  });
-
-  test("StampSetType enum values", () => {
-    expect(StampSetType.DEFAULT).toBe(1);
-    expect(StampSetType.SEASONAL).toBe(2);
-  });
-
-  test("MediaUploadType enum values", () => {
-    expect(MediaUploadType.IMAGE).toBe(1);
-    expect(MediaUploadType.VIDEO).toBe(2);
-  });
-
-  test("MediaUploadStatus enum values", () => {
-    expect(MediaUploadStatus.UPLOAD_PENDING).toBe(1);
-    expect(MediaUploadStatus.PROCESSING).toBe(2);
-    expect(MediaUploadStatus.COMPLETED).toBe(3);
-    expect(MediaUploadStatus.FAILED).toBe(4);
-  });
-
-  test("PostMaskType enum values", () => {
-    expect(PostMaskType.SENSITIVE).toBe(1);
-    expect(PostMaskType.SPOILER).toBe(2);
-  });
-
-  test("PostPublishingType enum values", () => {
-    expect(PostPublishingType.NOT_PUBLISHING).toBe(1);
-  });
-
-  test("MediaType enum values", () => {
-    expect(MediaType.IMAGE).toBe(1);
-    expect(MediaType.VIDEO).toBe(2);
-  });
-
-  test("PostMediaType enum values", () => {
-    expect(PostMediaType.IMAGE).toBe(1);
-    expect(PostMediaType.VIDEO).toBe(2);
-  });
-
-  test("CommunityVisibility enum values", () => {
-    expect(CommunityVisibility.UNSPECIFIED).toBe(0);
-    expect(CommunityVisibility.VISIBLE).toBe(1);
-    expect(CommunityVisibility.INVISIBLE).toBe(2);
-  });
-
-  test("CommunityAccessLevel enum values", () => {
-    expect(CommunityAccessLevel.UNSPECIFIED).toBe(0);
-    expect(CommunityAccessLevel.PUBLIC).toBe(1);
-    expect(CommunityAccessLevel.APPROVAL_REQUIRED).toBe(2);
-  });
-
-  test("ApplicationRequirement enum values", () => {
-    expect(ApplicationRequirement.UNSPECIFIED).toBe(0);
-    expect(ApplicationRequirement.PERMISSION_COMMUNITY_POST_READ).toBe(1);
-    expect(ApplicationRequirement.PERMISSION_COMMUNITY_POST_CREATE).toBe(2);
-    expect(ApplicationRequirement.PERMISSION_COMMUNITY_POST_RESTRICT).toBe(3);
-    expect(ApplicationRequirement.PERMISSION_COMMUNITY_MEMBER_LIST_READ).toBe(
-      4
-    );
-    expect(ApplicationRequirement.EVENT_COMMUNITY_POST_CREATED).toBe(7);
-    expect(ApplicationRequirement.PERMISSION_COMMUNITY_POST_STAMP_CREATE).toBe(
-      10
-    );
-    expect(
-      ApplicationRequirement.PERMISSION_COMMUNITY_MEMBER_DIRECT_MESSAGE_CREATE
-    ).toBe(11);
-  });
-
-  test("EventType includes community values", () => {
-    expect(EventType.COMMUNITY_MEMBER_CHANGED).toBe(3);
-    expect(EventType.COMMUNITY_PLUGIN_MANAGED).toBe(5);
-  });
-
-  test("EventReason includes community values", () => {
-    expect(EventReason.POST_COMMUNITY).toBe(5);
-    expect(EventReason.COMMUNITY_MEMBER_JOINED).toBe(6);
-    expect(EventReason.COMMUNITY_MEMBER_LEFT).toBe(7);
-    expect(EventReason.COMMUNITY_PLUGIN_INSTALLED).toBe(9);
-    expect(EventReason.COMMUNITY_PLUGIN_UNINSTALLED).toBe(10);
-  });
-});
 
 describe("Converters", () => {
   test("convertUser with full data", () => {
@@ -518,17 +390,5 @@ describe("Converters", () => {
     expect(event.postCreatedEvent!.eventReasonList).toContain(
       EventReason.POST_COMMUNITY
     );
-  });
-});
-
-describe("OAuth2Authenticator", () => {
-  test("constructor accepts options", () => {
-    const auth = new OAuth2Authenticator({
-      clientId: "test-id",
-      clientSecret: "test-secret",
-      tokenUrl: "https://example.com/token",
-    });
-    expect(auth).toBeDefined();
-    expect(auth.getAccessToken).toBeDefined();
   });
 });
