@@ -15,7 +15,7 @@
 [![License](https://img.shields.io/github/license/otoneko1102/mixi2-js?color=blue)](LICENSE)
 [![Node.js](https://img.shields.io/node/v/mixi2-js?color=339933&logo=nodedotjs&logoColor=white)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Build](https://img.shields.io/github/actions/workflow/status/otoneko1102/mixi2-js/publish.yml?label=build&logo=github)](https://github.com/otnc/mixi2-js/actions)
+[![Build](https://img.shields.io/github/actions/workflow/status/otnc/mixi2-js/ci.yml?branch=main&label=ci&logo=github)](https://github.com/otnc/mixi2-js/actions)
 [![Prettier](https://img.shields.io/badge/Prettier-latest-F7B93E?logo=prettier&logoColor=white)](https://prettier.io/)
 [![ESLint](https://img.shields.io/badge/ESLint-latest-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
 [![tsdown](https://img.shields.io/badge/tsdown-0.21.10-orange)](https://tsdown.dev/)
@@ -113,3 +113,5 @@ ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.
 ## ライセンス
 
 [Apache-2.0](LICENSE)
+
+`proto/` 以下の Protocol Buffers 定義は [mixi2-api](https://github.com/mixigroup/mixi2-api) (Copyright 2025 MIXI, Inc.、Apache-2.0) から同梱しています。サードパーティのライセンス表記は [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) を参照してください。

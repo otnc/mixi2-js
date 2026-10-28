@@ -6,6 +6,12 @@
     "./helpers": "./src/helpers/index.ts"
   },
   "publish": {
-    "include": ["src/**/*.ts", "proto/**/*.proto", "README.md", "LICENSE"]
+    "include": [
+      "src/**/*.ts",
+      "proto/**/*.proto",
+      "README.md",
+      "LICENSE",
+      "THIRD_PARTY_NOTICES.md"
+    ]
   }
 }
