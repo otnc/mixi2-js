@@ -366,6 +366,46 @@ describe("ReasonFilter", () => {
     await filter.handle(event);
     expect(received).toHaveLength(1);
   });
+
+  test("filters community member and plugin events by reason", async () => {
+    const received: string[] = [];
+    const filter = new ReasonFilter(
+      { handle: (event) => void received.push(event.eventId) },
+      [EventReason.COMMUNITY_MEMBER_JOINED]
+    );
+
+    await filter.handle(
+      createEvent(EventType.COMMUNITY_MEMBER_CHANGED, {
+        eventId: "joined",
+        communityMemberChangedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_MEMBER_JOINED],
+          member: null,
+          community: null,
+        },
+      })
+    );
+    await filter.handle(
+      createEvent(EventType.COMMUNITY_MEMBER_CHANGED, {
+        eventId: "left",
+        communityMemberChangedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_MEMBER_LEFT],
+          member: null,
+          community: null,
+        },
+      })
+    );
+    await filter.handle(
+      createEvent(EventType.COMMUNITY_PLUGIN_MANAGED, {
+        eventId: "installed",
+        communityPluginManagedEvent: {
+          eventReasonList: [EventReason.COMMUNITY_PLUGIN_INSTALLED],
+          community: null,
+        },
+      })
+    );
+
+    expect(received).toEqual(["joined"]);
+  });
 });
 
 describe("EventDeduplicator", () => {
@@ -656,6 +696,31 @@ describe("CommunityFilter", () => {
             stamps: [],
           },
           issuer: null,
+        },
+      })
+    );
+
+    expect(received).toHaveLength(0);
+  });
+
+  test("uses postedCommunity when the post has no community ID", async () => {
+    const received: Event[] = [];
+    const filter = new CommunityFilter(makeHandler(received), ["c-1"]);
+
+    await filter.handle(
+      createEvent(EventType.POST_CREATED, {
+        postCreatedEvent: {
+          eventReasonList: [EventReason.POST_COMMUNITY],
+          post: null,
+          issuer: null,
+          postedCommunity: {
+            communityId: "c-2",
+            name: "",
+            purpose: "",
+            isArchived: false,
+            visibility: 1,
+            accessLevel: 1,
+          },
         },
       })
     );
