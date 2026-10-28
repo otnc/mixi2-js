@@ -1,9 +1,18 @@
+import conventional from "@commitlint/config-conventional";
+
+// The type(scope): prefix is enforced so the changelog can group commits. Every other rule only warns.
+const enforced = new Set([
+  "type-empty",
+  "type-enum",
+  "type-case",
+  "subject-empty",
+]);
+
 export default {
-  extends: ["@commitlint/config-conventional"],
-  rules: {
-    // Dependabot titles with long package names can exceed the default 72 characters.
-    "header-max-length": [2, "always", 100],
-    "body-max-line-length": [0],
-    "footer-max-line-length": [0],
-  },
+  rules: Object.fromEntries(
+    Object.entries(conventional.rules).map(([name, [level, ...options]]) => [
+      name,
+      [enforced.has(name) ? level : Math.min(level, 1), ...options],
+    ])
+  ),
 };

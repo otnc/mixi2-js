@@ -56,12 +56,13 @@ npm install
 
 ### 必要な環境
 
-- Node.js v20.19.0 (mixi2-js 最低動作保証環境)
+- Node.js v24 (開発環境。`.nvmrc` で指定)
+  - mixi2-js 自体の最低動作保証は Node.js v20.19.0 です。`engines.node` より新しい API は eslint-plugin-n が検出し、CI では Node.js 20.19.0 / 22 / 24 でテストします
   - 以下のようなツールでのバージョン管理を推奨
+    - [fnm](https://github.com/Schniz/fnm)
     - [nvm](https://github.com/nvm-sh/nvm) (MacOS / Linux)
     - [nvm-windows](https://github.com/coreybutler/nvm-windows) (Windows)
-    - その他、これらとの互換性があるツール
-- npm (v9 以上推奨)
+- npm (v11 以上推奨。Node.js v24 に同梱)
 
 ### 主なコマンド
 
@@ -81,10 +82,10 @@ npm install
 
 ### コミットメッセージ
 
-[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/) に従ってください (例: `fix(stream): ...`、`docs: ...`)。`npm install` で git hook が導入され、コミット時に次のチェックが自動で走ります。
+[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/) の `type(scope): ...` 形式で書いてください (例: `fix(stream): ...`、`docs: ...`)。type は `feat` / `fix` / `docs` / `refactor` / `perf` / `test` / `build` / `ci` / `chore` / `style` / `revert` のいずれかです。この形式のコミットのうち `feat` / `fix` / `perf` / `refactor` / `docs` がリリース時に CHANGELOG.md へ自動で載ります。`npm install` で git hook が導入され、コミット時に次のチェックが自動で走ります。
 
 - pre-commit: ステージしたファイルに ESLint と Prettier を適用 (lint-staged)
-- commit-msg: コミットメッセージを commitlint で検証
+- commit-msg: コミットメッセージを commitlint で確認 (type の形式だけを強制し、ほかのルールは警告のみ)
 
 ## プルリクエストの手順
 
