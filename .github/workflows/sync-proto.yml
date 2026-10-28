@@ -1,0 +1,100 @@
+name: 上流 proto 同期
+
+on:
+  schedule:
+    - cron: "0 11 * * *" # 毎日 JST 20:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # PRs opened with GITHUB_TOKEN do not trigger CI, so the app token is used to push and open the PR.
+      - name: GitHub App トークンを発行
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: 最新リリースを取得
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh api repos/mixigroup/mixi2-api/releases/latest --jq '.tag_name')
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: proto をコピー
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          git clone --depth 1 --branch "$TAG" https://github.com/mixigroup/mixi2-api.git "$RUNNER_TEMP/mixi2-api"
+          rm -rf proto
+          cp -r "$RUNNER_TEMP/mixi2-api/proto" proto
+
+      - name: PR を作成
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          if [ -z "$(git status --porcelain -- proto)" ]; then
+            echo "proto is up to date with mixi2-api $TAG"
+            exit 0
+          fi
+
+          branch="chore/sync-proto-$TAG"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "$branch already exists"
+            exit 0
+          fi
+
+          bot_id=$(gh api "/users/${APP_SLUG}[bot]" --jq '.id')
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+
+          git switch -c "$branch"
+          git add proto
+          git commit -m "chore(proto): sync definitions from mixi2-api $TAG"
+          git push origin "$branch"
+
+          cat > "$RUNNER_TEMP/pr-body.md" << PREOF
+          ## 概要
+
+          上流 [mixigroup/mixi2-api](https://github.com/mixigroup/mixi2-api) の **${TAG}** から proto 定義をそのまま同期しました。
+
+          - 🔖 [リリースノート](https://github.com/mixigroup/mixi2-api/releases/tag/${TAG})
+
+          ## 確認事項
+
+          - [ ] CI の \`test/spec.test.ts\` が通ること (enum と RPC が SDK 側に揃っているか)
+          - [ ] 追加・変更されたメッセージやフィールドを \`src/types.ts\` / \`src/convert.ts\` / \`src/client.ts\` に反映する
+          - [ ] ドキュメント (pages/) と CHANGELOG.md を更新する
+
+          ---
+
+          > この PR は[上流 proto 同期ワークフロー](https://github.com/${{ github.repository }}/actions/workflows/sync-proto.yml)によって自動作成されました。
+          PREOF
+
+          gh label create "upstream" \
+            --color "0075ca" \
+            --description "上流リポジトリの変更への追従" \
+            --force
+
+          gh pr create \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "$branch" \
+            --title "chore(proto): mixi2-api ${TAG} の proto を同期" \
+            --label "upstream" \
+            --body-file "$RUNNER_TEMP/pr-body.md"
