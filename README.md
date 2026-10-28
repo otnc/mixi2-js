@@ -52,6 +52,22 @@ npx jsr add @otoneko1102/mixi2-js
 
 ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.ts`) も同梱されています。
 
+### Skills
+
+AI エージェント (Claude Code、Codex など) が mixi2-js を使ったコードを書くための Skill を公開しています。次のどちらかの方法でインストールできます。
+
+#### GitHub CLI (`gh skill`)
+
+```bash
+gh skill install otnc/mixi2-js
+```
+
+#### `vercel-labs/skills` (`npx skills`)
+
+```bash
+npx skills add otnc/mixi2-js
+```
+
 ---
 
 ## 機能概要
