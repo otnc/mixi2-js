@@ -11,45 +11,54 @@ mixi2 API では、プラットフォームの安定性を維持するため各 
 
 ## API ごとの制限
 
-| RPC                       | 制限    | ウィンドウ |
-| ------------------------- | ------: | --------- |
-| `CreatePost`              | 10 回   | 1 分      |
-| `SendChatMessage`         | 10 回   | 1 分      |
-| `InitiatePostMediaUpload` | 10 回   | 1 分      |
-| `InitiatePostMediaUpload` | 100 回  | 1 時間    |
-| `AddStampToPost`          | 10 回   | 1 分      |
-| `GetUsers`                | 10 回   | 1 分      |
-| `GetPosts`                | 10 回   | 1 分      |
+| RPC                                  |   制限 | ウィンドウ |
+| ------------------------------------ | -----: | ---------- |
+| `CreatePost`                         |  20 回 | 1 分       |
+| `DeletePost`                         |  20 回 | 1 分       |
+| `SendChatMessage`                    |  20 回 | 1 分       |
+| `InitiatePostMediaUpload`            |  20 回 | 1 分       |
+| `InitiatePostMediaUpload`            | 200 回 | 1 時間     |
+| `AddStampToPost`                     |  20 回 | 1 分       |
+| `GetStamps`                          |  20 回 | 1 分       |
+| `GetUsers`                           |  20 回 | 1 分       |
+| `GetPosts`                           |  20 回 | 1 分       |
+| `GetPostMediaStatus`                 |  20 回 | 1 分       |
+| `GetCommunities`                     |  20 回 | 1 分       |
+| `GetCommunitiesUsingApplication`     |  20 回 | 1 分       |
+| `GetCommunityTimeline`               |  20 回 | 1 分       |
+| `GetCommunityMemberList`             |  20 回 | 1 分       |
+| `RestrictCommunityPost`              |  20 回 | 1 分       |
+| `SendDirectMessageToCommunityMember` |  20 回 | 1 分       |
 
 :::note
-`GetStamps`、`GetPostMediaStatus`、`DeletePost`、`SubscribeEvents` にはリクエスト回数の制限はありません。
+`SubscribeEvents` にはリクエスト回数の制限はありません。
 
 `InitiatePostMediaUpload` には 1 分あたりと 1 時間あたりの 2 つの制限が適用されます。いずれかに達した場合に制限されます。
 :::
 
 ## メディアアップロードのデータ量制限
 
-| 項目             | 制限       |
+| 項目             | 制限      |
 | ---------------- | --------- |
-| アップロード容量  | 1 GB / 日 |
+| アップロード容量 | 1 GB / 日 |
 
 ## レスポンスヘッダー
 
 すべての API レスポンスに現在のレート制限状況を示すヘッダーが含まれます。
 
-| ヘッダー                  | 説明                                     |
-| ------------------------- | ---------------------------------------- |
-| `ratelimit-limit`         | リクエスト回数の上限値                   |
-| `ratelimit-remaining`     | 現在のウィンドウ内で残っているリクエスト数 |
-| `ratelimit-reset`         | 制限がリセットされる時刻（UNIX 秒）      |
-| `retry-after`             | 制限超過時のみ。再試行まで待機すべき秒数 |
+| ヘッダー              | 説明                                                 |
+| --------------------- | ---------------------------------------------------- |
+| `ratelimit-limit`     | リクエスト回数の上限値                               |
+| `ratelimit-remaining` | 現在のウィンドウ内で残っているリクエスト数           |
+| `ratelimit-reset`     | 制限がリセットされる時刻（UNIX 秒）                  |
+| `retry-after`         | 制限超過時のみ。再試行まで待機すべき秒数 (最小 1 秒) |
 
 ## 制限超過時のレスポンス
 
-| 項目              | 値                               |
-| ----------------- | -------------------------------- |
+| 項目                  | 値                             |
+| --------------------- | ------------------------------ |
 | gRPC ステータスコード | `RESOURCE_EXHAUSTED`（code 8） |
-| エラーメッセージ  | `rate limit exceeded`           |
+| エラーメッセージ      | `rate limit exceeded`          |
 
 ## 対処方法
 
