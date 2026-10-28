@@ -239,6 +239,13 @@ describe("OAuth2Authenticator", () => {
 
 //  Client
 
+function stubCall(client: Client) {
+  const internals = client as unknown as {
+    call: (method: string, request: unknown) => Promise<unknown>;
+  };
+  return vi.spyOn(internals, "call");
+}
+
 describe("Client", () => {
   function createClient(token = "test-token") {
     return new Client({
@@ -249,7 +256,7 @@ describe("Client", () => {
 
   test("getUsers returns mapped users", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       users: [{ userId: "u1", name: "alice" }],
     });
     const users = await client.getUsers(["u1"]);
@@ -259,14 +266,14 @@ describe("Client", () => {
 
   test("getUsers returns empty array when response has no users", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({});
+    stubCall(client).mockResolvedValue({});
     const users = await client.getUsers([]);
     expect(users).toEqual([]);
   });
 
   test("getPosts returns mapped posts", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       posts: [{ postId: "p1", text: "hi", postMediaList: [], stamps: [] }],
     });
     const posts = await client.getPosts(["p1"]);
@@ -276,7 +283,7 @@ describe("Client", () => {
 
   test("createPost returns the created post", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       post: { postId: "new-1", text: "Hello", postMediaList: [], stamps: [] },
     });
     const post = await client.createPost({ text: "Hello" });
@@ -286,25 +293,25 @@ describe("Client", () => {
 
   test("deletePost returns true when deleted", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({ deleted: true });
+    stubCall(client).mockResolvedValue({ deleted: true });
     expect(await client.deletePost("p1")).toBe(true);
   });
 
   test("deletePost returns false when not deleted", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({ deleted: false });
+    stubCall(client).mockResolvedValue({ deleted: false });
     expect(await client.deletePost("p1")).toBe(false);
   });
 
   test("deletePost returns false when field is absent", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({});
+    stubCall(client).mockResolvedValue({});
     expect(await client.deletePost("p1")).toBe(false);
   });
 
   test("getStamps returns mapped stamp sets", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       officialStampSets: [
         {
           stampSetId: "set-1",
@@ -324,7 +331,7 @@ describe("Client", () => {
 
   test("addStampToPost returns updated post", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       post: { postId: "p1", text: "stamped", postMediaList: [], stamps: [] },
     });
     const post = await client.addStampToPost("p1", "stamp-1");
@@ -333,7 +340,7 @@ describe("Client", () => {
 
   test("getCommunities returns mapped communities", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       communities: [
         {
           communityId: "comm-1",
@@ -353,14 +360,14 @@ describe("Client", () => {
 
   test("getCommunities returns empty array when response has no communities", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({});
+    stubCall(client).mockResolvedValue({});
     const communities = await client.getCommunities([]);
     expect(communities).toHaveLength(0);
   });
 
   test("getCommunityTimeline returns mapped posts", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       posts: [
         {
           postId: "p-c1",
@@ -379,7 +386,7 @@ describe("Client", () => {
 
   test("getCommunityMemberList returns members and cursor", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       members: [
         {
           userId: "user-10",
@@ -403,7 +410,7 @@ describe("Client", () => {
 
   test("getCommunityMemberList returns undefined cursor when absent", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({ members: [] });
+    stubCall(client).mockResolvedValue({ members: [] });
     const result = await client.getCommunityMemberList({
       communityId: "comm-1",
     });
@@ -413,7 +420,7 @@ describe("Client", () => {
 
   test("restrictCommunityPost resolves without error", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({});
+    stubCall(client).mockResolvedValue({});
     await expect(
       client.restrictCommunityPost({ postId: "p1" })
     ).resolves.toBeUndefined();
@@ -421,7 +428,7 @@ describe("Client", () => {
 
   test("getCommunitiesUsingApplication returns communities and versions", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       communitiesUsingApplication: [
         {
           community: {
@@ -456,7 +463,7 @@ describe("Client", () => {
 
   test("getCommunitiesUsingApplication returns undefined cursor when absent", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       communitiesUsingApplication: [],
       applicationVersions: [],
     });
@@ -466,7 +473,7 @@ describe("Client", () => {
 
   test("sendDirectMessageToCommunityMember returns chat message", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockResolvedValue({
+    stubCall(client).mockResolvedValue({
       message: {
         roomId: "room-dm-1",
         messageId: "msg-dm-1",
@@ -487,7 +494,7 @@ describe("Client", () => {
 
   test("propagates gRPC errors to caller", async () => {
     const client = createClient();
-    vi.spyOn(client as any, "call").mockRejectedValue(
+    stubCall(client).mockRejectedValue(
       new Error("UNAVAILABLE: connection refused")
     );
     await expect(client.getPosts(["p1"])).rejects.toThrow("UNAVAILABLE");

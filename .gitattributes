@@ -1,4 +1,5 @@
-# *.proto linguist-detectable=true
+* text=auto eol=lf
+
 *.proto linguist-vendored
 
 pages/** linguist-documentation

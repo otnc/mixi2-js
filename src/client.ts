@@ -7,8 +7,6 @@ import type {
   User,
   ChatMessage,
   Community,
-  CommunityUsingApplication,
-  ApplicationVersion,
   GetStampsResponse,
   CreatePostRequest,
   InitiatePostMediaUploadRequest,

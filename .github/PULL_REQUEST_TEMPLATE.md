@@ -28,10 +28,9 @@ closes #
 
 ## チェックリスト
 
-<!-- PR を出す前に、以下をすべて確認してください (`npm run check:all` で一括実行できます) -->
+<!-- PR を出す前に、以下をすべて確認してください -->
 
-- [ ] `npm run check:types` — 型チェック通過
-- [ ] `npm run lint` — Lint エラーなし
-- [ ] `npm run format` — フォーマット準拠
+- [ ] `npm run ci` — フォーマットと Lint 通過
+- [ ] `npm run typecheck` — 型チェック通過
 - [ ] `npm test` — テスト全件通過
 - [ ] `npm run build` — ビルド成功
