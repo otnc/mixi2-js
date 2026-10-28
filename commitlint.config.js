@@ -1,11 +1,18 @@
 import conventional from "@commitlint/config-conventional";
 
-// Every rule only warns, so a commit is never blocked. Messages that do not follow Conventional Commits are simply left out of the generated changelog.
+// The type(scope): prefix is enforced so the changelog can group commits. Every other rule only warns.
+const enforced = new Set([
+  "type-empty",
+  "type-enum",
+  "type-case",
+  "subject-empty",
+]);
+
 export default {
   rules: Object.fromEntries(
-    Object.entries(conventional.rules).map(([name, [, ...options]]) => [
+    Object.entries(conventional.rules).map(([name, [level, ...options]]) => [
       name,
-      [1, ...options],
+      [enforced.has(name) ? level : Math.min(level, 1), ...options],
     ])
   ),
 };
