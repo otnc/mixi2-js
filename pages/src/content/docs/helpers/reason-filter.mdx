@@ -126,13 +126,20 @@ new ReasonFilter(handler: EventHandler, reasons: EventReason[])
 
 ### 利用可能な EventReason
 
-| 名前                      | 値  | 説明                     |
-| ------------------------- | --- | ------------------------ |
-| `PING`                    | 1   | 接続確認                 |
-| `POST_REPLY`              | 2   | ポストに返信された       |
-| `POST_MENTIONED`          | 3   | ポストでメンションされた |
-| `POST_QUOTED`             | 4   | ポストが引用された       |
-| `DIRECT_MESSAGE_RECEIVED` | 8   | DM を受信した            |
+| 名前                           | 値  | 説明                                          |
+| ------------------------------ | --- | --------------------------------------------- |
+| `PING`                         | 1   | 接続確認                                      |
+| `POST_REPLY`                   | 2   | ポストに返信された                            |
+| `POST_MENTIONED`               | 3   | ポストでメンションされた                      |
+| `POST_QUOTED`                  | 4   | ポストが引用された                            |
+| `POST_COMMUNITY`               | 5   | コミュニティにポストされた (Plugin のみ)      |
+| `COMMUNITY_MEMBER_JOINED`      | 6   | コミュニティにメンバーが参加した (Plugin のみ) |
+| `COMMUNITY_MEMBER_LEFT`        | 7   | コミュニティからメンバーが退出した (Plugin のみ) |
+| `DIRECT_MESSAGE_RECEIVED`      | 8   | DM を受信した                                 |
+| `COMMUNITY_PLUGIN_INSTALLED`   | 9   | Plugin がインストールされた (Plugin のみ)     |
+| `COMMUNITY_PLUGIN_UNINSTALLED` | 10  | Plugin がアンインストールされた (Plugin のみ) |
+
+すべてのイベントの `eventReasonList` を判定に使います。理由を持たないイベント (PING など) はそのまま通過します。
 
 <Aside type="note">
   このヘルパーは SDK 独自の拡張機能であり、公式 API 仕様には含まれません。公式の仕様については

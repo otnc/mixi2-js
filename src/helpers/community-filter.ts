@@ -30,8 +30,11 @@ export class CommunityFilter implements EventHandler {
   }
 
   private getCommunityId(event: Event): string | null {
-    if (event.postCreatedEvent?.post?.communityId) {
-      return event.postCreatedEvent.post.communityId;
+    const postCommunityId =
+      event.postCreatedEvent?.post?.communityId ??
+      event.postCreatedEvent?.postedCommunity?.communityId;
+    if (postCommunityId) {
+      return postCommunityId;
     }
     if (event.communityMemberChangedEvent?.community?.communityId) {
       return event.communityMemberChangedEvent.community.communityId;

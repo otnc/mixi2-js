@@ -33,12 +33,11 @@ export class ReasonFilter implements EventHandler {
   }
 
   private getReasons(event: Event): EventReason[] {
-    if (event.postCreatedEvent) {
-      return event.postCreatedEvent.eventReasonList || [];
-    }
-    if (event.chatMessageReceivedEvent) {
-      return event.chatMessageReceivedEvent.eventReasonList || [];
-    }
-    return [];
+    const body =
+      event.postCreatedEvent ??
+      event.chatMessageReceivedEvent ??
+      event.communityMemberChangedEvent ??
+      event.communityPluginManagedEvent;
+    return body?.eventReasonList ?? [];
   }
 }
