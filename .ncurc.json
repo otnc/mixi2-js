@@ -1,4 +1,0 @@
-{
-  "reject": ["typescript", "@types/node"],
-  "enginesNode": true
-}
