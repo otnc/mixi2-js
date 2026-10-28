@@ -82,10 +82,10 @@ npm install
 
 ### コミットメッセージ
 
-[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/) に従ってください (例: `fix(stream): ...`、`docs: ...`)。`npm install` で git hook が導入され、コミット時に次のチェックが自動で走ります。
+[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/) の形式を推奨します (例: `fix(stream): ...`、`docs: ...`)。この形式のコミットのうち `feat` / `fix` / `perf` / `refactor` / `docs` がリリース時に CHANGELOG.md へ自動で載ります。`npm install` で git hook が導入され、コミット時に次のチェックが自動で走ります。
 
 - pre-commit: ステージしたファイルに ESLint と Prettier を適用 (lint-staged)
-- commit-msg: コミットメッセージを commitlint で検証
+- commit-msg: コミットメッセージを commitlint で確認 (警告のみで、コミットは止まりません)
 
 ## プルリクエストの手順
 
