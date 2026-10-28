@@ -11,32 +11,6 @@ import { Tabs, TabItem } from "@astrojs/starlight/components";
 - [mixi2 Developer Platform](https://developer.mixi.social) で開発者登録が完了していること
 - アプリケーションを作成し、認証情報（Client ID / Client Secret / Token URL 等）を取得済みであること
 
-## インストール
-
-:::caution[Node.js バージョンについて]
-**mixi2-js v1.5.0 より、Node.js v20.19.0 未満はサポートされなくなりました。** Node.js v18 系では動作しません。Node.js v20.19.0 以上をご使用ください。
-:::
-
-<Tabs>
-  <TabItem label="npm">
-    ```bash
-    npm install mixi2-js
-    ```
-  </TabItem>
-  <TabItem label="JSR">
-    ```bash
-    npx jsr add @otoneko1102/mixi2-js
-    ```
-  </TabItem>
-</Tabs>
-
-ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.ts`) も同梱されています。
-
-:::note
-JSR 経由でインストールした場合、インポートパスは `'mixi2-js'` ではなく `'@otoneko1102/mixi2-js'` になります。
-以降のコード例はすべて npm 版のパスで記載しています。JSR 版をお使いの場合は適宜読み替えてください。
-:::
-
 ## 対応環境
 
 mixi2-js は以下のランタイム API に依存しているため、環境によって使える機能が異なります。
@@ -62,6 +36,32 @@ mixi2-js は以下のランタイム API に依存しているため、環境に
 
 :::tip
 サーバーレス環境ではランタイムが対応していても gRPC ストリーミングを常時接続できない場合があります。環境に合わせて [Webhook](/guides/webhook/) と [gRPC ストリーミング](/guides/streaming/) を使い分けてください。
+:::
+
+## インストール
+
+:::caution[Node.js バージョンについて]
+**mixi2-js v1.5.0 より、Node.js v20.19.0 未満はサポートされなくなりました。** Node.js v18 系では動作しません。Node.js v20.19.0 以上をご使用ください。
+:::
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install mixi2-js
+    ```
+  </TabItem>
+  <TabItem label="JSR">
+    ```bash
+    npx jsr add @otoneko1102/mixi2-js
+    ```
+  </TabItem>
+</Tabs>
+
+ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.ts`) も同梱されています。
+
+:::note
+JSR 経由でインストールした場合、インポートパスは `'mixi2-js'` ではなく `'@otoneko1102/mixi2-js'` になります。
+以降のコード例はすべて npm 版のパスで記載しています。JSR 版をお使いの場合は適宜読み替えてください。
 :::
 
 ## モジュール一覧
