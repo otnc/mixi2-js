@@ -82,7 +82,9 @@ npm install
 
 ### コミットメッセージ
 
-[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/) の `type(scope): ...` 形式で書いてください。接頭辞の `type(scope):` は英語、それ以降の説明と本文は日本語で書きます (例: `fix(stream): 正常終了で再接続しないようにする`、`docs: レート制限の表を更新`)。プルリクエストのタイトルも同じ形式です。type は `feat` / `fix` / `docs` / `refactor` / `perf` / `test` / `build` / `ci` / `chore` / `style` / `revert` のいずれかです。この形式のコミットのうち `feat` / `fix` / `perf` / `refactor` / `docs` がリリース時に CHANGELOG.md へ自動で載ります。`npm install` で git hook が導入され、コミット時に次のチェックが自動で走ります。
+[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/) の `type(scope): ...` 形式で書いてください。接頭辞の `type(scope):` は英語、それ以降の説明と本文は日本語で書きます (例: `fix(stream): 正常終了で再接続しないようにする`、`docs: レート制限の表を更新`)。type は `feat` / `fix` / `docs` / `refactor` / `perf` / `test` / `build` / `ci` / `chore` / `style` / `revert` のいずれかです。
+
+プルリクエストは squash マージするため、**プルリクエストのタイトルがそのまま main のコミットメッセージになります**。タイトルも同じ形式で書いてください (`pr-title` ワークフローが検証します)。タイトルの type が `feat` / `fix` / `perf` / `refactor` / `docs` のものは、リリース時に CHANGELOG.md へ自動で載ります。`npm install` で git hook が導入され、コミット時に次のチェックが自動で走ります。
 
 - pre-commit: ステージしたファイルに ESLint と Prettier を適用 (lint-staged)
 - commit-msg: コミットメッセージを commitlint で確認 (type の形式だけを強制し、ほかのルールは警告のみ)
