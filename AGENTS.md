@@ -55,7 +55,7 @@
 
 ## ドキュメント
 
-- 機能追加や挙動の変更では、`pages/src/content/docs/` と README も更新します
+- 機能追加や挙動の変更では、`pages/src/content/docs/`、README、利用者のエージェント向け Skill (`skills/mixi2-js/SKILL.md`) も更新します
 - `pages/` の `.mdx` に Prettier をかけないでください。`<Tabs>` 内のコードブロックが壊れます (`.prettierignore` で除外済み)
 - 文の途中で改行しません。全角の記号は `！` と `？` 以外使いません (`（）` ではなく `()`)
 - GitHub のアラート (`> [!NOTE]` など) の中の空行は、`>` の後ろに半角スペースを 3 つ置きます

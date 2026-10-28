@@ -37,6 +37,25 @@ JSR 経由でインストールした場合、インポートパスは `'mixi2-j
 以降のコード例はすべて npm 版のパスで記載しています。JSR 版をお使いの場合は適宜読み替えてください。
 :::
 
+## AI エージェント向けの Skill
+
+AI エージェント (Claude Code、Codex など) が mixi2-js を使ったコードを書くための Skill を公開しています。SDK の使い方の要点、イベントの種類、ヘルパーの一覧、各ドキュメントへのリンクがまとまっています。
+
+<Tabs>
+  <TabItem label="GitHub CLI">
+    ```bash
+    gh skill install otnc/mixi2-js
+    ```
+  </TabItem>
+  <TabItem label="npx skills">
+    ```bash
+    npx skills add otnc/mixi2-js
+    ```
+  </TabItem>
+</Tabs>
+
+Skill の本体は [`skills/mixi2-js/SKILL.md`](https://github.com/otnc/mixi2-js/blob/main/skills/mixi2-js/SKILL.md) です。
+
 ## モジュール一覧
 
 | モジュール            | 説明                                                                                |
