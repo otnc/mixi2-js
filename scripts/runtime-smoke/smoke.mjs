@@ -18,7 +18,7 @@ const runtime =
 const required = {
   node: ["auth", "client", "webhook", "stream"],
   bun: ["auth", "client", "webhook", "stream"],
-  deno: [],
+  deno: ["auth", "client", "webhook", "stream"],
 };
 
 const authenticator = { getAccessToken: async () => "token" };
