@@ -43,6 +43,16 @@ jobs:
           rm -rf proto
           cp -r "$RUNNER_TEMP/mixi2-api/proto" proto
 
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: 生成コードを更新
+        run: |
+          npm ci --ignore-scripts
+          npm run generate:proto
+
       - name: PR を作成
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -65,14 +75,14 @@ jobs:
           git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
 
           git switch -c "$branch"
-          git add proto
-          git commit -m "chore(proto): sync definitions from mixi2-api $TAG"
+          git add proto src/generated
+          git commit -m "chore(proto): mixi2-api $TAG の proto を同期"
           git push origin "$branch"
 
           cat > "$RUNNER_TEMP/pr-body.md" << PREOF
           ## 概要
 
-          上流 [mixigroup/mixi2-api](https://github.com/mixigroup/mixi2-api) の **${TAG}** から proto 定義をそのまま同期しました。
+          上流 [mixigroup/mixi2-api](https://github.com/mixigroup/mixi2-api) の **${TAG}** から proto 定義をそのまま同期し、\`src/generated/\` の生成コードを更新しました。
 
           - 🔖 [リリースノート](https://github.com/mixigroup/mixi2-api/releases/tag/${TAG})
 

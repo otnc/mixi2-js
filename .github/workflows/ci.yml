@@ -54,6 +54,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run ci
+      - name: Generated proto code is up to date
+        run: |
+          npm run generate:proto
+          git diff --exit-code -- src/generated
       - run: npm run typecheck
       - run: npm run build
       - run: npm run check:package
