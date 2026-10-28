@@ -36,7 +36,7 @@
 - [Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/) に従います。type は commitlint が強制します。破壊的変更は `feat!:` のように `!` を付けます
 - PR は squash マージします。PR タイトルがそのまま main のコミットメッセージと CHANGELOG の項目になるので、タイトルを Conventional Commits の形式で、利用者に伝わる説明にしてください (`feat` / `fix` / `perf` / `refactor` / `docs` が CHANGELOG に載ります)
 - PR は目的ごとに分けます。PR 内のコミットも関心ごとに小さく分けます
-- main は ruleset で保護されています。PR が必須で、直接 push はできません。`check` / `test (20.19.0)` / `test (22)` / `test (24)` / `secrets` / `conventional-title` のチェックが通る必要があります。bypass できるのは otoneko-release App (release ワークフロー) だけです
+- main は ruleset で保護されています。PR が必須で、直接 push はできません。`ci` と `conventional-title` のチェックが通る必要があります (`ci` は `check` / `test` / `secrets` の結果をまとめたもの。`pages/`・`*.md`・`img/`・`LICENSE` だけの変更ではビルドとテストがスキップされます)。bypass できるのは otoneko-release App (release ワークフロー) だけです
 - PR を積み上げた場合は、前の PR のマージ後にベースが main へ切り替わったのを確認してからマージします
 - マージ後のブランチは GitHub が自動で削除します
 - ブランチは一括で削除しません。削除するのは自分が作ったブランチだけで、名前を指定して消します
