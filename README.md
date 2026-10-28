@@ -70,6 +70,39 @@ npx skills add otnc/mixi2-js
 
 ---
 
+## 対応環境
+
+mixi2-js は以下のランタイム API に依存しているため、環境によって使える機能が異なります。
+
+- [`node:http2`](https://nodejs.org/api/http2.html) (`@grpc/grpc-js` 経由): API クライアントと gRPC ストリーミング
+- `node:fs` (`@grpc/proto-loader` 経由): 実行時の `.proto` の読み込み (API クライアント、gRPC ストリーミング、Webhook のデコード)
+- [`node:http`](https://nodejs.org/api/http.html) と [`node:crypto`](https://nodejs.org/api/crypto.html) (Ed25519): Webhook サーバーと署名検証
+- `fetch` と `Buffer`: 認証とメディアアップロード
+
+| 環境               | 認証 (`OAuth2Authenticator`) | API クライアント (`Client`) | Webhook (`WebhookServer`) | gRPC ストリーミング (`StreamWatcher`) |
+| ------------------ | ---------------------------- | --------------------------- | ------------------------- | ------------------------------------- |
+| Node.js            | ✅                           | ✅                          | ✅                        | ✅                                    |
+| Bun                | ✅                           | ⚠️                          | ✅                        | ⚠️                                    |
+| Deno               | ⚠️                           | ⚠️                          | ⚠️                        | ⚠️                                    |
+| Cloudflare Workers | ⚠️                           | ❌                          | ❌                        | ❌                                    |
+
+✅ 動作確認済み、⚠️ 未検証または制限あり、❌ 非対応
+
+<details><summary>詳細な対応状況</summary>
+
+- Node.js: 20.19.0 以降。CI で 20.19.0 / 22 / 24 のテストを実行しています
+- Bun: 1.4.3 で認証と Webhook (署名検証を含む) の動作を確認済み。API クライアントと gRPC ストリーミングは生成と proto の読み込みまで確認済みで、実際の通信は未検証です
+- Deno: 未検証です。`npm:mixi2-js` または JSR 版を Node.js 互換レイヤーで動かすことになります
+- Cloudflare Workers: 非対応です。gRPC (`node:http2`)、`node:http` のサーバー、実行時のファイル読み込みが使えないためです。認証は `nodejs_compat` を有効にすれば動く見込みですが未検証です
+
+</details>
+
+> [!TIP]
+>   
+> サーバーレス環境ではランタイムが対応していても gRPC ストリーミングを常時接続できない場合があります。環境に合わせて Webhook と gRPC ストリーミングを使い分けてください。対応環境を広げる取り組みは [Issues](https://github.com/otnc/mixi2-js/issues?q=label%3Aruntime) で管理しています。
+
+---
+
 ## 機能概要
 
 | モジュール            | 説明                                                                                            |
