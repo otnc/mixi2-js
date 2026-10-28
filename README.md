@@ -102,6 +102,12 @@ ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.
 
 ---
 
+## バージョニング
+
+mixi2-js のメジャーバージョンは、対応する mixi2 API のメジャーバージョンに合わせています (mixi2 API v1.x には mixi2-js v1.x が対応)。SDK 独自の破壊的変更はマイナーバージョンで行い、[CHANGELOG](CHANGELOG.md) の Breaking changes に記載します。詳細は [CONTRIBUTING.md](CONTRIBUTING.md#バージョニング) を参照してください。
+
+---
+
 ## 貢献
 
 貢献を歓迎しています！詳細は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。

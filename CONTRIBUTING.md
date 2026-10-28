@@ -117,6 +117,16 @@ npm install
 
 ## リリース (メンテナー向け)
 
+### バージョニング
+
+mixi2-js のメジャーバージョンは、対応する [mixi2 API](https://github.com/mixigroup/mixi2-api) のメジャーバージョンに合わせます。mixi2 API v1.x に対応している間は mixi2-js も v1.x です。
+
+- mixi2 API のメジャーバージョンが上がったとき: mixi2-js のメジャーバージョンを上げる
+- 機能追加や挙動の変更: マイナーバージョンを上げる。SDK 独自の破壊的変更もここに含め、CHANGELOG の Breaking changes に記載する (コミットは `feat!:` のように `!` を付ける)
+- バグ修正: パッチバージョンを上げる
+
+### 手順
+
 GitHub Actions の `release` ワークフローを手動実行します。`version` には `patch` / `minor` / `major` / `prerelease`、または `1.6.0` のような明示的なバージョンを指定します。
 
 ワークフローは次の処理を行います。
