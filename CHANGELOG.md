@@ -2,6 +2,50 @@
 
 このプロジェクトの注目すべき変更をバージョンごとに記録します。新しいバージョンの節は、`release` ワークフローの実行時に Conventional Commits から [git-cliff](https://git-cliff.org) で生成され、この下に追加されます。
 
+## [1.6.0](https://github.com/otnc/mixi2-js/releases/tag/v1.6.0) - 2026-10-28
+
+### Features
+
+- Add .ncurc.json configuration file
+
+### Bug fixes
+
+- Update contributor image link in README.md
+- Reorganize scripts section in package.json
+- **stream:** Reconnect per disconnect with 1s/2s/4s backoff like the official SDK
+- **media-uploader:** Poll every 5s for up to 2min to respect the rate limit
+- **jsr:** Export the helpers subpath
+- **reason-filter:** Filter community member and plugin events by their reasons
+- **community-filter:** Fall back to postedCommunity for post events
+
+### Refactoring
+
+- Remove unused scripts and clean up configuration files
+- Share auth metadata construction between Client and StreamWatcher
+- Route event handler calls through a shared dispatchEvent
+- **webhook:** Extract body reading and 401 responses, drop narrating comments
+
+### Documentation
+
+- Update Node.js and npm version requirements in CONTRIBUTING.md
+- **streaming:** Document reconnection outcomes and constructor options
+- **media-uploader:** Update polling defaults and rate limit caution
+- Use half-width parentheses in updated stream and uploader docs
+- **rate-limits:** Update to the 20/min and 200/h limits now applied to every RPC
+- **plugin:** Cover install scope, requirement versioning and installation flow
+- **webhook:** Add connection check, URL requirements and retry policy
+- **contributing:** Match command table to the current npm scripts
+- **contributing:** Describe commit conventions, git hooks and check:package
+- **contributing:** Align command table
+- **contributing:** Document the release workflow
+- **contributing:** Describe the release announcement
+- **readme:** Update the tsdown badge
+- Add third-party notices for the bundled mixi2-api proto and the ported Go SDK
+- **changelog:** Reformat past entries to match the generated sections
+- Remove stale duplicated sections from the API client and enum pages
+- Document all 15 RPCs, the plugin helpers and Client authKey/getAccessToken
+- State that the major version follows the mixi2 API major version
+
 ## [1.5.3](https://github.com/otnc/mixi2-js/releases/tag/v1.5.3) - 2026-05-16
 
 ### Bug fixes
