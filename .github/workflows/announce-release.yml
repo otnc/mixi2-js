@@ -1,0 +1,56 @@
+name: announce-release
+
+# Posts a release announcement thread to the mixi2-js account on mixi2. Prereleases never reach "released", and a stable release that is not the latest (such as a backport) is skipped.
+on:
+  release:
+    types: [released]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to announce (e.g. v1.6.0)"
+        required: true
+      dry_run:
+        description: "Print the thread instead of posting it"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: announce-release
+  cancel-in-progress: false
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      - name: Announce
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+          REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
+          MIXI2_CLIENT_ID: ${{ secrets.MIXI2_CLIENT_ID }}
+          MIXI2_CLIENT_SECRET: ${{ secrets.MIXI2_CLIENT_SECRET }}
+        run: |
+          LATEST="$(gh release view --json tagName --jq .tagName)"
+          if [ "$LATEST" != "$TAG" ]; then
+            echo "::notice::${TAG} is not the latest release (${LATEST}); skipping the announcement."
+            exit 0
+          fi
+          RELEASE_TAG="$TAG" \
+          RELEASE_URL="$(gh release view "$TAG" --json url --jq .url)" \
+          RELEASE_BODY="$(gh release view "$TAG" --json body --jq .body)" \
+            node scripts/announce-release.mjs
