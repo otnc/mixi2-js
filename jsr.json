@@ -8,6 +8,7 @@
   "publish": {
     "include": [
       "src/**/*.ts",
+      "src/generated/proto.js",
       "proto/**/*.proto",
       "README.md",
       "LICENSE",

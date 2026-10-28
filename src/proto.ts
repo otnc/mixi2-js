@@ -1,95 +1,126 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
+import type { IConversionOptions } from "protobufjs";
+import { social } from "./generated/proto.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PROTO_DIR = path.resolve(__dirname, "..", "proto");
-
-const PROTO_LOADER_OPTIONS: protoLoader.Options = {
-  keepCase: false,
+// The same conversion @grpc/proto-loader applied, so src/convert.ts keeps receiving identical objects.
+const CONVERSION_OPTIONS: IConversionOptions = {
   longs: Number,
   enums: Number,
   defaults: true,
   oneofs: true,
 };
 
-let _packageDefinition: protoLoader.PackageDefinition | null = null;
-let _grpcObject: grpc.GrpcObject | null = null;
-
-function getPackageDefinition(): protoLoader.PackageDefinition {
-  if (!_packageDefinition) {
-    _packageDefinition = protoLoader.loadSync(
-      [
-        "social/mixi/application/service/application_api/v1/service.proto",
-        "social/mixi/application/service/application_stream/v1/service.proto",
-        "social/mixi/application/service/client_endpoint/v1/service.proto",
-      ],
-      { ...PROTO_LOADER_OPTIONS, includeDirs: [PROTO_DIR] }
-    );
-  }
-  return _packageDefinition;
+interface StaticMessageType {
+  fromObject(object: Record<string, unknown>): unknown;
+  encode(message: unknown): { finish(): Uint8Array };
+  decode(bytes: Uint8Array): unknown;
+  toObject(message: unknown, options?: IConversionOptions): unknown;
 }
 
-function getGrpcObject(): grpc.GrpcObject {
-  if (!_grpcObject) {
-    _grpcObject = grpc.loadPackageDefinition(getPackageDefinition());
-  }
-  return _grpcObject;
-}
+type MessageNamespace = Record<string, StaticMessageType>;
 
-function resolveNested(obj: grpc.GrpcObject, path: string): unknown {
-  const parts = path.split(".");
-  let current: unknown = obj;
-  for (const part of parts) {
-    current = (current as Record<string, unknown>)[part];
-    if (current === undefined) {
-      throw new Error(`Could not resolve gRPC path: ${path}`);
+const api = social.mixi.application.service.application_api
+  .v1 as unknown as MessageNamespace;
+const stream = social.mixi.application.service.application_stream
+  .v1 as unknown as MessageNamespace;
+const clientEndpoint = social.mixi.application.service.client_endpoint
+  .v1 as unknown as MessageNamespace;
+
+const API_SERVICE =
+  "social.mixi.application.service.application_api.v1.ApplicationService";
+const STREAM_SERVICE =
+  "social.mixi.application.service.application_stream.v1.ApplicationService";
+
+// Every RPC in the proto takes <Name>Request and returns <Name>Response; test/spec.test.ts checks this table against the proto.
+const API_METHODS = [
+  "GetUsers",
+  "GetPosts",
+  "GetCommunities",
+  "CreatePost",
+  "DeletePost",
+  "InitiatePostMediaUpload",
+  "GetPostMediaStatus",
+  "GetCommunityTimeline",
+  "GetCommunityMemberList",
+  "RestrictCommunityPost",
+  "GetCommunitiesUsingApplication",
+  "SendChatMessage",
+  "GetStamps",
+  "AddStampToPost",
+  "SendDirectMessageToCommunityMember",
+] as const;
+
+function serializer(type: StaticMessageType) {
+  return (value: unknown): Buffer => {
+    if (Array.isArray(value)) {
+      throw new Error(
+        "Failed to serialize message: expected an object, got an array instead"
+      );
     }
-  }
-  return current;
+    return type
+      .encode(type.fromObject(value as Record<string, unknown>))
+      .finish() as Buffer;
+  };
 }
+
+function deserializer(type: StaticMessageType) {
+  return (bytes: Uint8Array): unknown =>
+    type.toObject(type.decode(bytes), CONVERSION_OPTIONS);
+}
+
+function methodDefinition(
+  service: string,
+  name: string,
+  types: MessageNamespace,
+  responseStream: boolean
+) {
+  const request = types[`${name}Request`]!;
+  const response = types[`${name}Response`]!;
+  return {
+    path: `/${service}/${name}`,
+    requestStream: false,
+    responseStream,
+    requestSerialize: serializer(request),
+    requestDeserialize: deserializer(request),
+    responseSerialize: serializer(response),
+    responseDeserialize: deserializer(response),
+    originalName: name.charAt(0).toLowerCase() + name.slice(1),
+  };
+}
+
+let apiServiceClient: grpc.ServiceClientConstructor | null = null;
+let streamServiceClient: grpc.ServiceClientConstructor | null = null;
 
 export function getApiServiceClient(): grpc.ServiceClientConstructor {
-  const grpcObj = getGrpcObject();
-  return resolveNested(
-    grpcObj,
-    "social.mixi.application.service.application_api.v1.ApplicationService"
-  ) as grpc.ServiceClientConstructor;
+  apiServiceClient ??= grpc.makeGenericClientConstructor(
+    Object.fromEntries(
+      API_METHODS.map((name) => [
+        name,
+        methodDefinition(API_SERVICE, name, api, false),
+      ])
+    ),
+    "ApplicationService"
+  );
+  return apiServiceClient;
 }
 
 export function getStreamServiceClient(): grpc.ServiceClientConstructor {
-  const grpcObj = getGrpcObject();
-  return resolveNested(
-    grpcObj,
-    "social.mixi.application.service.application_stream.v1.ApplicationService"
-  ) as grpc.ServiceClientConstructor;
+  streamServiceClient ??= grpc.makeGenericClientConstructor(
+    {
+      SubscribeEvents: methodDefinition(
+        STREAM_SERVICE,
+        "SubscribeEvents",
+        stream,
+        true
+      ),
+    },
+    "ApplicationService"
+  );
+  return streamServiceClient;
 }
 
 export function getSendEventRequestType(): {
   decode: (buffer: Uint8Array) => unknown;
 } {
-  const pkgDef = getPackageDefinition();
-  const msgDef =
-    pkgDef[
-      "social.mixi.application.service.client_endpoint.v1.SendEventRequest"
-    ];
-  // proto-loader exposes the runtime decoder as `deserialize` on the
-  // MessageTypeDefinition. The `type` field is only a JSON descriptor with no
-  // .decode() method, so reaching for it produced a silent webhook-decode bug
-  // (the WebhookServer caught the TypeError and returned HTTP 400).
-  if (
-    !msgDef ||
-    typeof (msgDef as { deserialize?: unknown }).deserialize !== "function"
-  ) {
-    throw new Error("SendEventRequest message type not found in proto");
-  }
-  const deserialize = (
-    msgDef as { deserialize: (buf: Buffer | Uint8Array) => unknown }
-  ).deserialize;
-  return {
-    decode: (buffer: Uint8Array) =>
-      deserialize(Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer)),
-  };
+  return { decode: deserializer(clientEndpoint.SendEventRequest!) };
 }

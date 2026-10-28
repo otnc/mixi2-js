@@ -4,6 +4,7 @@
   "description": "TypeScript/JavaScript SDK for mixi2 Application API",
   "scripts": {
     "build": "tsdown --config-loader native",
+    "generate:proto": "node scripts/generate-proto.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.test.json && tsc --noEmit -p examples/tsconfig.json",
@@ -72,13 +73,14 @@
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.6",
-    "@grpc/proto-loader": "^0.8.1"
+    "protobufjs": "^7.6.6"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@eslint/js": "^10.0.1",
+    "@grpc/proto-loader": "^0.8.1",
     "@types/node": "^20.19.43",
     "consola": "^3.4.2",
     "dotenv": "^18.0.9",
@@ -89,6 +91,7 @@
     "lint-staged": "^17.6.0",
     "npm-check-updates": "^23.1.1",
     "prettier": "^3.9.10",
+    "protobufjs-cli": "^1.3.3",
     "publint": "^0.3.25",
     "simple-git-hooks": "^2.14.0",
     "tsdown": "0.23.3",

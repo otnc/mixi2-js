@@ -6,7 +6,16 @@ import eslintConfigPrettier from "eslint-config-prettier";
 
 export default tseslint.config(
   {
-    ignores: ["dist", "coverage", "pages", "examples", ".private", ".sample"],
+    ignores: [
+      "dist",
+      "coverage",
+      "pages",
+      "examples",
+      "src/generated",
+      ".private",
+      ".sample",
+      ".wrangler",
+    ],
   },
   js.configs.recommended,
   tseslint.configs.recommended,

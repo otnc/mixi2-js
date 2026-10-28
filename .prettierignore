@@ -1,6 +1,7 @@
 .github/**
 pages/**
 proto/**
+src/generated/**
 dist/**
 package-lock.json
 *.md
