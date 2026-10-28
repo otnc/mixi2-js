@@ -1,233 +1,208 @@
 # Changelog
 
-このプロジェクトのすべての注目すべき変更をバージョンごとに記録します。
+このプロジェクトの注目すべき変更をバージョンごとに記録します。新しいバージョンの節は、`release` ワークフローの実行時に Conventional Commits から [git-cliff](https://git-cliff.org) で生成され、この下に追加されます。
 
-## [1.5.2] - 2026-05-13
+## [1.5.3](https://github.com/otnc/mixi2-js/releases/tag/v1.5.3) - 2026-05-16
+
+### Bug fixes
+
+- **proto:** `application_api/v1/service.proto` の重複定義を削除
+- **proto:** `getSendEventRequestType` が `deserialize()` を使うように修正 (Webhook のデコードが常に失敗していた問題を解消)
+- **auth:** 有効期限の短いアクセストークンもキャッシュされるように修正
+- **webhook:** `start()` が listen のエラーを reject するように修正し、`port: 0` を指定できるようにした
+- **webhook:** `address` が OS の割り当てた実際のポートを返すように修正
+- **text-splitter:** 絵文字 (ZWJ シーケンスを含む) を 1 文字として数えるように修正
+
+### Refactoring
+
+- **types:** 構造が同じ型をエイリアスで統合
+- **types:** `PostMedia.mediaType` の型を `PostMediaType` のまま維持
+
+## [1.5.2](https://github.com/otnc/mixi2-js/releases/tag/v1.5.2) - 2026-05-13
+
+### Bug fixes
 
 - 細かな修正
 
-## [1.5.1] - 2026-05-13
+## [1.5.1](https://github.com/otnc/mixi2-js/releases/tag/v1.5.1) - 2026-05-13
+
+### Bug fixes
 
 - 細かな修正
 
-## [1.5.0] - 2026-05-13
+## [1.5.0](https://github.com/otnc/mixi2-js/releases/tag/v1.5.0) - 2026-05-13
 
 **mixi2 API v1.2.0** のコミュニティプラグイン機能に対応
 
-### Breaking Changes
+### Breaking changes
 
-- **Node.js v20.19.0 未満のサポートを終了** — 必要な Node.js バージョンを `>=18.0.0` から `>=20.19.0` に引き上げました
+- 必要な Node.js バージョンを `>=18.0.0` から `>=20.19.0` に引き上げ
+- `getStamps` の戻り値を `OfficialStampSet[]` から `GetStampsResponse` に変更し、`communityStampSets` を追加
 
-### Added
+### Features
 
-- **コミュニティプラグイン API** — Plugin 専用の 6 つの RPC メソッドを追加
-  - `Client.getCommunities(request)` — インストール済みコミュニティの情報を取得
-  - `Client.getCommunityTimeline(request)` — コミュニティのタイムラインを取得
-  - `Client.getCommunityMemberList(request)` — コミュニティのメンバー一覧を取得
-  - `Client.restrictCommunityPost(request)` — コミュニティのポストを非表示にする
-  - `Client.getCommunitiesUsingApplication(request)` — アプリがインストールされているコミュニティ一覧を取得
-  - `Client.sendDirectMessageToCommunityMember(request)` — コミュニティメンバーに DM を送信
-- **新しいイベント型** — Plugin 専用イベントを追加
-  - `CommunityMemberChangedEvent` — コミュニティメンバーの参加・退出イベント（`EventType.COMMUNITY_MEMBER_CHANGED`）
-  - `CommunityPluginManagedEvent` — Plugin のインストール・アンインストールイベント（`EventType.COMMUNITY_PLUGIN_MANAGED`）
-- **新しいモデル型** — `Community`, `CommunityUsingApplication`, `ApplicationVersion`, `CommunityStamp`, `CommunityStampSet`
-- **新しい Enum** — `CommunityVisibility`, `CommunityAccessLevel`, `ApplicationRequirement`
-- **`EventReason` に新しい値を追加** — `POST_COMMUNITY`(5), `COMMUNITY_MEMBER_JOINED`(6), `COMMUNITY_MEMBER_LEFT`(7), `COMMUNITY_PLUGIN_INSTALLED`(9), `COMMUNITY_PLUGIN_UNINSTALLED`(10)
-- **`CreatePostRequest`** — `communityId` フィールドを追加（コミュニティへの投稿）
-- **`PostCreatedEvent`** — `postedCommunity` フィールドを追加（投稿されたコミュニティ情報）
-- **`getStamps`** の戻り値を `OfficialStampSet[]` から `GetStampsResponse` に変更し、`communityStampSets` を追加
-- **新しい helpers** — Plugin 開発向けのヘルパーを追加（`mixi2-js/helpers`）
-  - `CommunityFilter` — 指定したコミュニティ ID のイベントのみを通過させるミドルウェア
-  - `MemberEventRouter` — `CommunityMemberChangedEvent` を `onJoined`/`onLeft` にルーティング
-  - `PluginManagedRouter` — `CommunityPluginManagedEvent` を `onInstalled`/`onUninstalled` にルーティング
-  - `MemberListPager` — `getCommunityMemberList` のカーソルページネーションをラップする非同期ジェネレーター
-  - `ApplicationPager` — `getCommunitiesUsingApplication` のカーソルページネーションをラップし `fetchAll()` も提供
-- **`PostBuilder.community(communityId)`** — コミュニティ ID を設定するメソッドを追加
-- GitHub Actions CI ワークフロー（`check:all` の自動実行）を追加
+- **client:** コミュニティプラグイン向けの 6 つの RPC メソッドを追加
+  - `getCommunities` — コミュニティの情報を取得
+  - `getCommunityTimeline` — コミュニティのタイムラインを取得
+  - `getCommunityMemberList` — コミュニティのメンバー一覧を取得
+  - `restrictCommunityPost` — コミュニティのポストを非表示にする
+  - `getCommunitiesUsingApplication` — アプリがインストールされているコミュニティ一覧を取得
+  - `sendDirectMessageToCommunityMember` — コミュニティメンバーに DM を送信
+- **types:** Plugin 向けのイベント `CommunityMemberChangedEvent` (`EventType.COMMUNITY_MEMBER_CHANGED`) と `CommunityPluginManagedEvent` (`EventType.COMMUNITY_PLUGIN_MANAGED`) を追加
+- **types:** モデル `Community` / `CommunityUsingApplication` / `ApplicationVersion` / `CommunityStamp` / `CommunityStampSet` を追加
+- **types:** Enum `CommunityVisibility` / `CommunityAccessLevel` / `ApplicationRequirement` を追加
+- **types:** `EventReason` に `POST_COMMUNITY` (5) / `COMMUNITY_MEMBER_JOINED` (6) / `COMMUNITY_MEMBER_LEFT` (7) / `COMMUNITY_PLUGIN_INSTALLED` (9) / `COMMUNITY_PLUGIN_UNINSTALLED` (10) を追加
+- **types:** `CreatePostRequest.communityId` と `PostCreatedEvent.postedCommunity` を追加
+- **helpers:** Plugin 開発向けのヘルパーを追加
+  - `CommunityFilter` — 指定したコミュニティ ID のイベントだけを通すミドルウェア
+  - `MemberEventRouter` — `CommunityMemberChangedEvent` を `onJoined` / `onLeft` に振り分け
+  - `PluginManagedRouter` — `CommunityPluginManagedEvent` を `onInstalled` / `onUninstalled` に振り分け
+  - `MemberListPager` — `getCommunityMemberList` のページネーションをたどる非同期ジェネレーター
+  - `ApplicationPager` — `getCommunitiesUsingApplication` のページネーションをたどり、`fetchAll()` も提供
+- **helpers:** `PostBuilder.community(communityId)` を追加
 
-### Changed
+## [1.4.1](https://github.com/otnc/mixi2-js/releases/tag/v1.4.1) - 2026-04-12
 
-- ビルドツールチェーンを **Vite+** から **tsdown + Prettier + ESLint** に移行
-  - `vp pack` → `tsdown`
-  - `vp test` → `vitest`
-  - `vp check` → `prettier` + `eslint`
+### Bug fixes
 
-## [1.4.1] - 2026-04-12
+- **stream:** 接続が終了した後に再接続できないことがある問題を修正
+  - ストリームがハングした場合に備え、30 秒の接続タイムアウトを追加
+  - 連続失敗回数が `maxRetries` を超えたら打ち切るように修正
+  - 再接続のバックオフを指数バックオフ (2s, 4s, 8s, ... 上限 30s) に変更
 
-### Fixed
-
-- `StreamWatcher` — ストリーム接続が終了した後に再接続できないことがある問題を修正
-  - gRPC ストリームがハングした場合に備え、30 秒の接続タイムアウトを追加
-  - 連続失敗カウンタを導入し、`maxRetries` 超過時に正しく打ち切るように修正
-  - `reconnect()` のバックオフを呼び出し元で管理する方式に変更（指数バックオフ: 2s, 4s, 8s, ... 上限 30s）
-
-## [1.4.0] - 2026-03-23
+## [1.4.0](https://github.com/otnc/mixi2-js/releases/tag/v1.4.0) - 2026-03-23
 
 **mixi2 API v1.1.0** の変更に対応
 
-### Added
+### Features
 
-- `Client.deletePost(postId)` — ポスト削除 RPC を追加（公式 API `DeletePost` に対応）
-- `Client.getAccessToken()` — 現在のアクセストークンを取得するメソッドを追加
-- `MediaUploader.upload(uploadUrl, data)` — HTTP アップロードメソッドを追加（`Authorization` ヘッダーを自動付与）
+- **client:** `deletePost(postId)` を追加 (公式 API の `DeletePost`)
+- **client:** 現在のアクセストークンを取得する `getAccessToken()` を追加
+- **helpers:** `MediaUploader.upload(uploadUrl, data)` を追加 (`Authorization` ヘッダーを自動で付与)
 
-## [1.3.0] - 2026-03-22
+## [1.3.0](https://github.com/otnc/mixi2-js/releases/tag/v1.3.0) - 2026-03-22
 
-### Added
+### Breaking changes
 
-- `helpers` サブパス（`mixi2-js/helpers`）に新しい拡張機能を追加
-  - `EventDeduplicator` — Webhook リトライ等による重複イベントをスキップするミドルウェア
-  - `EventLogger` — 受信イベントをログ出力するデバッグ用ミドルウェア
-  - `TextSplitter` — 長いテキストを mixi2 の 149 文字制限内に自動分割するヘルパー
-  - `maxPostLength` — mixi2 ポスト最大文字数定数（`149`）
+- ESM 出力の拡張子を `.js` / `.d.ts` から `.mjs` / `.d.mts` に変更
 
-### Fixed
+### Features
 
-- `SendChatMessageRequest` — `text` または `mediaId` のいずれかが必須という制約を Union 型で表現（どちらも省略した場合に型エラーを検出可能に）
-- `convert.ts` — `OfficialStampSet` の `startAt` / `endAt` の変換で `|| undefined` を `?? undefined` に修正（epoch (0) のような falsy な日付を誤って `undefined` にしない）
+- **stream:** `StreamWatcherOptions.maxRetries` を追加 (デフォルト: 3)
+- **helpers:** 新しいヘルパーを追加
+  - `EventDeduplicator` — Webhook のリトライなどで重複したイベントをスキップするミドルウェア
+  - `EventLogger` — 受信したイベントをログに出すデバッグ用ミドルウェア
+  - `TextSplitter` — 長いテキストを 149 文字以内に分割するヘルパー
+  - `maxPostLength` — ポストの最大文字数 (`149`)
 
-### Changed
+### Bug fixes
 
-- `StreamWatcherOptions` — `maxRetries` オプションを追加（デフォルト: 3）
-- ビルドツールチェーンを **Vite+** (`vite-plus`) に移行
-  - tsup → `vp pack`（tsdown / Rolldown ベース）
-  - Jest → `vp test`（Vitest ベース）
-  - ESLint + Prettier → `vp check`（Oxlint + Oxfmt）
-  - 各ツールの設定を `vite.config.ts` に統合
-- `package.json` の ESM 出力拡張子を `.js` → `.mjs` / `.d.ts` → `.d.mts` に変更（tsdown の標準出力形式に合わせる）
-- 不要になった設定ファイルを削除: `tsup.config.ts`, `jest.config.json`, `.prettierrc.json`, `eslint.config.js`
+- **types:** `SendChatMessageRequest` で `text` か `mediaId` のどちらかが必須であることを Union 型で表現 (両方を省略すると型エラーになる)
+- **convert:** `OfficialStampSet` の `startAt` / `endAt` が epoch (0) のときに `undefined` になる問題を修正
 
-## [1.2.1] - 2026-03-21
+## [1.2.1](https://github.com/otnc/mixi2-js/releases/tag/v1.2.1) - 2026-03-21
 
-### Fixed
+### Bug fixes
 
-- `StreamWatcher` — ストリームが正常終了（`end` イベント）した場合に再接続されずに終了する問題を修正
-- `StreamWatcher` — `error` と `end` が連続して発火した場合に再接続が二重実行される問題を修正
-- `OAuth2Authenticator` — アクセストークン期限切れ時に複数の非同期呼び出しが `refreshToken()` を並行実行する競合を修正
-- `WebhookServer` — `x-mixi2-application-event-signature` が空文字列の場合に `401` を返さない問題を修正
+- **stream:** ストリームが正常終了 (`end`) したときに再接続されない問題を修正
+- **stream:** `error` と `end` が続けて発火したときに再接続が二重に実行される問題を修正
+- **auth:** トークンの期限切れ時に、複数の呼び出しが並行してトークンを再取得する問題を修正
+- **webhook:** `x-mixi2-application-event-signature` が空文字列のときに `401` を返さない問題を修正
 
-## [1.2.0] - 2026-03-14
+## [1.2.0](https://github.com/otnc/mixi2-js/releases/tag/v1.2.0) - 2026-03-14
 
-- `helpers` サブパス（`mixi2-js/helpers`）に新しい拡張機能を追加
-  - `Address` — 公式のAddressを返す (` tokenUrl` , `apiAddress` , `streamAddress`)
+### Features
 
-## [1.1.2] - 2026-03-13
+- **helpers:** 公式のエンドポイント (`tokenUrl` / `apiAddress` / `streamAddress`) を追加
 
-- ホームページリンクを修正
+## [1.1.2](https://github.com/otnc/mixi2-js/releases/tag/v1.1.2) - 2026-03-13
 
-## [1.1.1] - 2026-03-13
+### Documentation
 
-### Fixed
+- ホームページのリンクを修正
 
-- ホームページリンクを修正
+## [1.1.1](https://github.com/otnc/mixi2-js/releases/tag/v1.1.1) - 2026-03-13
 
-## [1.1.0] - 2026-03-13
+### Documentation
 
-### Added
+- ホームページのリンクを修正
 
-- `helpers` サブパス（`mixi2-js/helpers`）に新しい拡張機能を追加
+## [1.1.0](https://github.com/otnc/mixi2-js/releases/tag/v1.1.0) - 2026-03-13
+
+### Features
+
+- **helpers:** 新しいヘルパーを追加
   - `PostBuilder` — メソッドチェーンで `CreatePostRequest` を組み立てるビルダー
-  - `MediaUploader` — メディアアップロードの開始からポーリングまでを自動化するヘルパー
-  - `ReasonFilter` — `EventReason` ベースでイベントをフィルタリングするミドルウェア
+  - `MediaUploader` — メディアアップロードの開始から処理完了の待機までをまとめたヘルパー
+  - `ReasonFilter` — `EventReason` でイベントを絞り込むミドルウェア
 
-## [1.0.0] - 2026-03-12
+## [1.0.0](https://github.com/otnc/mixi2-js/releases/tag/v1.0.0) - 2026-03-12
 
-### Added
+### Features
 
-- サンプルコード 3 種（echo-bot / webhook-server / media-post）を `examples/` に追加（JS + TS）
-- PR テンプレート（`.github/PULL_REQUEST_TEMPLATE.md`）を追加
-- `check` / `check:all` / `check:types` / `check:lint` / `check:format` スクリプトを追加
-- `helpers` サブパス（`mixi2-js/helpers`）を追加
-  - `EventRouter` — イベントタイプ別にハンドラを登録できる `EventHandler` 実装
-- GitHub Pages ドキュメントサイト（`pages/`）を追加
-- `CHANGELOG.md` を追加
+- **helpers:** `mixi2-js/helpers` サブパスを追加
+  - `EventRouter` — イベントの種類ごとにハンドラを登録できる `EventHandler` 実装
 
-### Changed
+### Documentation
 
-- README のメディアデータ送信方法を PUT → POST に修正（公式 API 仕様 2026-03-12 版に追従）
-- `.proto` ファイルを linguist-vendored としてマーク
-- ESLint ルールの調整（examples を除外）
-- CONTRIBUTING.md を更新（コマンド一覧表追加、helpers への貢献方針を明記）
+- ドキュメントサイト (https://mixi2.js.org) を公開
+- サンプルコード (echo-bot / webhook-server / media-post) を追加
+- メディアデータの送信方法を PUT から POST に修正 (2026-03-12 版の公式 API 仕様に追従)
 
-## [0.1.2] - 2026-03-12
+## [0.1.2](https://github.com/otnc/mixi2-js/releases/tag/v0.1.2) - 2026-03-12
 
-### Changed
+### Bug fixes
 
-- 依存パッケージを更新
-- README のフォーマットを整理
-- `FUNDING.yml` を追加（スポンサーシップ設定）
+- インストールコマンドの誤りを修正
 
-### Fixed
+## [0.1.1](https://github.com/otnc/mixi2-js/releases/tag/v0.1.1) - 2026-03-09
 
-- インストールコマンドの修正
+### Bug fixes
 
-## [0.1.1] - 2026-03-09
+- JSR への公開処理を修正
+- 誤字を修正
 
-### Changed
+## [0.1.0](https://github.com/otnc/mixi2-js/releases/tag/v0.1.0) - 2026-03-09
 
-- ESLint 設定を更新
-- README バッジの修正
-- JSR パブリッシュロジックの修正
-- CI ワークフローの追加・改善
+### Features
 
-### Fixed
+- JSR (`@otoneko1102/mixi2-js`) で公開
 
-- タイポ修正
+## [0.0.5](https://github.com/otnc/mixi2-js/releases/tag/v0.0.5) - 2026-03-07
 
-## [0.1.0] - 2026-03-09
+### Refactoring
 
-### Added
+- **client:** RPC 呼び出しを共通の `call()` メソッドにまとめた
+- **stream:** `StreamWatcher` を改善
+- **types:** 型定義を追加
 
-- JSR (`@otoneko1102/mixi2-js`) へのパブリッシュ対応
-- アイコン・ロゴ画像（`img/icon.svg` / `img/logo.svg`）を追加
-- `jsr.json` 設定ファイルを追加
+## [0.0.4](https://github.com/otnc/mixi2-js/releases/tag/v0.0.4) - 2026-03-07
 
-## [0.0.5] - 2026-03-07
+### Bug fixes
 
-### Added
+- **webhook:** 署名検証の処理を修正
+- **stream:** 接続処理を修正
+- Node.js バージョン要件とログ出力を修正
 
-- ESLint + eslint-config-prettier の導入
-- CI に lint チェックを追加
+## [0.0.3](https://github.com/otnc/mixi2-js/releases/tag/v0.0.3) - 2026-03-07
 
-### Changed
+### Bug fixes
 
-- `Client` の内部リファクタリング（共通 `call()` メソッドの導入）
-- `StreamWatcher` の改善
-- 型定義の追加
+- **auth:** クライアント認証情報の特殊文字を `encodeURIComponent` でエスケープするように修正
 
-## [0.0.4] - 2026-03-07
+## [0.0.2](https://github.com/otnc/mixi2-js/releases/tag/v0.0.2) - 2026-03-07
 
-### Fixed
+### Documentation
 
-- Node.js バージョン要件の修正
-- ログ出力の修正
-- `WebhookServer` の署名検証ロジックの修正
-- `StreamWatcher` の接続処理の修正
+- 対応する Node.js バージョンを `engines` に明記
 
-## [0.0.3] - 2026-03-07
+## [0.0.1](https://github.com/otnc/mixi2-js/releases/tag/v0.0.1) - 2026-03-06
 
-### Fixed
-
-- `OAuth2Authenticator` の認証バグ修正（`encodeURIComponent` による特殊文字対応）
-
-## [0.0.2] - 2026-03-07
-
-### Changed
-
-- 対応 Node.js バージョンを明記（`engines` フィールド追加）
-- `.sample/` を gitignore に追加
-
-## [0.0.1] - 2026-03-06
-
-### Added
+### Features
 
 - 初回リリース
-- `OAuth2Authenticator` — OAuth2 Client Credentials 認証
-- `Client` — gRPC API クライアント（8 RPC メソッド）
-- `WebhookServer` — Ed25519 署名検証付き HTTP Webhook サーバー
-- `StreamWatcher` — gRPC ストリーミング（指数バックオフ自動再接続）
-- 型定義・Enum 定義（protobuf 準拠）
-- protobuf → TypeScript コンバーター
-- テストスイート（25 テスト）
-- ESM + CJS デュアルビルド（tsup）
-- TypeScript 型定義（`.d.ts`）同梱
+  - `OAuth2Authenticator` — OAuth2 Client Credentials 認証
+  - `Client` — gRPC API クライアント (8 つの RPC メソッド)
+  - `WebhookServer` — Ed25519 署名検証付きの HTTP Webhook サーバー
+  - `StreamWatcher` — 指数バックオフで自動再接続する gRPC ストリーミング
+  - protobuf 準拠の型定義と Enum、ESM + CJS のデュアルビルド

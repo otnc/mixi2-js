@@ -41,7 +41,8 @@
   },
   "files": [
     "dist",
-    "proto"
+    "proto",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "type": "module",
   "main": "./dist/index.cjs",
