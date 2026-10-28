@@ -91,8 +91,7 @@ export class WebhookServer {
     }
 
     const timestamp = req.headers["x-mixi2-application-event-timestamp"] as
-      | string
-      | undefined;
+      string | undefined;
     if (!timestamp) {
       unauthorized(res, "missing x-mixi2-application-event-timestamp");
       return;
