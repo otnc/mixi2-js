@@ -6,9 +6,9 @@ import {
 } from "../types";
 
 export interface MediaUploaderOptions {
-  /** ポーリング間隔（ミリ秒）。GetPostMediaStatus のレート制限（20 回/分）に収まる値にすること。デフォルト: 5000 */
+  /** ポーリング間隔 (ミリ秒)。GetPostMediaStatus のレート制限 (20 回/分) に収まる値にすること。デフォルト: 5000 */
   pollInterval?: number;
-  /** タイムアウト（ミリ秒）。デフォルト: 120000 */
+  /** タイムアウト (ミリ秒)。デフォルト: 120000 */
   timeout?: number;
 }
 

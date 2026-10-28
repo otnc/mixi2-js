@@ -60,12 +60,12 @@ watcher.stop();
 new StreamWatcher(options: StreamWatcherOptions)
 ```
 
-| プロパティ      | 型              | 必須 | 説明                                            |
-| --------------- | --------------- | ---- | ----------------------------------------------- |
-| `streamAddress` | `string`        | ○    | Stream サーバーアドレス                         |
-| `authenticator` | `Authenticator` | ○    | 認証インスタンス                                |
-| `authKey`       | `string`        | -    | `x-auth-key` ヘッダーに付与する認証キー         |
-| `maxRetries`    | `number`        | -    | 切断ごとの再接続の最大試行回数（デフォルト: 3） |
+| プロパティ      | 型              | 必須 | 説明                                           |
+| --------------- | --------------- | ---- | ---------------------------------------------- |
+| `streamAddress` | `string`        | ○    | Stream サーバーアドレス                        |
+| `authenticator` | `Authenticator` | ○    | 認証インスタンス                               |
+| `authKey`       | `string`        | -    | `x-auth-key` ヘッダーに付与する認証キー        |
+| `maxRetries`    | `number`        | -    | 切断ごとの再接続の最大試行回数 (デフォルト: 3) |
 
 ## メソッド
 
@@ -79,7 +79,7 @@ new StreamWatcher(options: StreamWatcherOptions)
 | 項目             | 値                                        |
 | ---------------- | ----------------------------------------- |
 | 再接続方式       | 指数バックオフ（1 秒 → 2 秒 → 4 秒）      |
-| 最大リトライ回数 | 3 回（切断ごと。`maxRetries` で変更可能） |
+| 最大リトライ回数 | 3 回 (切断ごと。`maxRetries` で変更可能)  |
 | 初回接続の失敗   | 再試行せずに reject                       |
 | 正常終了         | 再接続せずに resolve                      |
 | Ping イベント    | SDK 内部で処理（`handle` には渡されない） |
