@@ -40,10 +40,11 @@ const client = new Client({
 });
 ```
 
-| プロパティ      | 型              | 必須 | 説明                 |
-| --------------- | --------------- | ---- | -------------------- |
-| `apiAddress`    | `string`        | ○    | API サーバーアドレス |
-| `authenticator` | `Authenticator` | ○    | 認証インスタンス     |
+| プロパティ      | 型              | 必須 | 説明                                      |
+| --------------- | --------------- | ---- | ----------------------------------------- |
+| `apiAddress`    | `string`        | ○    | API サーバーアドレス                      |
+| `authenticator` | `Authenticator` | ○    | 認証インスタンス                          |
+| `authKey`       | `string`        | -    | `x-auth-key` メタデータに付与する認証キー |
 
 ## RPC メソッド一覧
 
@@ -60,6 +61,7 @@ const client = new Client({
 | `sendChatMessage(request)`         | `SendChatMessageRequest`         | `Promise<ChatMessage>`                     | チャットメッセージを送信                   |
 | `getStamps(request?)`              | `GetStampsRequest?`              | `Promise<GetStampsResponse>`               | スタンプ一覧を取得                         |
 | `addStampToPost(postId, stampId)`  | `string, string`                 | `Promise<Post>`                            | ポストにスタンプを付与                     |
+| `getAccessToken()`                 | -                                | `Promise<string>`                          | 認証インスタンスからアクセストークンを取得 |
 | `close()`                          | -                                | `void`                                     | gRPC 接続を閉じる                          |
 
 ### Plugin 専用

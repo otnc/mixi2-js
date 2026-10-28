@@ -37,7 +37,7 @@ import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
   <LinkCard
     title="gRPC API クライアント"
     href="/guides/api-client/"
-    description="8 つの RPC メソッドに対応。ポスト作成・メディアアップロード・チャット送信など。"
+    description="公式 API の全 15 RPC に対応。ポスト作成・メディアアップロード・チャット送信・コミュニティ操作など。"
   />
   <LinkCard
     title="Webhook サーバー"
@@ -48,6 +48,11 @@ import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
     title="gRPC ストリーミング"
     href="/guides/streaming/"
     description="リアルタイムイベント受信。指数バックオフによる自動再接続。外部 URL 不要。"
+  />
+  <LinkCard
+    title="コミュニティプラグイン"
+    href="/guides/plugin/"
+    description="コミュニティにインストールする Plugin 向けの API とイベント。"
   />
 </CardGrid>
 
@@ -93,5 +98,30 @@ import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
     title="TextSplitter"
     href="/helpers/text-splitter/"
     description="長いテキストを 149 文字制限内に自動分割するヘルパー。"
+  />
+  <LinkCard
+    title="CommunityFilter"
+    href="/helpers/community-filter/"
+    description="特定のコミュニティに関連するイベントだけを通すミドルウェア (Plugin 向け)。"
+  />
+  <LinkCard
+    title="MemberEventRouter"
+    href="/helpers/member-event-router/"
+    description="メンバーの参加・退出イベントを onJoined / onLeft に振り分けるハンドラ (Plugin 向け)。"
+  />
+  <LinkCard
+    title="PluginManagedRouter"
+    href="/helpers/plugin-managed-router/"
+    description="インストール・アンインストールイベントを onInstalled / onUninstalled に振り分けるハンドラ (Plugin 向け)。"
+  />
+  <LinkCard
+    title="MemberListPager"
+    href="/helpers/member-list-pager/"
+    description="getCommunityMemberList のページネーションをたどる非同期ジェネレーター (Plugin 向け)。"
+  />
+  <LinkCard
+    title="ApplicationPager"
+    href="/helpers/application-pager/"
+    description="getCommunitiesUsingApplication のページネーションをたどり、全件取得もできるヘルパー (Plugin 向け)。"
   />
 </CardGrid>
