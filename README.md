@@ -16,8 +16,8 @@
 [![Node.js](https://img.shields.io/node/v/mixi2-js?color=339933&logo=nodedotjs&logoColor=white)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Build](https://img.shields.io/github/actions/workflow/status/otnc/mixi2-js/ci.yml?branch=main&label=ci&logo=github)](https://github.com/otnc/mixi2-js/actions)
-[![Prettier](https://img.shields.io/badge/Prettier-latest-F7B93E?logo=prettier&logoColor=white)](https://prettier.io/)
-[![ESLint](https://img.shields.io/badge/ESLint-latest-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
+[![Prettier](https://img.shields.io/badge/Prettier-3.9-F7B93E?logo=prettier&logoColor=white)](https://prettier.io/)
+[![ESLint](https://img.shields.io/badge/ESLint-10-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
 [![tsdown](https://img.shields.io/badge/tsdown-0.23.3-orange)](https://tsdown.dev/)
 
 <div align="center">
@@ -59,7 +59,7 @@ ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.
 | モジュール            | 説明                                                                                            |
 | --------------------- | ----------------------------------------------------------------------------------------------- |
 | `OAuth2Authenticator` | OAuth2 Client Credentials 認証（アクセストークンの取得・キャッシュ・有効期限 1 分前に自動更新） |
-| `Client`              | gRPC API クライアント（8 つの RPC メソッドに対応）                                              |
+| `Client`              | gRPC API クライアント (公式 API の全 15 RPC に対応)                                             |
 | `WebhookServer`       | HTTP Webhook サーバー（Ed25519 署名検証・Ping 自動応答）                                        |
 | `StreamWatcher`       | gRPC ストリーミング（指数バックオフによる自動再接続）                                           |
 
@@ -67,16 +67,21 @@ ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.
 
 `mixi2-js/helpers` は、公式 API 仕様には含まれない **SDK 独自の便利ユーティリティ**を提供します。
 
-| ヘルパー            | 説明                                                       |
-| ------------------- | ---------------------------------------------------------- |
-| `EventRouter`       | イベントタイプ別にハンドラを登録できるルーター             |
-| `PostBuilder`       | メソッドチェーンでポスト作成リクエストを組み立てるビルダー |
-| `MediaUploader`     | メディアアップロードの開始〜完了待機を自動化               |
-| `ReasonFilter`      | `EventReason` ベースでイベントをフィルタリング             |
-| `EventDeduplicator` | Webhook リトライ等による重複イベントをスキップ             |
-| `EventLogger`       | 受信イベントをログ出力するデバッグ用ミドルウェア           |
-| `TextSplitter`      | 長いテキストを 149 文字制限内に自動分割                    |
-| `Address`           | 公式エンドポイント URL を返すヘルパー                      |
+| ヘルパー              | 説明                                                             |
+| --------------------- | ---------------------------------------------------------------- |
+| `EventRouter`         | イベントタイプ別にハンドラを登録できるルーター                   |
+| `PostBuilder`         | メソッドチェーンでポスト作成リクエストを組み立てるビルダー       |
+| `MediaUploader`       | メディアアップロードの開始〜完了待機を自動化                     |
+| `ReasonFilter`        | `EventReason` ベースでイベントをフィルタリング                   |
+| `EventDeduplicator`   | Webhook リトライ等による重複イベントをスキップ                   |
+| `EventLogger`         | 受信イベントをログ出力するデバッグ用ミドルウェア                 |
+| `TextSplitter`        | 長いテキストを 149 文字制限内に自動分割                          |
+| `Address`             | 公式エンドポイント URL を返すヘルパー                            |
+| `CommunityFilter`     | 特定のコミュニティのイベントだけを通す (Plugin 向け)             |
+| `MemberEventRouter`   | メンバーの参加・退出イベントを振り分け (Plugin 向け)             |
+| `PluginManagedRouter` | インストール・アンインストールイベントを振り分け (Plugin 向け)   |
+| `MemberListPager`     | コミュニティのメンバー一覧をページ送りで取得 (Plugin 向け)       |
+| `ApplicationPager`    | インストール済みコミュニティ一覧をページ送りで取得 (Plugin 向け) |
 
 ---
 
@@ -93,6 +98,7 @@ ESM・CommonJS の両方に対応しています。TypeScript の型定義 (`.d.
 - [mixi2-api](https://github.com/mixigroup/mixi2-api) — API 定義（Protocol Buffers）
 - [mixi2-application-sdk-go](https://github.com/mixigroup/mixi2-application-sdk-go) — 公式 Go SDK
 - [mixi2-application-sample-go](https://github.com/mixigroup/mixi2-application-sample-go) — サンプルアプリケーション
+- [公式ドキュメントの GitHub リポジトリ一覧](https://developer.mixi.social/docs/resource/github) — mixi2-js もコミュニティによるリポジトリとして掲載されています
 
 ---
 
