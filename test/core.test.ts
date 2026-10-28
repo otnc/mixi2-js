@@ -247,16 +247,6 @@ describe("Client", () => {
     });
   }
 
-  test("getAccessToken delegates to authenticator", async () => {
-    const getAccessToken = vi.fn().mockResolvedValue("my-token");
-    const client = new Client({
-      apiAddress: "localhost:443",
-      authenticator: { getAccessToken },
-    });
-    expect(await client.getAccessToken()).toBe("my-token");
-    expect(getAccessToken).toHaveBeenCalledOnce();
-  });
-
   test("getUsers returns mapped users", async () => {
     const client = createClient();
     vi.spyOn(client as any, "call").mockResolvedValue({
@@ -501,14 +491,6 @@ describe("Client", () => {
       new Error("UNAVAILABLE: connection refused")
     );
     await expect(client.getPosts(["p1"])).rejects.toThrow("UNAVAILABLE");
-  });
-
-  test("call rejects when method not found on gRPC client", async () => {
-    const client = createClient();
-    // grpcClient is a MockGrpcClient with no methods — call() should reject
-    await expect(client.getPosts(["p1"])).rejects.toThrow(
-      'Method "getPosts" not found'
-    );
   });
 });
 

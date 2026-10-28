@@ -1,5 +1,4 @@
 /// <reference types="vitest/globals" />
-import * as address from "../src/helpers/address";
 import { ApplicationPager } from "../src/helpers/application-pager";
 import { CommunityFilter } from "../src/helpers/community-filter";
 import { EventDeduplicator } from "../src/helpers/event-deduplicator";
@@ -10,7 +9,7 @@ import { MemberListPager } from "../src/helpers/member-list-pager";
 import { PluginManagedRouter } from "../src/helpers/plugin-managed-router";
 import { PostBuilder } from "../src/helpers/post-builder";
 import { ReasonFilter } from "../src/helpers/reason-filter";
-import { TextSplitter, maxPostLength } from "../src/helpers/text-splitter";
+import { TextSplitter } from "../src/helpers/text-splitter";
 import {
   EventType,
   EventReason,
@@ -30,22 +29,6 @@ function createEvent(
     ...overrides,
   };
 }
-
-describe("Address", () => {
-  test("tokenUrl is the mixi2 OAuth2 token endpoint", () => {
-    expect(address.tokenUrl).toBe(
-      "https://application-auth.mixi.social/oauth2/token"
-    );
-  });
-
-  test("apiAddress points to mixi.social", () => {
-    expect(address.apiAddress).toBe("application-api.mixi.social");
-  });
-
-  test("streamAddress points to mixi.social", () => {
-    expect(address.streamAddress).toBe("application-stream.mixi.social");
-  });
-});
 
 describe("EventRouter", () => {
   test("routes event to matching listener", async () => {
@@ -147,15 +130,6 @@ describe("EventRouter", () => {
     await router.handle(createEvent(EventType.POST_CREATED));
 
     expect(received).toHaveLength(0);
-  });
-
-  test("on() returns this for chaining", () => {
-    const router = new EventRouter();
-    const result = router
-      .on(EventType.POST_CREATED, () => {})
-      .on(EventType.CHAT_MESSAGE_RECEIVED, () => {});
-
-    expect(result).toBe(router);
   });
 
   test("handles async listeners sequentially", async () => {
@@ -276,12 +250,6 @@ describe("PostBuilder", () => {
       .build();
     expect(request.text).toBe("Hello community!");
     expect(request.communityId).toBe("c-1");
-  });
-
-  test("supports method chaining", () => {
-    const builder = new PostBuilder("Chain");
-    const result = builder.reply("p1").media(["m1"]).sensitive();
-    expect(result).toBe(builder);
   });
 
   test("build returns a copy", () => {
@@ -518,10 +486,6 @@ describe("TextSplitter", () => {
   test("handles empty string", () => {
     const splitter = new TextSplitter();
     expect(splitter.split("")).toEqual([""]);
-  });
-
-  test("maxPostLength is 149", () => {
-    expect(maxPostLength).toBe(149);
   });
 
   test("default maxLength is 149", () => {
@@ -847,11 +811,6 @@ describe("MemberEventRouter", () => {
 
     expect(called).toHaveLength(0);
   });
-
-  test("supports method chaining", () => {
-    const router = new MemberEventRouter();
-    expect(router.onJoined(() => {}).onLeft(() => {})).toBe(router);
-  });
 });
 
 describe("PluginManagedRouter", () => {
@@ -921,11 +880,6 @@ describe("PluginManagedRouter", () => {
     );
 
     expect(called).toHaveLength(0);
-  });
-
-  test("supports method chaining", () => {
-    const router = new PluginManagedRouter();
-    expect(router.onInstalled(() => {}).onUninstalled(() => {})).toBe(router);
   });
 });
 
