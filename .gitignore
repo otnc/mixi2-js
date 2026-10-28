@@ -5,6 +5,7 @@ node_modules/
 dist/
 pages/dist/
 pages/.astro/
+.wrangler/
 
 # Private
 .idea/

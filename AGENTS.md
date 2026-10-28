@@ -47,6 +47,7 @@
 - 実装を書き写しただけのテスト (定数の値、メソッドチェーンが `this` を返すことなど) は書きません。公式仕様から導ける振る舞いを検証します
 - `test/spec.test.ts` は proto と SDK の整合 (enum の値、`Client` の RPC、変換後のフィールド) を検証します。proto を更新したらここが通ることを確認します
 - バグを直すときは、修正前の実装で失敗するテストを追加します
+- `scripts/runtime-smoke/` は、ビルド済みのパッケージを Node.js / Bun / Deno (ローカルの TLS gRPC サーバーとの実際の通信まで) と Cloudflare Workers (Wrangler 経由の workerd) で動かします (CI の `runtimes` ジョブ)。`report.mjs` の `required` と README・ドキュメント・Skill の「対応環境」は常に一致させます
 
 ## コメント
 
