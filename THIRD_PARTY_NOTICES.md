@@ -7,7 +7,7 @@ mixi2-js には、以下のサードパーティのソフトウェアが含ま�
 - 提供元: MIXI, Inc.
 - リポジトリ: https://github.com/mixigroup/mixi2-api
 - ライセンス: Apache License 2.0
-- 対象: `proto/` 以下のすべてのファイル (mixi2-api のリリースから改変せずに同梱。npm と JSR の配布物にも含まれます)
+- 対象: `proto/` 以下のすべてのファイル (mixi2-api のリリースから改変せずに同梱。npm と JSR の配布物にも含まれます)、および `proto/` から生成した `src/generated/` 以下のファイル (ビルド後の配布物に含まれます)
 
 ```text
 Copyright 2025 MIXI, Inc.

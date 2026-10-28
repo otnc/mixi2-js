@@ -10,6 +10,7 @@
   - 公式ドキュメントの全文は https://developer.mixi.social/docs/llms-full.txt で Markdown として取得できます
 - `src/helpers/` (`mixi2-js/helpers`) は SDK 独自の拡張です。コアへの依存は import だけにします
 - `proto/` は mixi2-api から改変せずに同梱しています。手で編集しないでください。上流のリリースは `sync-proto` ワークフローが同期 PR を作ります
+- `src/generated/` は `npm run generate:proto` で `proto/` から生成する protobufjs の静的コードです。手で編集せず、`proto/` を変えたら再生成します (CI が差分を検出します)。実行時に `.proto` を読み込んだり protobufjs にコードを生成させたりすると Cloudflare Workers で動かなくなるので、`@grpc/proto-loader` はテストでの比較用にとどめます
 
 ## 環境とコマンド
 

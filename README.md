@@ -75,7 +75,6 @@ npx skills add otnc/mixi2-js
 mixi2-js は以下のランタイム API に依存しているため、環境によって使える機能が異なります。
 
 - [`node:http2`](https://nodejs.org/api/http2.html) (`@grpc/grpc-js` 経由): API クライアントと gRPC ストリーミング
-- `node:fs` (`@grpc/proto-loader` 経由): 実行時の `.proto` の読み込み (API クライアント、gRPC ストリーミング、Webhook のデコード)
 - [`node:http`](https://nodejs.org/api/http.html) と [`node:crypto`](https://nodejs.org/api/crypto.html) (Ed25519): Webhook サーバーと署名検証
 - `fetch` と `Buffer`: 認証とメディアアップロード
 
@@ -84,7 +83,7 @@ mixi2-js は以下のランタイム API に依存しているため、環境に
 | Node.js            | ✅                           | ✅                          | ✅                        | ✅                                    |
 | Bun                | ✅                           | ✅                          | ✅                        | ✅                                    |
 | Deno               | ✅                           | ✅                          | ✅                        | ✅                                    |
-| Cloudflare Workers | ❌                           | ❌                          | ❌                        | ❌                                    |
+| Cloudflare Workers | ✅                           | ❌                          | ❌                        | ❌                                    |
 
 ✅ 動作確認済み、⚠️ 制限あり、❓ 未検証、❌ 非対応
 
@@ -95,7 +94,7 @@ CI でビルド済みのパッケージを各ランタイムで動かし、結�
 - Node.js: 20.19.0 以降。テストは 20.19.0 / 22 / 24 で実行しています
 - Bun: 最新版で確認しています (1.4 系で確認済み)
 - Deno: 2.x の最新版で確認しています (2.9 系で確認済み)。`npm:mixi2-js` または JSR 版を Node.js 互換レイヤーで動かします
-- Cloudflare Workers: 非対応です。依存している protobufjs が実行時にコードを生成するため、`nodejs_compat` を有効にしてもパッケージの読み込みに失敗します。また mixi2 の API は HTTP/2 の gRPC だけを受け付けるため、Workers から API クライアントと gRPC ストリーミングを使うことはできません
+- Cloudflare Workers: `nodejs_compat` を有効にすると認証が使えます。mixi2 の API は HTTP/2 の gRPC だけを受け付けますが Workers の `fetch` はこれを扱えないため、API クライアントと gRPC ストリーミングは使えません。`WebhookServer` は `node:http` のサーバーなので、Workers ではリクエストを受け取れません
 
 </details>
 
