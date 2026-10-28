@@ -18,7 +18,7 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/otoneko1102/mixi2-js/publish.yml?label=build&logo=github)](https://github.com/otnc/mixi2-js/actions)
 [![Prettier](https://img.shields.io/badge/Prettier-latest-F7B93E?logo=prettier&logoColor=white)](https://prettier.io/)
 [![ESLint](https://img.shields.io/badge/ESLint-latest-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
-[![tsdown](https://img.shields.io/badge/tsdown-0.21.10-orange)](https://tsdown.dev/)
+[![tsdown](https://img.shields.io/badge/tsdown-0.23.3-orange)](https://tsdown.dev/)
 
 <div align="center">
 
