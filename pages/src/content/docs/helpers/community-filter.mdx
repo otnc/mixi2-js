@@ -33,7 +33,7 @@ import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 ## 動作
 
-- コミュニティ ID を持つイベント（`PostCreatedEvent` の `communityId`、`CommunityMemberChangedEvent`、`CommunityPluginManagedEvent`）は、指定した ID と一致した場合のみ内部ハンドラに渡されます
+- コミュニティ ID を持つイベント（`PostCreatedEvent` の `post.communityId` または `postedCommunity`、`CommunityMemberChangedEvent`、`CommunityPluginManagedEvent`）は、指定した ID と一致した場合のみ内部ハンドラに渡されます
 - PING など、コミュニティと無関係なイベントはそのまま通過します
 
 ## 基本的な使い方
