@@ -5,24 +5,42 @@ package social.mixi.application.model.v1;
 import "social/mixi/application/const/v1/user_access_level.proto";
 import "social/mixi/application/const/v1/user_visibility.proto";
 
+// ユーザーを表します。
 message User {
+  // ユーザーIDです。
   string user_id = 1;
+  // ユーザーが無効化されているかどうかを示します（無効化は退会やBANなどを含みます）。
   bool is_disabled = 2;
+  // ユーザーの名前です。
   string name = 3;
+  // ユーザーの表示名です。
   string display_name = 4;
+  // ユーザーのプロフィールです。
   string profile = 5;
+  // ユーザーのアバター情報です。
   UserAvatar user_avatar = 6;
+  // ユーザーの情報を閲覧可能かどうかを示します。
   const.v1.UserVisibility visibility = 7;
+  // ユーザーの公開設定を示します。
   const.v1.UserAccessLevel access_level = 8;
 }
 
+// ユーザーのアバター画像の情報を表します。
 message UserAvatar {
+  // 大きいサイズのアバター画像のURLです。
   string large_image_url = 1;
+  // 大きいサイズのアバター画像のMIMEタイプです。
   string large_image_mime_type = 2;
+  // 大きいサイズのアバター画像の高さ（ピクセル）です。
   uint32 large_image_height = 3;
+  // 大きいサイズのアバター画像の幅（ピクセル）です。
   uint32 large_image_width = 4;
+  // 小さいサイズのアバター画像のURLです。
   string small_image_url = 5;
+  // 小さいサイズのアバター画像のMIMEタイプです。
   string small_image_mime_type = 6;
+  // 小さいサイズのアバター画像の高さ（ピクセル）です。
   uint32 small_image_height = 7;
+  // 小さいサイズのアバター画像の幅（ピクセル）です。
   uint32 small_image_width = 8;
 }

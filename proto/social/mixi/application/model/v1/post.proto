@@ -9,59 +9,103 @@ import "social/mixi/application/const/v1/post_media_type.proto";
 import "social/mixi/application/const/v1/post_visibility.proto";
 import "social/mixi/application/model/v1/media.proto";
 
+// ポストを表します。
 message Post {
+  // ポストIDです。
   string post_id = 1;
+  // ポストが削除されているかどうかを示します。削除されている場合、post_id 以外のフィールドはデフォルト値を返します。
   bool is_deleted = 2;
+  // ポスト作成者のユーザーIDです。
   string creator_id = 3;
+  // ポストの本文です。
   string text = 4;
+  // ポスト作成日時です。
   google.protobuf.Timestamp created_at = 5;
+  // ポストに添付されたメディア一覧です。
   repeated PostMedia post_media_list = 6;
+  // 返信先のポストIDです。
   optional string in_reply_to_post_id = 7;
+  // ポストに適用されるマスク情報です。
   optional PostMask post_mask = 8;
+  // ポストが投稿されたコミュニティIDです。
   optional string community_id = 9;
+  // ポストを閲覧可能かどうかを示します。
   const.v1.PostVisibility visibility = 10;
+  // ポストの公開設定を示します。
   const.v1.PostAccessLevel access_level = 11;
+  // ポストに付与されたスタンプの一覧です。
   repeated PostStamp stamps = 12;
+  // 現在のアプリケーションがすでにこのポストに付与したスタンプIDです。
   optional string reader_stamp_id = 13;
 }
 
+// ポストに添付されたメディアを表します。
 message PostMedia {
+  // メディアの種別です。
   const.v1.PostMediaType media_type = 1;
+  // メディアの種別に応じた詳細情報です。
   oneof content {
+    // media_type が POST_MEDIA_TYPE_IMAGE の場合に設定されます。
     PostMediaImage image = 2;
+    // media_type が POST_MEDIA_TYPE_VIDEO の場合に設定されます。
     PostMediaVideo video = 3;
   }
 }
 
+// ポストに添付された画像の情報を表します。
 message PostMediaImage {
+  // 大きいサイズの画像のURLです。
   string large_image_url = 1;
+  // 大きいサイズの画像のMIMEタイプです。
   string large_image_mime_type = 2;
+  // 大きいサイズの画像の高さ（ピクセル）です。
   uint32 large_image_height = 3;
+  // 大きいサイズの画像の幅（ピクセル）です。
   uint32 large_image_width = 4;
+  // 小さいサイズの画像のURLです。
   string small_image_url = 5;
+  // 小さいサイズの画像のMIMEタイプです。
   string small_image_mime_type = 6;
+  // 小さいサイズの画像の高さ（ピクセル）です。
   uint32 small_image_height = 7;
+  // 小さいサイズの画像の幅（ピクセル）です。
   uint32 small_image_width = 8;
 }
 
+// ポストに添付された動画の情報を表します。
 message PostMediaVideo {
+  // 動画のURLです。
   string video_url = 1;
+  // 動画のMIMEタイプです。
   string video_mime_type = 2;
+  // 動画の高さ（ピクセル）です。
   uint32 video_height = 3;
+  // 動画の幅（ピクセル）です。
   uint32 video_width = 4;
+  // 動画のプレビュー画像のURLです。
   string preview_image_url = 5;
+  // 動画のプレビュー画像のMIMEタイプです。
   string preview_image_mime_type = 6;
+  // 動画のプレビュー画像の高さ（ピクセル）です。
   uint32 preview_image_height = 7;
+  // 動画のプレビュー画像の幅（ピクセル）です。
   uint32 preview_image_width = 8;
+  // 動画の再生時間（秒）です。
   float duration = 9;
 }
 
+// ポストに適用されるマスク情報を表します。
 message PostMask {
+  // マスクのタイプです。
   const.v1.PostMaskType mask_type = 1;
+  // マスクのキャプションです。
   string caption = 2;
 }
 
+// ポストに付与されたスタンプを表します。
 message PostStamp {
+  // スタンプの情報です。
   MediaStamp stamp = 1;
+  // スタンプが押された回数です。
   uint64 count = 2;
 }

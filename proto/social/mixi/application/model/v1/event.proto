@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 package social.mixi.application.model.v1;
 
 import "social/mixi/application/const/v1/event_type.proto";
@@ -8,40 +7,66 @@ import "social/mixi/application/model/v1/message.proto";
 import "social/mixi/application/model/v1/post.proto";
 import "social/mixi/application/model/v1/user.proto";
 
+// アプリケーションが受信するイベントを表します。
 message Event {
+  // イベントIDです。
   string event_id = 1;
+  // イベントの種別です。
   const.v1.EventType event_type = 2;
+  // イベントの種別に応じた詳細情報です。
   oneof body {
+    // event_type が EVENT_TYPE_PING の場合に設定されます。
     PingEvent ping_event = 3;
+    // event_type が EVENT_TYPE_POST_CREATED の場合に設定されます。
     PostCreatedEvent post_created_event = 4;
+    // event_type が EVENT_TYPE_COMMUNITY_MEMBER_CHANGED の場合に設定されます。
     CommunityMemberChangedEvent community_member_changed_event = 5;
+    // event_type が EVENT_TYPE_CHAT_MESSAGE_RECEIVED の場合に設定されます。
     ChatMessageReceivedEvent chat_message_received_event = 6;
+    // event_type が EVENT_TYPE_COMMUNITY_PLUGIN_MANAGED の場合に設定されます。
     CommunityPluginManagedEvent community_plugin_managed_event = 7;
   }
 }
 
+// 疎通確認用のイベントです。
 message PingEvent {}
 
+// ポストが作成されたことを通知するイベントです。
 message PostCreatedEvent {
+  // イベントが発生した理由を示します。
   repeated const.v1.EventReason event_reason_list = 1;
+  // 作成されたポストの情報です。
   Post post = 2;
+  // ポストしたユーザーの情報です。
   User issuer = 3;
+  // コミュニティの情報です。
   optional Community posted_community = 4;
 }
 
+// コミュニティメンバーの増減を通知するイベントです。
 message CommunityMemberChangedEvent {
+  // イベントが発生した理由を示します。
   repeated const.v1.EventReason event_reason_list = 1;
+  // コミュニティに参加/退出したユーザーの情報です。
   User member = 2;
+  // コミュニティの情報です。
   Community community = 3;
 }
 
+// チャットメッセージを受信したことを通知するイベントです。
 message ChatMessageReceivedEvent {
+  // イベントが発生した理由を示します。
   repeated const.v1.EventReason event_reason_list = 1;
+  // 受信したメッセージの情報です。
   ChatMessage message = 2;
+  // メッセージを送信したユーザーです。
   User issuer = 3;
 }
 
+// コミュニティにプラグインがインストール/アンインストールされたことを通知するイベントです。
 message CommunityPluginManagedEvent {
+  // イベントが発生した理由を示します。
   repeated const.v1.EventReason event_reason_list = 1;
+  // コミュニティの情報です。
   Community community = 2;
 }

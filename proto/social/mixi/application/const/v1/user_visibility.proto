@@ -2,8 +2,12 @@ syntax = "proto3";
 
 package social.mixi.application.const.v1;
 
+// ユーザーを閲覧できるか示す列挙型
 enum UserVisibility {
+  // 未指定
   USER_VISIBILITY_UNSPECIFIED = 0;
+  // ユーザーを閲覧できる
   USER_VISIBILITY_VISIBLE = 1;
+  // ユーザーを閲覧できない
   USER_VISIBILITY_INVISIBLE = 2;
 }

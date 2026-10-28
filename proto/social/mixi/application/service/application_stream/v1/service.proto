@@ -4,12 +4,17 @@ package social.mixi.application.service.application_stream.v1;
 
 import "social/mixi/application/model/v1/event.proto";
 
+// イベント購読リクエストです。
 message SubscribeEventsRequest {}
 
+// イベント購読レスポンスです。
 message SubscribeEventsResponse {
+  // 受信したイベントの情報です。
   repeated model.v1.Event events = 1;
 }
 
+// mixi2 アプリケーションサービスです。
 service ApplicationService {
+  // イベントをストリーミングで購読します。
   rpc SubscribeEvents(SubscribeEventsRequest) returns (stream SubscribeEventsResponse);
 }

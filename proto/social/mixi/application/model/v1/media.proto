@@ -1,43 +1,71 @@
 syntax = "proto3";
-
 package social.mixi.application.model.v1;
 
 import "social/mixi/application/const/v1/media_type.proto";
 
+// メディアを表します。
 message Media {
+  // メディアの種別です。
   const.v1.MediaType media_type = 1;
+  // メディアの種別に応じた詳細情報です。
   oneof content {
+    // media_type が MEDIA_TYPE_IMAGE の場合に設定されます。
     MediaImage image = 2;
+    // media_type が MEDIA_TYPE_VIDEO の場合に設定されます。
     MediaVideo video = 3;
   }
 }
 
+// 画像の情報を表します。
 message MediaImage {
+  // 大きいサイズの画像のURLです。
   string large_image_url = 1;
+  // 大きいサイズの画像のMIMEタイプです。
   string large_image_mime_type = 2;
+  // 大きいサイズの画像の高さ（ピクセル）です。
   uint32 large_image_height = 3;
+  // 大きいサイズの画像の幅（ピクセル）です。
   uint32 large_image_width = 4;
+  // 小さいサイズの画像のURLです。
   string small_image_url = 5;
+  // 小さいサイズの画像のMIMEタイプです。
   string small_image_mime_type = 6;
+  // 小さいサイズの画像の高さ（ピクセル）です。
   uint32 small_image_height = 7;
+  // 小さいサイズの画像の幅（ピクセル）です。
   uint32 small_image_width = 8;
 }
 
+// 動画の情報を表します。
 message MediaVideo {
+  // 動画のURLです。
   string video_url = 1;
+  // 動画のMIMEタイプです。
   string video_mime_type = 2;
+  // 動画の高さ（ピクセル）です。
   uint32 video_height = 3;
+  // 動画の幅（ピクセル）です。
   uint32 video_width = 4;
+  // 動画のプレビュー画像のURLです。
   string preview_image_url = 5;
+  // 動画のプレビュー画像のMIMEタイプです。
   string preview_image_mime_type = 6;
+  // 動画のプレビュー画像の高さ（ピクセル）です。
   uint32 preview_image_height = 7;
+  // 動画のプレビュー画像の幅（ピクセル）です。
   uint32 preview_image_width = 8;
+  // 動画の再生時間（秒）です。
   float duration = 9;
 }
 
+// スタンプ画像の情報を表します。
 message MediaStamp {
+  // スタンプ画像のURLです。
   string url = 1;
+  // スタンプ画像のMIMEタイプです。
   string mime_type = 2;
+  // スタンプ画像の高さ（ピクセル）です。
   uint32 height = 3;
+  // スタンプ画像の幅（ピクセル）です。
   uint32 width = 4;
 }

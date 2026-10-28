@@ -2,8 +2,12 @@ syntax = "proto3";
 
 package social.mixi.application.const.v1;
 
+// ポストに適用するマスク種別を示す列挙型
 enum PostMaskType {
+  // 未指定
   POST_MASK_TYPE_UNSPECIFIED = 0;
+  // 刺激的なコンテンツに対する注意喚起
   POST_MASK_TYPE_SENSITIVE = 1;
+  // ネタバレ防止のための注意喚起
   POST_MASK_TYPE_SPOILER = 2;
 }

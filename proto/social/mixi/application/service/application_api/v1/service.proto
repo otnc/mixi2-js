@@ -11,177 +11,317 @@ import "social/mixi/application/model/v1/post.proto";
 import "social/mixi/application/model/v1/stamp.proto";
 import "social/mixi/application/model/v1/user.proto";
 
+// ユーザー情報取得リクエストです。
 message GetUsersRequest {
+  // 取得対象のユーザーIDを指定してください。
   repeated string user_id_list = 1;
 }
 
+// ユーザー情報取得レスポンスです。
 message GetUsersResponse {
+  // ユーザー情報の一覧です。
   repeated model.v1.User users = 1;
 }
 
+// ポスト情報取得リクエストです。
 message GetPostsRequest {
+  // 取得対象のポストIDを指定してください。
   repeated string post_id_list = 1;
 }
 
+// ポスト情報取得レスポンスです。
 message GetPostsResponse {
+  // ポスト情報の一覧です。
   repeated model.v1.Post posts = 1;
 }
 
+// コミュニティ情報取得リクエストです。
 message GetCommunitiesRequest {
+  // 取得対象のコミュニティIDを指定してください。
   repeated string community_id_list = 1;
 }
 
+// コミュニティ情報取得レスポンスです。
 message GetCommunitiesResponse {
+  // コミュニティの一覧です。
   repeated model.v1.Community communities = 1;
 }
 
+// メディアアップロード開始リクエストです。
 message InitiatePostMediaUploadRequest {
+  // アップロードするデータのContent-Typeを指定してください。
   string content_type = 1;
+  // アップロードするデータサイズ（バイト）を指定してください。
   uint64 data_size = 2;
+  // メディア種別を指定してください。
   Type media_type = 3;
+  // メディアの説明を指定してください（任意）。
   optional string description = 4;
 
+  // アップロードするメディアの種別を指定してください。
   enum Type {
+    // 未指定
     TYPE_UNSPECIFIED = 0;
+    // 画像
     TYPE_IMAGE = 1;
+    // 動画
     TYPE_VIDEO = 2;
   }
 }
 
+// メディアアップロード開始レスポンスです。
 message InitiatePostMediaUploadResponse {
+  // アップロード状況確認や、ポスト/メッセージに送信時にメディアを添付するためのIDです。
   string media_id = 1;
+  // メディアデータをアップロードするためのURLです。
   string upload_url = 2;
 }
 
+// メディアアップロード状況取得リクエストです。
 message GetPostMediaStatusRequest {
+  // アップロード状況を確認する対象のメディアIDを指定してください。
   string media_id = 1;
 }
 
+// メディアアップロード状況取得レスポンスです。
 message GetPostMediaStatusResponse {
+  // メディアのアップロード/処理状況です。
   Status status = 1;
 
+  // メディアのアップロード/処理状況を表します。
   enum Status {
+    // 未指定
     STATUS_UNSPECIFIED = 0;
+    // アップロード待機中
     STATUS_UPLOAD_PENDING = 1;
+    // 処理中
     STATUS_PROCESSING = 2;
+    // 完了
     STATUS_COMPLETED = 3;
+    // 失敗
     STATUS_FAILED = 4;
   }
 }
 
+// ポスト作成リクエストです。
+// in_reply_to_post_id と quoted_post_id は同時に指定できません。
 message CreatePostRequest {
+  // ポストの本文を指定してください。
   string text = 1;
+  // 返信先ポストIDを指定してください（任意）。
   optional string in_reply_to_post_id = 2;
+  // 引用対象ポストIDを指定してください（任意）。
   optional string quoted_post_id = 3;
+  // 投稿先コミュニティIDを指定してください（任意）。
   optional string community_id = 4;
+  // 添付するメディアID一覧を指定してください（最大4件）。
   repeated string media_id_list = 5;
+  // ポストに適用するマスクを指定してください（任意）。
   optional model.v1.PostMask post_mask = 6;
+  // ポストの配信設定を指定してください。
   optional const.v1.PostPublishingType publishing_type = 7;
 }
 
+// ポスト作成レスポンスです。
 message CreatePostResponse {
+  // 作成されたポスト情報です。
   model.v1.Post post = 1;
 }
 
+// ポスト削除リクエストです。
 message DeletePostRequest {
+  // 削除対象のポストIDを指定してください。
   string post_id = 1;
 }
 
+// ポスト削除レスポンスです。
 message DeletePostResponse {
+  // ポストが削除されたかどうかを示します。
   bool deleted = 1;
 }
 
+// コミュニティのタイムライン取得リクエストです。
+// カーソルにはポストIDを指定してください。
+// 未指定の場合は最新のポストから取得します。
 message GetCommunityTimelineRequest {
+  // タイムラインを取得する対象のコミュニティIDを指定してください。
   string community_id = 1;
+  // ページング用カーソルを指定してください（任意）。
+  // 指定したポストより古いポストを返します（指定したポスト自体は含まれません）。
   optional string until_cursor = 2;
+  // ページング用カーソルを指定してください（任意）。
+  // 指定したポストより新しいポストを返します（指定したポスト自体は含まれません）。
   optional string since_cursor = 3;
 }
 
+// コミュニティのタイムライン取得レスポンスです。
 message GetCommunityTimelineResponse {
+  // コミュニティのタイムライン上のポスト一覧です。
   repeated model.v1.Post posts = 1;
 }
 
+// コミュニティのメンバー一覧取得リクエストです。
 message GetCommunityMemberListRequest {
+  // メンバー一覧を取得する対象のコミュニティIDを指定してください。
   string community_id = 1;
+  // ページング用カーソルを指定してください（任意）。
+  // 指定したカーソルの次のページを取得します。
+  // カーソルには next_pagination_cursor を使用します。
   optional string pagination_cursor = 2;
 }
 
+// コミュニティのメンバー一覧取得レスポンスです。
 message GetCommunityMemberListResponse {
+  // コミュニティメンバーの一覧です。
   repeated model.v1.User members = 1;
+  // 次ページ取得用のページングカーソルです。
   optional string next_pagination_cursor = 2;
 }
 
+// コミュニティポスト制限リクエストです。
+// 指定したポストをコミュニティのタイムラインから非表示にします。ポストが削除されるわけではありません。
 message RestrictCommunityPostRequest {
+  // 制限対象のポストIDを指定してください。
   string post_id = 1;
 }
 
+// コミュニティポスト制限レスポンスです。
 message RestrictCommunityPostResponse {}
 
+// プラグインがインストールされているコミュニティ一覧取得リクエストです。
 message GetCommunitiesUsingApplicationRequest {
+  // ページング用カーソルを指定してください（任意）。
   optional string cursor = 1;
 }
 
+// プラグインがインストールされているコミュニティ一覧取得レスポンスです。
 message GetCommunitiesUsingApplicationResponse {
+  // アプリケーションが導入されているコミュニティ一覧です。
   repeated model.v1.CommunityUsingApplication communities_using_application = 1;
+  // 各コミュニティのバージョン一覧です。
   repeated model.v1.ApplicationVersion application_versions = 2;
+  // 次ページ取得用のページングカーソルです。
   optional string next_cursor = 3;
 }
 
+// text または media_id のいずれかは必須です。
 message SendChatMessageRequest {
+  // 送信先ルームIDを指定してください。
   string room_id = 1;
+  // 送信するテキストを指定してください（任意）。
   optional string text = 2;
+  // 添付するメディアIDを指定してください（任意）。
   optional string media_id = 3;
 }
 
+// チャットメッセージ送信レスポンスです。
 message SendChatMessageResponse {
+  // 送信されたメッセージです。
   model.v1.ChatMessage message = 1;
 }
 
+// スタンプ一覧取得リクエストです。
 message GetStampsRequest {
+  // 取得する公式スタンプの言語を指定してください（任意）。
+  // 未指定の場合、公式スタンプ一覧は空で返されます。
   optional const.v1.LanguageCode official_stamp_language = 1;
+  // コミュニティ固有スタンプを取得する場合、コミュニティIDを指定してください。
+  // 指定するコミュニティIDは、アプリケーションが導入されている必要があります。
   repeated string community_ids = 2;
 }
 
+// スタンプ一覧取得レスポンスです。
 message GetStampsResponse {
+  // 指定言語の公式スタンプセット一覧です。
   repeated model.v1.OfficialStampSet official_stamp_sets = 1;
+  // コミュニティ固有スタンプセット一覧です。
   repeated model.v1.CommunityStampSet community_stamp_sets = 2;
 }
 
+// ポストへのスタンプ付与リクエストです。
 message AddStampToPostRequest {
+  // スタンプを付与する対象のポストIDを指定してください。指定可能なポストIDは次の通りです。
+  // - アプリケーションが導入されているコミュニティ内のポストID
+  // - アプリケーションにメンションしているポストID
   string post_id = 1;
+  // 付与するスタンプIDを指定してください。指定可能なスタンプIDは次の通りです。
+  // - 公式スタンプID
+  // - コミュニティスタンプID（コミュニティポストの場合のみ利用可能）
   string stamp_id = 2;
 }
 
+// ポストへのスタンプ付与レスポンスです。
 message AddStampToPostResponse {
+  // 更新されたポストです。
   model.v1.Post post = 1;
 }
 
+// コミュニティメンバーへのダイレクトメッセージ送信リクエストです。
+// text または media_ids のいずれかは必須です。
 message SendDirectMessageToCommunityMemberRequest {
+  // 受信者ユーザーIDを指定してください。
   string receiver_id = 1;
+  // 受信者が所属するコミュニティIDを指定してください。
+  // 対象コミュニティにはアプリケーションが導入されている必要があります。
   string community_id = 2;
+  // 本文テキストを指定してください（任意）。
   optional string text = 3;
+  // 添付するメディアID一覧を指定してください（最大4件）。
   repeated string media_ids = 4;
+  // ポストを引用してDMを送信する場合、ポストIDを指定してください（任意）。
   optional string post_id = 5;
 }
 
+// コミュニティメンバーへのダイレクトメッセージ送信レスポンスです。
 message SendDirectMessageToCommunityMemberResponse {
+  // 送信されたメッセージです。
   model.v1.ChatMessage message = 1;
 }
 
+// mixi2 アプリケーションサービスです。
 service ApplicationService {
+  // 指定したユーザーIDリストに対応するユーザー情報を取得します。
   rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
+
+  // 指定したポストIDリストに対応するポスト情報を取得します。
   rpc GetPosts(GetPostsRequest) returns (GetPostsResponse);
+
+  // 指定したコミュニティIDリストに対応するコミュニティ情報を取得します。
   rpc GetCommunities(GetCommunitiesRequest) returns (GetCommunitiesResponse);
+
+  // ポストを作成します（返信/引用/コミュニティポスト・メディア添付等に対応）。
   rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+
+  // 指定したポストを削除します。
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+
+  // ポストやメッセージ（ルーム送信/DM）に添付するメディアのアップロードを開始し、アップロード先URLを発行します。
   rpc InitiatePostMediaUpload(InitiatePostMediaUploadRequest) returns (InitiatePostMediaUploadResponse);
+
+  // 指定したメディアIDのアップロード/処理状況を取得します。
   rpc GetPostMediaStatus(GetPostMediaStatusRequest) returns (GetPostMediaStatusResponse);
+
+  // 指定したコミュニティのタイムライン（ポスト一覧）を取得します。
   rpc GetCommunityTimeline(GetCommunityTimelineRequest) returns (GetCommunityTimelineResponse);
+
+  // 指定したコミュニティのメンバー一覧をページング付きで取得します。
   rpc GetCommunityMemberList(GetCommunityMemberListRequest) returns (GetCommunityMemberListResponse);
+
+  // 指定したポストをコミュニティのタイムラインから非表示にします（削除ではありません）。
   rpc RestrictCommunityPost(RestrictCommunityPostRequest) returns (RestrictCommunityPostResponse);
+
+  // アプリケーションが導入されているコミュニティ一覧と、各コミュニティが利用しているアプリケーションバージョン情報を取得します。
   rpc GetCommunitiesUsingApplication(GetCommunitiesUsingApplicationRequest) returns (GetCommunitiesUsingApplicationResponse);
+
+  // 指定したルームにチャットメッセージを送信します（テキスト/メディア添付）。
   rpc SendChatMessage(SendChatMessageRequest) returns (SendChatMessageResponse);
+
+  // スタンプ一覧を取得します。
   rpc GetStamps(GetStampsRequest) returns (GetStampsResponse);
+
+  // 指定したポストにスタンプを付与します。
   rpc AddStampToPost(AddStampToPostRequest) returns (AddStampToPostResponse);
+
+  // コミュニティメンバーにダイレクトメッセージを送信します。
   rpc SendDirectMessageToCommunityMember(SendDirectMessageToCommunityMemberRequest) returns (SendDirectMessageToCommunityMemberResponse);
 }

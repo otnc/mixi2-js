@@ -5,16 +5,26 @@ package social.mixi.application.model.v1;
 import "social/mixi/application/const/v1/community_access_level.proto";
 import "social/mixi/application/const/v1/community_visibility.proto";
 
+// コミュニティを表します。
 message Community {
+  // コミュニティIDです。
   string community_id = 1;
+  // コミュニティの名前です。
   string name = 2;
+  // コミュニティノートです。
   string purpose = 3;
+  // コミュニティがアーカイブされているかどうかを示します。
   bool is_archived = 4;
+  // コミュニティの情報を閲覧可能かどうかを示します。
   const.v1.CommunityVisibility visibility = 5;
+  // コミュニティの公開設定を示します。
   const.v1.CommunityAccessLevel access_level = 6;
 }
 
+// コミュニティが利用しているアプリケーションの情報を表します。
 message CommunityUsingApplication {
+  // コミュニティの情報です。
   Community community = 1;
+  // そのコミュニティが利用しているアプリケーションのバージョンIDです。
   string application_version_id = 2;
 }

@@ -2,8 +2,12 @@ syntax = "proto3";
 
 package social.mixi.application.const.v1;
 
+// 公式スタンプセットの種別を示す列挙型
 enum StampSetType {
+  // 未指定
   STAMP_SET_TYPE_UNSPECIFIED = 0;
+  // デフォルトのスタンプセット
   STAMP_SET_TYPE_DEFAULT = 1;
+  // 季節限定のスタンプセット
   STAMP_SET_TYPE_SEASONAL = 2;
 }

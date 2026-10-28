@@ -2,8 +2,12 @@ syntax = "proto3";
 
 package social.mixi.application.const.v1;
 
+// コミュニティの公開設定を示す列挙型
 enum CommunityAccessLevel {
+  // 未指定
   COMMUNITY_ACCESS_LEVEL_UNSPECIFIED = 0;
+  // 公開コミュニティ
   COMMUNITY_ACCESS_LEVEL_PUBLIC = 1;
+  // 承認制コミュニティ（参加に承認が必要）
   COMMUNITY_ACCESS_LEVEL_APPROVAL_REQUIRED = 2;
 }
