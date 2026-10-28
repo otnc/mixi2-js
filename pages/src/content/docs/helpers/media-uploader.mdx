@@ -111,15 +111,19 @@ await client.createPost({
 
 ```typescript
 const uploader = new MediaUploader(client, {
-  pollInterval: 2000, // ポーリング間隔（ミリ秒）。デフォルト: 1000
-  timeout: 120000, // タイムアウト（ミリ秒）。デフォルト: 60000
+  pollInterval: 10000, // ポーリング間隔（ミリ秒）。デフォルト: 5000
+  timeout: 300000, // タイムアウト（ミリ秒）。デフォルト: 120000
 });
 ```
 
 | オプション     | 型       | デフォルト | 説明                                 |
 | -------------- | -------- | ---------- | ------------------------------------ |
-| `pollInterval` | `number` | `1000`     | ステータスポーリングの間隔（ミリ秒） |
-| `timeout`      | `number` | `60000`    | 完了待機のタイムアウト（ミリ秒）     |
+| `pollInterval` | `number` | `5000`     | ステータスポーリングの間隔（ミリ秒） |
+| `timeout`      | `number` | `120000`   | 完了待機のタイムアウト（ミリ秒）     |
+
+:::caution
+`GetPostMediaStatus` には 1 分あたり 20 回のレート制限があります。`pollInterval` を 3000 ミリ秒未満にすると、1 件の待機だけで制限を超える可能性があります。
+:::
 
 ## API リファレンス
 
