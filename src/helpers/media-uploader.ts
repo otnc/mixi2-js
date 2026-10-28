@@ -6,9 +6,9 @@ import {
 } from "../types";
 
 export interface MediaUploaderOptions {
-  /** ポーリング間隔（ミリ秒）。デフォルト: 1000 */
+  /** ポーリング間隔（ミリ秒）。GetPostMediaStatus のレート制限（20 回/分）に収まる値にすること。デフォルト: 5000 */
   pollInterval?: number;
-  /** タイムアウト（ミリ秒）。デフォルト: 60000 */
+  /** タイムアウト（ミリ秒）。デフォルト: 120000 */
   timeout?: number;
 }
 
@@ -30,8 +30,8 @@ export class MediaUploader {
 
   constructor(client: Client, options?: MediaUploaderOptions) {
     this.client = client;
-    this.pollInterval = options?.pollInterval ?? 1000;
-    this.timeout = options?.timeout ?? 60000;
+    this.pollInterval = options?.pollInterval ?? 5000;
+    this.timeout = options?.timeout ?? 120000;
   }
 
   /**

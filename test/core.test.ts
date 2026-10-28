@@ -866,6 +866,30 @@ describe("MediaUploader", () => {
     expect(mediaId).toBe("m1");
   });
 
+  test("default polling stays within the GetPostMediaStatus rate limit (20/min)", async () => {
+    vi.useFakeTimers();
+    try {
+      const client = new Client({
+        apiAddress: "localhost:443",
+        authenticator: makeAuth(),
+      });
+      const getStatus = vi
+        .spyOn(client, "getPostMediaStatus")
+        .mockResolvedValue({ status: MediaUploadStatus.PROCESSING });
+
+      const waiting = new MediaUploader(client)
+        .waitForReady("m-slow")
+        .catch(() => {});
+      await vi.advanceTimersByTimeAsync(60_000);
+
+      expect(getStatus.mock.calls.length).toBeLessThanOrEqual(20);
+      await vi.runAllTimersAsync();
+      await waiting;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("waitForReady polls until COMPLETED", async () => {
     const client = new Client({
       apiAddress: "localhost:443",
