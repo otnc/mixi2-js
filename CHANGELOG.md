@@ -2,6 +2,24 @@
 
 このプロジェクトの注目すべき変更をバージョンごとに記録します。新しいバージョンの節は、`release` ワークフローの実行時に Conventional Commits から [git-cliff](https://git-cliff.org) で生成され、この下に追加されます。
 
+## [1.7.0](https://github.com/otnc/mixi2-js/releases/tag/v1.7.0) - 2026-10-30
+
+### Bug fixes
+
+- **jsr:** 生成した型定義から CommonJS 形式の Long の import を取り除く (#83)
+
+### Refactoring
+
+- Proto を事前生成コードに置き換え、Cloudflare Workers で読み込めるようにする (#79)
+
+### Documentation
+
+- **contributing:** コミットメッセージと PR タイトルの説明を日本語で書くルールを追加
+- AI エージェント向けのルールをまとめた AGENTS.md を追加
+- AI エージェント向けの Skill を追加 (#75)
+- 対応環境とランタイムごとの検証状況を記載 (#77)
+- Cloudflare Workers で WebhookServer を httpServerHandler 経由で使う方法を記載 (#81)
+
 ## [1.6.0](https://github.com/otnc/mixi2-js/releases/tag/v1.6.0) - 2026-10-28
 
 ### Features
