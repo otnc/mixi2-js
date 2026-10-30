@@ -2,11 +2,11 @@ import fs from "node:fs";
 
 // Features documented as supported in the README must keep working; the others are only reported.
 export const required = {
-  node: ["auth", "client", "webhook", "stream"],
-  bun: ["auth", "client", "webhook", "stream"],
-  deno: ["auth", "client", "webhook", "stream"],
-  // API calls and streaming cannot work on Workers: the mixi2 API only accepts gRPC over HTTP/2.
-  workers: ["auth"],
+  node: ["auth", "client", "webhook", "webhookHandler", "stream"],
+  bun: ["auth", "client", "webhook", "webhookHandler", "stream"],
+  deno: ["auth", "client", "webhook", "webhookHandler", "stream"],
+  // API calls and streaming cannot work on Workers: the mixi2 API only accepts gRPC over HTTP/2. WebhookServer needs a node:http server.
+  workers: ["auth", "webhookHandler"],
 };
 
 /** Prints the results as a Markdown table (also to the job summary) and exits non-zero when a required feature failed. */

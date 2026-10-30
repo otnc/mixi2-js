@@ -92,6 +92,37 @@ const checks = {
     }
   },
 
+  async webhookHandler() {
+    const { publicKey, privateKey } = crypto.generateKeyPairSync("ed25519");
+    const handle = sdk.createWebhookHandler({
+      publicKey: publicKey
+        .export({ format: "der", type: "spki" })
+        .subarray(12)
+        .toString("base64"),
+      handler: { handle() {} },
+      syncHandling: true,
+    });
+    const send = (timestamp) =>
+      handle(
+        new Request("https://example.com/events", {
+          method: "POST",
+          body: new Uint8Array(0),
+          headers: {
+            "x-mixi2-application-event-signature": crypto
+              .sign(null, Buffer.from(timestamp), privateKey)
+              .toString("base64"),
+            "x-mixi2-application-event-timestamp": timestamp,
+          },
+        })
+      );
+    const now = Math.floor(Date.now() / 1000);
+    const valid = await send(String(now));
+    const stale = await send(String(now - 1000));
+    if (valid.status !== 204 || stale.status !== 401) {
+      throw new Error(`statuses ${valid.status} / ${stale.status}`);
+    }
+  },
+
   async stream() {
     const received = [];
     const watcher = new sdk.StreamWatcher({
