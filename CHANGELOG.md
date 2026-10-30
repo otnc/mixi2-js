@@ -4,6 +4,10 @@
 
 ## [1.7.0](https://github.com/otnc/mixi2-js/releases/tag/v1.7.0) - 2026-10-30
 
+### Features
+
+- **webhook:** Cloudflare Workers などで使える Fetch API 版の createWebhookHandler を追加 (#80)
+
 ### Bug fixes
 
 - **jsr:** 生成した型定義から CommonJS 形式の Long の import を取り除く (#83)
