@@ -22,6 +22,7 @@ export default {
         auth: failure,
         client: failure,
         webhook: failure,
+        webhookHandler: failure,
         stream: failure,
       });
     }
@@ -52,6 +53,49 @@ export default {
         throw new Error(
           "WebhookServer needs a node:http server, which never receives requests on Workers"
         );
+      },
+      async webhookHandler() {
+        const keys = await crypto.subtle.generateKey(
+          { name: "Ed25519" },
+          true,
+          ["sign", "verify"]
+        );
+        const rawPublicKey = new Uint8Array(
+          await crypto.subtle.exportKey("raw", keys.publicKey)
+        );
+        const handled = [];
+        const handle = sdk.createWebhookHandler({
+          publicKey: rawPublicKey,
+          handler: { handle: (event) => void handled.push(event) },
+          syncHandling: true,
+        });
+        const send = async (timestamp) => {
+          const signature = new Uint8Array(
+            await crypto.subtle.sign(
+              { name: "Ed25519" },
+              keys.privateKey,
+              new TextEncoder().encode(timestamp)
+            )
+          );
+          return handle(
+            new Request("https://example.com/events", {
+              method: "POST",
+              body: new Uint8Array(0),
+              headers: {
+                "x-mixi2-application-event-signature": btoa(
+                  String.fromCharCode(...signature)
+                ),
+                "x-mixi2-application-event-timestamp": timestamp,
+              },
+            })
+          );
+        };
+        const now = Math.floor(Date.now() / 1000);
+        const valid = await send(String(now));
+        const stale = await send(String(now - 1000));
+        if (valid.status !== 204 || stale.status !== 401) {
+          throw new Error(`statuses ${valid.status} / ${stale.status}`);
+        }
       },
       async stream() {
         const watcher = new sdk.StreamWatcher({

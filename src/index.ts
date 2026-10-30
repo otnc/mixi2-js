@@ -76,6 +76,8 @@ export type { ClientOptions } from "./client";
 // Webhook
 export { WebhookServer } from "./webhook";
 export type { WebhookServerOptions } from "./webhook";
+export { createWebhookHandler } from "./webhook-handler";
+export type { WebhookHandlerOptions } from "./webhook-handler";
 
 // Stream
 export { StreamWatcher } from "./stream";
