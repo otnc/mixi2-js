@@ -167,8 +167,8 @@ jobs:
           if gh release view "$VERSION" >/dev/null 2>&1; then
             echo "::notice::Release ${VERSION} already exists."
           elif [ -s RELEASE_NOTES.md ]; then
-            # The release body is the changelog section minus its version heading.
-            sed '1d' RELEASE_NOTES.md > RELEASE_BODY.md
+            # The release body is the changelog section minus its version heading. git-cliff starts the file with a blank line, so drop everything up to the heading and then the blank lines after it.
+            sed '0,/^## /d' RELEASE_NOTES.md | sed '/./,$!d' > RELEASE_BODY.md
             gh release create "$VERSION" --title "$VERSION" --notes-file RELEASE_BODY.md "${FLAGS[@]}"
           else
             gh release create "$VERSION" --title "$VERSION" --generate-notes "${FLAGS[@]}"
