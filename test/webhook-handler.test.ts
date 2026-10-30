@@ -17,10 +17,12 @@ const base64PublicKey = Buffer.from(rawPublicKey).toString("base64");
 const SendEventRequest =
   social.mixi.application.service.client_endpoint.v1.SendEventRequest;
 
-function encodeEvents(events: Record<string, unknown>[]): Uint8Array {
-  return SendEventRequest.encode(
-    SendEventRequest.fromObject({ events })
-  ).finish();
+type Bytes = Uint8Array<ArrayBuffer>;
+
+function encodeEvents(events: Record<string, unknown>[]): Bytes {
+  return new Uint8Array(
+    SendEventRequest.encode(SendEventRequest.fromObject({ events })).finish()
+  );
 }
 
 const postEvent = {
@@ -48,7 +50,7 @@ function sign(body: Uint8Array, timestamp: string): string {
 }
 
 function signedRequest(
-  body: Uint8Array,
+  body: Bytes,
   {
     timestamp = now(),
     signature,
