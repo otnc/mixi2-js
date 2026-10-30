@@ -43,9 +43,10 @@ export class OAuth2Authenticator implements Authenticator {
   }
 
   private async refreshToken(): Promise<void> {
-    const credentials = Buffer.from(
+    // encodeURIComponent leaves only ASCII, which btoa encodes exactly as Buffer did.
+    const credentials = btoa(
       `${encodeURIComponent(this.clientId)}:${encodeURIComponent(this.clientSecret)}`
-    ).toString("base64");
+    );
 
     const response = await fetch(this.tokenUrl, {
       method: "POST",

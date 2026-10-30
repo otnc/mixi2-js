@@ -75,16 +75,16 @@ npx skills add otnc/mixi2-js
 mixi2-js は以下のランタイム API に依存しているため、環境によって使える機能が異なります。
 
 - [`node:http2`](https://nodejs.org/api/http2.html) (`@grpc/grpc-js` 経由): API クライアントと gRPC ストリーミング
-- `node:fs` (`@grpc/proto-loader` 経由): 実行時の `.proto` の読み込み (API クライアント、gRPC ストリーミング、Webhook のデコード)
-- [`node:http`](https://nodejs.org/api/http.html) と [`node:crypto`](https://nodejs.org/api/crypto.html) (Ed25519): Webhook サーバーと署名検証
-- `fetch` と `Buffer`: 認証とメディアアップロード
+- [`node:http`](https://nodejs.org/api/http.html) と [`node:crypto`](https://nodejs.org/api/crypto.html) (Ed25519): `WebhookServer` のサーバーと署名検証
+- Fetch API (`Request` / `Response`) と [`crypto.subtle`](https://developer.mozilla.org/ja/docs/Web/API/SubtleCrypto) (Ed25519): `createWebhookHandler` の受信と署名検証
+- `fetch` と `btoa`: 認証とメディアアップロード
 
-| 環境               | 認証 (`OAuth2Authenticator`) | API クライアント (`Client`) | Webhook (`WebhookServer`) | gRPC ストリーミング (`StreamWatcher`) |
-| ------------------ | ---------------------------- | --------------------------- | ------------------------- | ------------------------------------- |
-| Node.js            | ✅                           | ✅                          | ✅                        | ✅                                    |
-| Bun                | ✅                           | ✅                          | ✅                        | ✅                                    |
-| Deno               | ✅                           | ✅                          | ✅                        | ✅                                    |
-| Cloudflare Workers | ❌                           | ❌                          | ❌                        | ❌                                    |
+| 環境               | 認証 (`OAuth2Authenticator`) | API クライアント (`Client`) | Webhook (`WebhookServer`) | Webhook (`createWebhookHandler`) | gRPC ストリーミング (`StreamWatcher`) |
+| ------------------ | ---------------------------- | --------------------------- | ------------------------- | -------------------------------- | ------------------------------------- |
+| Node.js            | ✅                           | ✅                          | ✅                        | ✅                               | ✅                                    |
+| Bun                | ✅                           | ✅                          | ✅                        | ✅                               | ✅                                    |
+| Deno               | ✅                           | ✅                          | ✅                        | ✅                               | ✅                                    |
+| Cloudflare Workers | ✅                           | ❌                          | ❌                        | ✅                               | ❌                                    |
 
 ✅ 動作確認済み、⚠️ 制限あり、❓ 未検証、❌ 非対応
 
@@ -95,7 +95,8 @@ CI でビルド済みのパッケージを各ランタイムで動かし、結�
 - Node.js: 20.19.0 以降。テストは 20.19.0 / 22 / 24 で実行しています
 - Bun: 最新版で確認しています (1.4 系で確認済み)
 - Deno: 2.x の最新版で確認しています (2.9 系で確認済み)。`npm:mixi2-js` または JSR 版を Node.js 互換レイヤーで動かします
-- Cloudflare Workers: 非対応です。依存している protobufjs が実行時にコードを生成するため、`nodejs_compat` を有効にしてもパッケージの読み込みに失敗します。また mixi2 の API は HTTP/2 の gRPC だけを受け付けるため、Workers から API クライアントと gRPC ストリーミングを使うことはできません
+- Node.js 20 では、`createWebhookHandler` が使う Web Crypto の Ed25519 が `ExperimentalWarning` を出します。Node.js では `WebhookServer` の利用をおすすめします
+- Cloudflare Workers: `nodejs_compat` を有効にすると、認証と `createWebhookHandler` が使えます。mixi2 の API は HTTP/2 の gRPC だけを受け付けますが Workers の `fetch` はこれを扱えないため、API クライアントと gRPC ストリーミングは使えません。`WebhookServer` は `node:http` のサーバーなので、Workers ではリクエストを受け取れません
 
 </details>
 
@@ -107,12 +108,13 @@ CI でビルド済みのパッケージを各ランタイムで動かし、結�
 
 ## 機能概要
 
-| モジュール            | 説明                                                                                            |
-| --------------------- | ----------------------------------------------------------------------------------------------- |
-| `OAuth2Authenticator` | OAuth2 Client Credentials 認証（アクセストークンの取得・キャッシュ・有効期限 1 分前に自動更新） |
-| `Client`              | gRPC API クライアント (公式 API の全 15 RPC に対応)                                             |
-| `WebhookServer`       | HTTP Webhook サーバー（Ed25519 署名検証・Ping 自動応答）                                        |
-| `StreamWatcher`       | gRPC ストリーミング（指数バックオフによる自動再接続）                                           |
+| モジュール             | 説明                                                                                                  |
+| ---------------------- | ----------------------------------------------------------------------------------------------------- |
+| `OAuth2Authenticator`  | OAuth2 Client Credentials 認証（アクセストークンの取得・キャッシュ・有効期限 1 分前に自動更新）       |
+| `Client`               | gRPC API クライアント (公式 API の全 15 RPC に対応)                                                   |
+| `WebhookServer`        | HTTP Webhook サーバー（Ed25519 署名検証・Ping 自動応答）                                              |
+| `createWebhookHandler` | Fetch API (`Request` → `Response`) で動く Webhook ハンドラ (Cloudflare Workers・Deno・Bun・Hono など) |
+| `StreamWatcher`        | gRPC ストリーミング（指数バックオフによる自動再接続）                                                 |
 
 ### Helpers (拡張機能)
 

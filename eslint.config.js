@@ -6,7 +6,16 @@ import eslintConfigPrettier from "eslint-config-prettier";
 
 export default tseslint.config(
   {
-    ignores: ["dist", "coverage", "pages", "examples", ".private", ".sample"],
+    ignores: [
+      "dist",
+      "coverage",
+      "pages",
+      "examples",
+      "src/generated",
+      ".private",
+      ".sample",
+      ".wrangler",
+    ],
   },
   js.configs.recommended,
   tseslint.configs.recommended,
@@ -15,10 +24,11 @@ export default tseslint.config(
     // The supported range is read from engines.node, so APIs newer than the minimum Node.js version are reported.
     plugins: { n: nodePlugin },
     rules: {
-      // fetch is available without a flag since Node.js 18 and only lost its experimental label in 21.
+      // These globals work without a flag on Node.js 20; only their experimental label was dropped later (fetch, Request and Response in 21, crypto in 23).
+      // The runtime smoke test exercises them on Node.js 20.19.
       "n/no-unsupported-features/node-builtins": [
         "error",
-        { ignores: ["fetch"] },
+        { ignores: ["fetch", "Request", "Response", "crypto"] },
       ],
       "n/no-unsupported-features/es-builtins": "error",
       "n/no-unsupported-features/es-syntax": "error",

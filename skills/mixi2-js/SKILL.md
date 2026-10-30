@@ -10,7 +10,7 @@ description: |
 
 `mixi2-js` は mixi2 の Application API を利用するための非公式 SDK。コア (`mixi2-js`) は公式の proto 定義と公式 Go SDK の仕様に従い、`mixi2-js/helpers` は公式仕様にない SDK 独自の便利機能を提供する。
 
-- 対応: Node.js 20.19 以降、Bun、Deno 2 (ESM / CommonJS 両対応、型定義同梱)。Cloudflare Workers などの Node.js 互換のない環境では動かない
+- 対応: Node.js 20.19 以降、Bun、Deno 2 (ESM / CommonJS 両対応、型定義同梱)。Cloudflare Workers (`nodejs_compat`) では認証と `createWebhookHandler` が使え、API クライアントと gRPC ストリーミングは使えない (mixi2 の API が HTTP/2 の gRPC だけを受け付けるため)
 - インストール: `npm install mixi2-js` または `npx jsr add @otoneko1102/mixi2-js`
 - JSR 版を使う場合、import パスは `mixi2-js` ではなく `@otoneko1102/mixi2-js` になる
 
@@ -120,7 +120,28 @@ await server.start(); // POST /events と GET /healthz を提供
 
 - Ed25519 署名とタイムスタンプ (±300 秒) を検証し、正しければ 204、不正なら 401 を返す。Developer Platform の接続確認にもそのまま応答できる
 - mixi2 側のタイムアウトは 3 秒、失敗時は 30 秒間隔で最大 3 回リトライされる。重複に備えて冪等に処理するか `EventDeduplicator` を使う
-- 既存の HTTP サーバーやフレームワークに組み込む場合は `server.eventHandlerFunc` (`(req, res) => Promise<void>`) を使う
+- 既存の Node.js の HTTP サーバーやフレームワークに組み込む場合は `server.eventHandlerFunc` (`(req, res) => Promise<void>`) を使う
+
+### Webhook (Fetch API: Cloudflare Workers / Deno / Bun / Hono)
+
+```ts
+import { createWebhookHandler } from "mixi2-js";
+
+export default {
+  fetch(request, env, ctx) {
+    const handleWebhook = createWebhookHandler({
+      publicKey: env.SIGNATURE_PUBLIC_KEY, // Base64 文字列のままでよい
+      handler,
+      waitUntil: (promise) => ctx.waitUntil(promise),
+    });
+    return handleWebhook(request); // (request: Request) => Promise<Response>
+  },
+};
+```
+
+- 検証と応答は `WebhookServer` と同じ (204 / 401 / 400)。パスの振り分けはせず、POST 以外は 405
+- `syncHandling: false` (デフォルト) ではレスポンス後もハンドラが動く。レスポンス後に止まるランタイムでは `waitUntil` を渡すか `syncHandling: true` にする
+- 署名検証は `crypto.subtle` (Ed25519)。Node.js 20 では ExperimentalWarning が出るので、Node.js では `WebhookServer` を使う
 
 ### gRPC ストリーム
 
