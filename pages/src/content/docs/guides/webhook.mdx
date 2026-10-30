@@ -111,7 +111,7 @@ Developer Platform で Webhook URL を登録して **接続確認を実行** を
 
 - HTTPS で公開されていること
 - 有効な CA 証明書を使っていること (自己署名証明書は不可)
-- パスが `/events` であること (例: `https://YOUR_HOST_NAME/events`)
+- `WebhookServer` を使う場合、パスは `/events` (例: `https://YOUR_HOST_NAME/events`)。`createWebhookHandler` では、ハンドラを置いたパスを登録します
 
 1 つのアプリケーションに複数の Webhook URL は設定できません。
 
@@ -139,5 +139,52 @@ const server = new WebhookServer({
 
 export default server.httpServer;
 ```
+
+## Fetch API で受け取る (`createWebhookHandler`)
+
+`createWebhookHandler` は、Fetch API の `Request` を受け取って `Response` を返す Webhook ハンドラを作ります。Node.js の HTTP サーバーがない Cloudflare Workers のほか、Deno、Bun、Hono などでも使えます。署名とタイムスタンプの検証、Ping の扱い、レスポンスのステータスは `WebhookServer` と同じです。
+
+```typescript
+// Cloudflare Workers (wrangler の設定で nodejs_compat を有効にする)
+import { createWebhookHandler } from "mixi2-js";
+
+export default {
+  fetch(request, env, ctx) {
+    const handleWebhook = createWebhookHandler({
+      publicKey: env.SIGNATURE_PUBLIC_KEY,
+      handler,
+      waitUntil: (promise) => ctx.waitUntil(promise),
+    });
+    return handleWebhook(request);
+  },
+};
+```
+
+```typescript
+// Deno / Bun
+const handleWebhook = createWebhookHandler({
+  publicKey: SIGNATURE_PUBLIC_KEY,
+  handler,
+});
+Deno.serve(handleWebhook); // Bun では Bun.serve({ fetch: handleWebhook })
+```
+
+```typescript
+// Hono
+app.post("/events", (c) => handleWebhook(c.req.raw));
+```
+
+| オプション     | 型                                    | 必須 | 説明                                                                                         |
+| -------------- | ------------------------------------- | ---- | -------------------------------------------------------------------------------------------- |
+| `publicKey`    | `string \| Uint8Array`                | ○    | 署名検証用の公開鍵。Developer Platform に表示される Base64 文字列をそのまま渡せます          |
+| `handler`      | `EventHandler`                        | ○    | イベントハンドラ                                                                             |
+| `syncHandling` | `boolean`                             | -    | `true` にすると、ハンドラの完了を待ってからレスポンスを返します (デフォルト: `false`)        |
+| `waitUntil`    | `(promise: Promise<unknown>) => void` | -    | レスポンス後のハンドラ処理をランタイムに引き継ぐ関数。Cloudflare Workers では `ctx.waitUntil` |
+
+`WebhookServer` との違い:
+
+- パスでの振り分けはしません。POST 以外のメソッドには HTTP 405 を返します
+- `syncHandling` が `false` のとき、ハンドラはレスポンスを返した後も動き続けます。レスポンス後に処理が止まるランタイムでは、`waitUntil` を渡すか `syncHandling: true` にしてください
+- 署名検証に Web Crypto (`crypto.subtle`) の Ed25519 を使います。Node.js 20 では `ExperimentalWarning` が出るため、Node.js では `WebhookServer` をおすすめします
 
 > 詳細は [公式ドキュメント](https://developer.mixi.social/docs) を参照してください。
