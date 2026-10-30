@@ -10,7 +10,7 @@ description: |
 
 `mixi2-js` は mixi2 の Application API を利用するための非公式 SDK。コア (`mixi2-js`) は公式の proto 定義と公式 Go SDK の仕様に従い、`mixi2-js/helpers` は公式仕様にない SDK 独自の便利機能を提供する。
 
-- 対応: Node.js 20.19 以降、Bun、Deno 2 (ESM / CommonJS 両対応、型定義同梱)。Cloudflare Workers (`nodejs_compat`) では認証と `createWebhookHandler` が使え、API クライアントと gRPC ストリーミングは使えない (mixi2 の API が HTTP/2 の gRPC だけを受け付けるため)
+- 対応: Node.js 20.19 以降、Bun、Deno 2 (ESM / CommonJS 両対応、型定義同梱)。Cloudflare Workers (`nodejs_compat`) では認証と Webhook (`createWebhookHandler`、または `cloudflare:node` の `httpServerHandler` 経由の `WebhookServer`) が使え、API クライアントと gRPC ストリーミングは使えない (mixi2 の API が HTTP/2 の gRPC だけを受け付けるが、Workers の `fetch` は外部へ HTTP/1.1 で接続し、`node:http2` にクライアントがないため)
 - インストール: `npm install mixi2-js` または `npx jsr add @otoneko1102/mixi2-js`
 - JSR 版を使う場合、import パスは `mixi2-js` ではなく `@otoneko1102/mixi2-js` になる
 

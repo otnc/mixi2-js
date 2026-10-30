@@ -84,7 +84,7 @@ mixi2-js は以下のランタイム API に依存しているため、環境に
 | Node.js            | ✅                           | ✅                          | ✅                        | ✅                               | ✅                                    |
 | Bun                | ✅                           | ✅                          | ✅                        | ✅                               | ✅                                    |
 | Deno               | ✅                           | ✅                          | ✅                        | ✅                               | ✅                                    |
-| Cloudflare Workers | ✅                           | ❌                          | ❌                        | ✅                               | ❌                                    |
+| Cloudflare Workers | ✅                           | ❌                          | ✅                        | ✅                               | ❌                                    |
 
 ✅ 動作確認済み、⚠️ 制限あり、❓ 未検証、❌ 非対応
 
@@ -96,7 +96,7 @@ CI でビルド済みのパッケージを各ランタイムで動かし、結�
 - Bun: 最新版で確認しています (1.4 系で確認済み)
 - Deno: 2.x の最新版で確認しています (2.9 系で確認済み)。`npm:mixi2-js` または JSR 版を Node.js 互換レイヤーで動かします
 - Node.js 20 では、`createWebhookHandler` が使う Web Crypto の Ed25519 が `ExperimentalWarning` を出します。Node.js では `WebhookServer` の利用をおすすめします
-- Cloudflare Workers: `nodejs_compat` を有効にすると、認証と `createWebhookHandler` が使えます。mixi2 の API は HTTP/2 の gRPC だけを受け付けますが Workers の `fetch` はこれを扱えないため、API クライアントと gRPC ストリーミングは使えません。`WebhookServer` は `node:http` のサーバーなので、Workers ではリクエストを受け取れません
+- Cloudflare Workers: `nodejs_compat` を有効にすると、認証と Webhook が使えます。`WebhookServer` は `cloudflare:node` の `httpServerHandler` で Workers の `fetch` につなぎます (使い方は[ドキュメント](https://mixi2.js.org/guides/webhook/)を参照)。API クライアントと gRPC ストリーミングは使えません。mixi2 の API は HTTP/2 の gRPC だけを受け付けますが、Workers の `fetch` は外部へ HTTP/1.1 で接続し、`node:http2` にはクライアント機能がないためです
 
 </details>
 

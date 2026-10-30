@@ -140,6 +140,29 @@ const server = new WebhookServer({
 export default server.httpServer;
 ```
 
+## Cloudflare Workers
+
+Workers では `wrangler` の設定で `nodejs_compat` を有効にしたうえで、次のどちらかを使います。
+
+- **`createWebhookHandler` (おすすめ)**: `waitUntil` でレスポンス後のハンドラ処理を Workers に引き継げます。使い方は[次の節](#fetch-api-で受け取る-createwebhookhandler)を参照してください
+- **`WebhookServer`**: `cloudflare:node` の `httpServerHandler` で、Workers に届いたリクエストを `node:http` のサーバーに渡します。Node.js 向けのコードをそのまま使いたい場合に向いています
+
+```typescript
+import { httpServerHandler } from "cloudflare:node";
+import { WebhookServer } from "mixi2-js";
+
+const server = new WebhookServer({
+  port: 8080,
+  publicKey: Buffer.from(SIGNATURE_PUBLIC_KEY, "base64"),
+  handler,
+  // Workers はレスポンス後に処理を止めることがあるため、ハンドラの完了を待つ
+  syncHandling: true,
+});
+await server.start();
+
+export default httpServerHandler({ port: 8080 });
+```
+
 ## Fetch API で受け取る (`createWebhookHandler`)
 
 `createWebhookHandler` は、Fetch API の `Request` を受け取って `Response` を返す Webhook ハンドラを作ります。Node.js の HTTP サーバーがない Cloudflare Workers のほか、Deno、Bun、Hono などでも使えます。署名とタイムスタンプの検証、Ping の扱い、レスポンスのステータスは `WebhookServer` と同じです。
