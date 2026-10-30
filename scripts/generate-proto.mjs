@@ -51,6 +51,17 @@ function postProcess(file) {
   fs.writeFileSync(file, `// @ts-self-types="./proto.d.ts"\n${dedented}`);
 }
 
+// pbts emits `import Long = require("long")`, which JSR rejects as CommonJS. Decoding uses `longs: Number`, so 64-bit fields are typed as plain numbers.
+function postProcessTypes(file) {
+  const source = fs.readFileSync(file, "utf8");
+  const withoutImport = source.replace('import Long = require("long");\n', "");
+  if (withoutImport === source) throw new Error(`unexpected import in ${file}`);
+  const fixed = withoutImport.replaceAll("|Long", "");
+  if (/\bLong\b/.test(fixed))
+    throw new Error(`Long is still referenced in ${file}`);
+  fs.writeFileSync(file, fixed);
+}
+
 fs.mkdirSync(outDir, { recursive: true });
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "mixi2-proto-"));
 try {
@@ -62,6 +73,7 @@ try {
     [path.join(cli, "pbts"), "-o", path.join(outDir, "proto.d.ts"), commented],
     { stdio: "inherit" }
   );
+  postProcessTypes(path.join(outDir, "proto.d.ts"));
   const js = path.join(outDir, "proto.js");
   pbjs(["--no-comments"], js);
   postProcess(js);

@@ -1,5 +1,4 @@
 import * as $protobuf from "protobufjs";
-import Long = require("long");
 /** Namespace social. */
 export namespace social {
 
@@ -421,7 +420,7 @@ export namespace social {
                             contentType?: (string|null);
 
                             /** InitiatePostMediaUploadRequest dataSize */
-                            dataSize?: (number|Long|null);
+                            dataSize?: (number|null);
 
                             /** InitiatePostMediaUploadRequest mediaType */
                             mediaType?: (social.mixi.application.service.application_api.v1.InitiatePostMediaUploadRequest.Type|null);
@@ -443,7 +442,7 @@ export namespace social {
                             public contentType: string;
 
                             /** InitiatePostMediaUploadRequest dataSize. */
-                            public dataSize: (number|Long);
+                            public dataSize: (number);
 
                             /** InitiatePostMediaUploadRequest mediaType. */
                             public mediaType: social.mixi.application.service.application_api.v1.InitiatePostMediaUploadRequest.Type;
@@ -3768,7 +3767,7 @@ export namespace social {
                         stamp?: (social.mixi.application.model.v1.IMediaStamp|null);
 
                         /** PostStamp count */
-                        count?: (number|Long|null);
+                        count?: (number|null);
                     }
 
                     /** Represents a PostStamp. */
@@ -3784,7 +3783,7 @@ export namespace social {
                         public stamp?: (social.mixi.application.model.v1.IMediaStamp|null);
 
                         /** PostStamp count. */
-                        public count: (number|Long);
+                        public count: (number);
 
                         /**
                          * Creates a new PostStamp instance using the specified properties.
@@ -4877,7 +4876,7 @@ export namespace google {
         interface ITimestamp {
 
             /** Timestamp seconds */
-            seconds?: (number|Long|null);
+            seconds?: (number|null);
 
             /** Timestamp nanos */
             nanos?: (number|null);
@@ -4893,7 +4892,7 @@ export namespace google {
             constructor(properties?: google.protobuf.ITimestamp);
 
             /** Timestamp seconds. */
-            public seconds: (number|Long);
+            public seconds: (number);
 
             /** Timestamp nanos. */
             public nanos: number;
