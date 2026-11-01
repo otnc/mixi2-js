@@ -73,7 +73,7 @@
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.6",
-    "protobufjs": "^7.6.6"
+    "protobufjs": "^8.8.1"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
