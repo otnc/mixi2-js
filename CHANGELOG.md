@@ -2,6 +2,12 @@
 
 このプロジェクトの注目すべき変更をバージョンごとに記録します。新しいバージョンの節は、`release` ワークフローの実行時に Conventional Commits から [git-cliff](https://git-cliff.org) で生成され、この下に追加されます。
 
+## [1.7.1](https://github.com/otnc/mixi2-js/releases/tag/v1.7.1) - 2026-11-08
+
+### Documentation
+
+- **changelog:** 1.7.0 に createWebhookHandler を記載し、Release 本文に見出しが残る不具合を直す (#84)
+
 ## [1.7.0](https://github.com/otnc/mixi2-js/releases/tag/v1.7.0) - 2026-10-30
 
 ### Features
